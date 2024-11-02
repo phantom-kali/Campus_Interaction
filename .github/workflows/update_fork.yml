@@ -1,0 +1,36 @@
+name: Sync with Upstream Repository
+
+on:
+  schedule:
+    - cron: '0 * * * *'  # Runs every hour
+  workflow_dispatch:     # Allows manual trigger
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Fork
+        uses: actions/checkout@v3
+        with:
+          ref: main 
+
+      - name: Configure Git
+        run: |
+          git config user.name "phantom-kali"  # Replace with your GitHub username
+          git config user.email "fideleliudclimax@gmail.com" 
+
+      - name: Add Upstream Remote
+        run: |
+          git remote add upstream  https://github.com/KenyanAudo03/Campus_Interaction.git  
+          git fetch upstream
+
+      - name: Sync with Upstream
+        run: |
+          git checkout main  
+          git merge upstream/main -m "Sync with upstream" || true
+          git push origin main
+
+      - name: Push Changes to Fork
+        if: ${{ github.ref == 'refs/heads/main' }}
+        run: git push origin main
