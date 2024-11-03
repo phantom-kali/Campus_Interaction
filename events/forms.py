@@ -79,9 +79,17 @@ class CommentForm(forms.ModelForm):
             'content': forms.Textarea(attrs={
                 'class': 'form-control',
                 'rows': 3,
-                'placeholder': 'Write your comment...'
+                'placeholder': 'Write your comment...',
+                'required': True
             })
         }
+
+    def clean_content(self):
+        content = self.cleaned_data.get('content')
+        if not content or content.isspace():
+            raise forms.ValidationError("Comment content cannot be empty.")
+        return content.strip()
+
 
 
 class EventRegistrationForm(forms.ModelForm):

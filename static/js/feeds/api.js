@@ -6,10 +6,24 @@ const API_ENDPOINTS = {
     DELETE_POST: (postId) => `/api/posts/${postId}/delete/`,
     LIKE_POST: (postId) => `/api/posts/${postId}/like/`,
     ADD_COMMENT: (postId) => `/api/posts/${postId}/comment/`,
+    LIKE_COMMENT: (commentId) => `/api/comments/${commentId}/like/`,
     VIEW_POST: (postId) => `/api/posts/${postId}/view/`,
     POST_ENGAGEMENT: (postId, type) => `/api/posts/${postId}/engagement/${type}/`,
+    REPORT_POST: (postId) => `/api/posts/${postId}/report/`,
+    REPORT_COMMENT: (commentId) => `/api/comments/${commentId}/report/`,
     SEARCH_POSTS: '/api/posts/search/',
 };
+
+
+const viewPostDebounced = _.debounce(async (postId) => {
+    try {
+        await API.viewPost(postId);
+    } catch (error) {
+        console.error('Error viewing post:', error);
+    }
+}, 250, { leading: true, trailing: false });
+
+
 
 // Get CSRF token from cookie
 function getCSRFToken() {
@@ -29,20 +43,13 @@ function getCSRFToken() {
 }
 
 // Base API call function
-async function apiCall(endpoint, options = {}) {
+async function apiCall(endpoint, options = {}, retries = 3) {
     const defaultOptions = {
         headers: {
             'X-CSRFToken': getCSRFToken(),
         },
         credentials: 'same-origin'
     };
-
-    if (options.method && options.method !== 'GET') {
-        if (!(options.body instanceof FormData)) {
-            defaultOptions.headers['Content-Type'] = 'application/json';
-            if (options.body) options.body = JSON.stringify(options.body);
-        }
-    }
 
     const finalOptions = {
         ...defaultOptions,
@@ -53,20 +60,56 @@ async function apiCall(endpoint, options = {}) {
         }
     };
 
-    try {
-        const response = await fetch(endpoint, finalOptions);
-        const data = await response.json();
-
-        if (!response.ok) {
-            throw new Error(data.message || 'API call failed');
+    if (options.method && options.method !== 'GET') {
+        if (!(options.body instanceof FormData)) {
+            finalOptions.headers['Content-Type'] = 'application/json';
+            if (options.body) finalOptions.body = JSON.stringify(options.body);
         }
+    }
 
-        return data;
-    } catch (error) {
-        console.error('API Error:', error);
-        throw error;
+    let lastError;
+    for (let attempt = 0; attempt < retries; attempt++) {
+        try {
+            const response = await fetch(endpoint, finalOptions);
+            
+            // Handle non-JSON responses
+            const contentType = response.headers.get('content-type');
+            const data = contentType?.includes('application/json') 
+                ? await response.json()
+                : await response.text();
+
+            if (!response.ok) {
+                const error = new Error(
+                    typeof data === 'object' ? data.message : 'API call failed'
+                );
+                error.status = response.status;
+                error.data = data;
+                throw error;
+            }
+
+            return data;
+        } catch (error) {
+            lastError = error;
+            if (attempt < retries - 1 && isRetryableError(error)) {
+                await new Promise(resolve => 
+                    setTimeout(resolve, Math.pow(2, attempt) * 100)
+                );
+                continue;
+            }
+            throw lastError;
+        }
     }
 }
+
+
+// Helper to determine if error is retryable
+function isRetryableError(error) {
+    return error.status === 429 || // Rate limiting
+           error.status >= 500 || // Server errors
+           error.message.includes('network'); // Network errors
+}
+
+
 
 // Feed API functions
 const API = {
@@ -97,10 +140,20 @@ const API = {
         });
     },
 
+    
     async addComment(postId, content) {
+        const formData = new FormData();
+        formData.append('content', content);
+        
         return apiCall(API_ENDPOINTS.ADD_COMMENT(postId), {
             method: 'POST',
-            body: { content }
+            body: formData
+        });
+    },
+
+    async likeComment(commentId) {
+        return apiCall(API_ENDPOINTS.LIKE_COMMENT(commentId), {
+            method: 'POST'
         });
     },
 
@@ -116,8 +169,31 @@ const API = {
 
     async searchPosts(query, page = 1) {
         return apiCall(`${API_ENDPOINTS.SEARCH_POSTS}?q=${encodeURIComponent(query)}&page=${page}`);
+    },
+
+    async reportPost(postId, reportType, description = '') {
+        return apiCall(API_ENDPOINTS.REPORT_POST(postId), {
+            method: 'POST',
+            body: {
+                report_type: reportType,
+                description: description
+            }
+        });
+    },
+
+    async reportComment(commentId, reportType, description = '') {
+        return apiCall(API_ENDPOINTS.REPORT_COMMENT(commentId), {
+            method: 'POST',
+            body: {
+                report_type: reportType,
+                description: description
+            }
+        });
     }
 };
 
 // Export API object
 window.API = API;
+
+// Add it to the API object
+API.viewPostDebounced = viewPostDebounced;

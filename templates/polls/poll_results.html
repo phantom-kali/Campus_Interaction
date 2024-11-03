@@ -1,86 +1,124 @@
-{% extends 'base.html' %}
-
-{% block title %}{{ poll.title }} Results{% endblock %}
-
-{% block content %}
+{% extends 'base.html' %} {% block title %}{{ poll.title }} Result{% endblock %} {% block content %}
 <style>
-.results-container {
+  .general {
+    display: flex;
+    margin: 0 auto;
+    max-width: 1200px;
+    gap: 20px;
+  }
+
+  .result_section {
+    flex: 2;
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 6px;
+  }
+  
+
+  .graph_section {
+    flex: 2;
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-left: 1px solid #ccc;
+    border-radius: 6px;
+    gap: 10px;
+  }
+
+  #resultsGraph {
+    width: 100%;
+    max-height: 350px;
+    height: auto;
+  }
+
+  @media (max-width: 768px) {
+    .general {
+      flex-direction: column;
+    }
+
+    .graph_section {
+      border-left: none;
+      border-top: 1px solid #ccc;
+      margin-top: 20px;
+    }
+  }
+  .results-container {
     max-width: 800px;
     margin: 0 auto;
     padding: 20px;
     background-color: #f9f9f9;
     border-radius: 10px;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-}
+  }
 
-.result-item {
+  .result-item {
     background-color: #fff;
     padding: 15px;
     margin-bottom: 10px;
     border-radius: 8px;
     transition: transform 0.2s;
     cursor: pointer;
-}
+  }
 
-.result-item:hover {
+  .result-item:hover {
     transform: scale(1.02);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
+  }
 
-.option-title {
+  .option-title {
     font-size: 18px;
     font-weight: bold;
-}
+  }
 
-.correct-answer {
+  .correct-answer {
     color: #28a745; /* Green for correct */
-}
+  }
 
-.incorrect-answer {
+  .incorrect-answer {
     color: #dc3545; /* Red for incorrect */
-}
+  }
 
-.scored-users {
+  .scored-users {
     margin-top: 10px;
-}
+  }
 
-.scored-users-label {
+  .scored-users-label {
     font-weight: bold;
-}
+  }
 
-.view-voters-button {
-    background-color: #007bff;
-    color: white;
+  .view-voters-button {
+    background-color: transparent;
+    color: #000;
     border: none;
-    border-radius: 5px;
-    padding: 5px 10px;
+    outline: none !important;
     cursor: pointer;
+    margin-left: 5px;
     transition: background-color 0.3s, transform 0.2s;
-}
+  }
 
-.view-voters-button:hover {
-    background-color: #0056b3;
+  .view-voters-button:hover {
+    text-transform: uppercase;
+    text-decoration: underline;
     transform: scale(1.05);
-}
+  }
 
-.voters-list {
+  .voters-list {
     list-style-type: none;
     padding-left: 0;
     margin-top: 10px;
     transition: max-height 0.5s ease-in-out;
-}
+  }
 
-.voters-list li {
+  .voters-list li {
     padding: 5px 0;
     border-bottom: 1px solid #ddd;
-}
+  }
 
-.vote-count {
+  .vote-count {
     font-weight: bold;
     margin-top: 10px;
-}
+  }
 
-.poll_navbar {
+  .poll_navbar {
     padding: 10px 20px;
   }
   .navbar-buttons {
@@ -120,7 +158,7 @@
   }
 
   .toggle-filters-btn {
-    background-color: #4a56e2; 
+    background-color: #4a56e2;
     color: #fff;
     padding: 8px 12px;
     border: none;
@@ -170,70 +208,72 @@
     margin-right: 10px;
     border: 2px solid #ddd;
     transition: transform 0.2s;
-}
-.result-item {
+  }
+  .result-item {
     margin: 15px 0;
     padding: 10px;
     border: 1px solid #ddd;
     border-radius: 5px;
     background-color: #f9f9f9;
-}
+  }
 
-.option-title {
+  .option-title {
     font-weight: bold;
     margin-bottom: 8px;
-}
+  }
 
-.progress-bar-container {
+  .progress-bar-container {
     background-color: #e0e0e0;
     border-radius: 5px;
     height: 20px;
     overflow: hidden;
-}
+  }
 
-.progress-bar {
+  .progress-bar {
     height: 100%;
     background-color: #4caf50;
     text-align: center;
     line-height: 20px;
     color: white;
     transition: width 0.4s ease;
-}
+  }
 
-.vote-info {
+  .vote-info {
     font-size: 14px;
     color: #666;
     display: flex;
     align-items: center;
     justify-content: space-between;
-}
-.title-bar {
+  }
+  .title-bar {
     display: flex;
     font-size: 13px;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 15px;
+    gap: 20px;
     color: #7f8c8d;
-}
+  }
 
-.title-bar h3 {
+  .title-bar h3 {
     margin: 0;
     font-size: 1.4em;
-}
+  }
 
-.ico-button {
+  .ico-button {
     background: none;
     border: none;
     color: #4caf50;
     font-size: 1.3em;
     cursor: pointer;
-}
+  }
 
-.sort-button:focus, .back-button:focus {
+  .sort-button:focus,
+  .back-button:focus {
     outline: none;
-}
+  }
 
-.embed-popup-overlay {
+  .embed-popup-overlay {
     position: fixed;
     top: 0;
     left: 0;
@@ -244,10 +284,9 @@
     justify-content: center;
     align-items: center;
     z-index: 1000;
-    
-}
+  }
 
-.embed-popup-content {
+  .embed-popup-content {
     background-color: #fff;
     padding: 20px;
     border-radius: 10px;
@@ -255,35 +294,34 @@
     max-width: 400px;
     width: 100%;
     margin: 0 auto;
+  }
+  .qr-code {
+    width: 120px;
+    height: 120px;
+    object-fit: cover;
+    border: 2px solid #3480c7;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    display: block;
+    margin: 0 auto;
+    padding: 5px;
+    background-color: #ffffff;
+  }
 
-}
-.qr-code {
-            width: 120px; 
-            height: 120px;
-            object-fit: cover; 
-            border: 2px solid #3480c7; 
-            border-radius: 8px; 
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-            display: block; 
-            margin: 0 auto; 
-            padding: 5px; 
-            background-color: #ffffff; 
-        }
-
-        .poll_link {
-            display: block;
-            text-decoration: none;
-            color: #3480c7;
-            font-size: 16px;
-            transition: color 0.3s ease;
-            padding: 10px;
-            border-radius: 6px;
-            outline: none;
-        }
-        h3{
-            text-transform: capitalize;
-        }
-.close_it {
+  .poll_link {
+    display: block;
+    text-decoration: none;
+    color: #3480c7;
+    font-size: 16px;
+    transition: color 0.3s ease;
+    padding: 10px;
+    border-radius: 6px;
+    outline: none;
+  }
+  h3 {
+    text-transform: capitalize;
+  }
+  .close_it {
     padding: 8px 16px;
     border-radius: 8px;
     font-size: 16px;
@@ -293,181 +331,413 @@
     border: none;
     cursor: pointer;
     transition: background-color 0.3s;
-}
+  }
 </style>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+{% if user.is_authenticated %}
 <nav class="poll_navbar">
-    <div class="navbar-buttons">
-      <a  href="{%  url 'polls:poll_results' poll.id  %}"class="logo">Result</a>
-      <a href="{% url 'polls:add_polls' %}" class="create-poll-btn"
-        >+ Create New Poll</a
-      >
-    </div>
-    <a  href="{% url 'polls:base_poll' %}" class="dashboard">All Polls</a>
-  </nav>
-  <div class="results-container">
+  <div class="navbar-buttons">
+    <a href="{%  url 'polls:poll_results' poll.id  %}" class="logo">Results</a>
+    <a href="{% url 'polls:add_polls' %}" class="create-poll-btn"
+      >+ Create New Poll</a
+    >
+  </div>
+  <a href="{% url 'polls:base_poll' %}" class="dashboard">All Polls</a>
+</nav>
+{% else %} {% endif %}
+
+<div class="general">
+  <!-- Result Section -->
+  <div class="result_section">
     <div class="title-bar">
-        <h3>Poll results - Type: {{poll.poll_type}}</h3>
-      
-        <div>
-            <a class="ico-button" href="{% url 'polls:vote_poll' poll.id %}">
-                <i class="fa-regular fa-square-caret-left"></i>
-            </a>
-            <button class="ico-button" onclick="sortResults()" style="margin-left:6px;">
-                <i class="fa-solid fa-arrow-down-wide-short"></i>
-            </button>
-            {% if poll.show_share_button %}
-            <button class="ico-button" onclick="showEmbedPopup()">
-                <i class="fa-solid fa-share-nodes"></i>
-            </button>
-            {% endif %}
-        </div>
-    </div>
-    <div id="embedPopupOverlay" class="embed-popup-overlay" onclick="closeEmbedPopup(event)">
-        <div class="embed-popup-content" onclick="event.stopPropagation()"><div style="font-weight: bold;">Scan QR code</div>
-        <img src="{{ qr_code_url }}" class="qr-code">
-            
-           <br> <input type="text" value="{{ poll_link }}" style="width:100%;" readonly id="embedLink" class="poll_link">
-            <br><a href="" style="color: #3480c7; text-decoration: underline; font-size:14px;" onclick="copyInputToClipboard()">Copy link</a>
-            <br><button onclick="closeEmbedPopup()" style="margin-top:10px; font-size:14px;" type="button" class="close_it">Close</button>
-        </div>
-    </div>
-
-    <h2 style="text-align: center;">{{ poll.title }}</h2>
-    {% if poll.description %}
-    <p style="font-size: 16px;
-    color: #555;
-    margin-top: 8px;
-    line-height: 1.8;">Description: {{ poll.description }}</p>
-{% endif %}
-
-    <!-- Create a new container specifically for results -->
-    <div class="results-list">
-        {% if poll.poll_type == "question" %}
-            {% for result in results %}
-                <div class="result-item" data-percentage="{{ result.percentage }}" data-votes="{{ result.votes }}">
-                    <div class="option-title">
-                        {% if result.option_image %}
-                            <img src="{{ result.option_image.url }}" alt="{{ result.option_text }}" class="option-image">
-                        {% endif %}
-                        {{ result.option_text }}
-                    </div>
-
-                    {% if result.is_correct %}
-                        <div class="correct-answer"><strong>Correct Answer</strong></div>
-                    {% else %}
-                        <div class="incorrect-answer"><strong>Incorrect Option</strong></div>
-                    {% endif %}
-
-                    {% if poll.is_public %}
-                        <div class="scored-users">
-                            <span class="scored-users-label">Scored Users:</span>
-                            <button class="view-voters-button" onclick="toggleVoters(this)">View Voters</button>
-                            <ul class="voters-list" style="display: none;">
-                                {% for user in result.scored_users %}
-                                    <li>{{ user }}</li>
-                                {% empty %}
-                                    <li>No users scored yet.</li>
-                                {% endfor %}
-                            </ul>
-                        </div>
-                    {% else %}
-                        <div class="vote-count"><strong>{{ result.votes }} votes</strong></div>
-                    {% endif %}
-                </div>
-            {% empty %}
-                <p>No responses yet.</p>
-            {% endfor %}
-        {% elif poll.poll_type == "opinion" %}
-            {% for result in results %}
-                <div class="result-item" data-percentage="{{ result.percentage }}" data-votes="{{ result.votes }}">
-                    <div class="option-title">
-                        {% if result.option_image %}
-                            <img src="{{ result.option_image.url }}" alt="{{ result.option_text }}" class="option-image">
-                        {% endif %}
-                        {{ result.option_text }}
-                    </div>
-                    <div class="progress-bar-container">
-                        <div class="progress-bar" style="width: {{ result.percentage }}%;"></div>
-                    </div>
-                    <div class="vote-info">
-                        <span class="vote-count">{{ result.votes }} votes</span>
-                        <span class="percentage">{{ result.percentage|floatformat:0 }}%</span>
-                    </div>
-                </div>
-            {% empty %}
-                <p>No votes yet.</p>
-            {% endfor %}
+      <h3>Poll results - Type: {{poll.poll_type}}</h3>
+      <div style="gap: 6px; display: flex">
+        {% if user.is_authenticated %}
+        <a
+          class="ico-button"
+          href="{% url 'polls:vote_poll' poll.id %}"
+          style="margin-right: 10px"
+        >
+          <i class="fa-regular fa-square-caret-left"></i>
+        </a>
         {% endif %}
+        <button
+          class="ico-button"
+          onclick="sortResults()"
+          style="margin-right: 10px"
+        >
+          <i class="fa-solid fa-arrow-down-wide-short"></i>
+        </button>
+        {% if poll.show_share_button %}
+        <button class="ico-button" onclick="showEmbedPopup()">
+          <i class="fa-solid fa-share-nodes"></i>
+        </button>
+        {% endif %}
+      </div>
     </div>
-</div>
+    <div
+      id="embedPopupOverlay"
+      class="embed-popup-overlay"
+      onclick="closeEmbedPopup(event)"
+    >
+      <div class="embed-popup-content" onclick="event.stopPropagation()">
+        <div style="font-weight: bold">Scan QR code</div>
+        <img src="data:image/png;base64,{{ qr_code_url }}" class="qr-code" />
 
-<script>
+        <br />
+        <input
+          type="text"
+          value="{{ poll_link }}"
+          style="width: 100%"
+          readonly
+          id="embedLink"
+          class="poll_link"
+        />
+        <br /><a
+          href=""
+          style="color: #3480c7; text-decoration: underline; font-size: 14px"
+          onclick="copyInputToClipboard()"
+          >Copy link</a
+        >
+        <br /><button
+          onclick="closeEmbedPopup()"
+          style="margin-top: 10px; font-size: 14px"
+          type="button"
+          class="close_it"
+        >
+          Close
+        </button>
+      </div>
+    </div>
+
+    <h2 style="text-align: center">{{ poll.title }}</h2>
+    {% if poll.description %}
+    <p class="poll-description">
+      Description: {{ poll.description|linebreaks }}
+    </p>
+
+    {% endif %}
+    <div class="results-list">
+      {% if poll.poll_type == "question" %} {% for result in results %}
+      <div
+        class="result-item"
+        data-percentage="{{ result.percentage }}"
+        data-votes="{{ result.votes }}"
+      >
+        <div class="option-title">
+          {% if result.option_image %}
+          <img
+            src="{{ result.option_image.url }}"
+            alt="{{ result.option_text }}"
+            class="option-image"
+          />
+          {% endif %} {{ result.option_text }}
+        </div>
+
+        <!-- Label answer as Correct or show Failed Users for incorrect answers -->
+        {% if result.is_correct %}
+        <div class="correct-answer"><strong>Correct Answer</strong></div>
+        {% else %}
+        <div class="failed-users">
+          <strong>Failed Users</strong>
+
+          <!-- Show "View Failed Users" button if poll is public and the current user is the creator -->
+          {% if poll.is_public %} {% if user == poll.creator %}
+          <button class="view-voters-button" onclick="toggleVoters(this)">
+            View Failed Users
+          </button>
+          <ul class="voters-list" style="display: none">
+            {% for user in result.failed_users %}
+            <li>{{ user }}</li>
+            {% empty %}
+            <li>No users selected this incorrect option.</li>
+            {% endfor %}
+          </ul>
+          {% else %}
+          <p>This option was selected by {{ result.votes }} users.</p>
+          {% endif %} {% else %}
+          <p>This option was selected by {{ result.votes }} users.</p>
+          {% endif %}
+        </div>
+        {% endif %}
+
+        <!-- Show scored users only to the creator for correct answers -->
+        {% if result.is_correct %}
+        <div class="vote-count"><strong>{{ result.votes }} votes</strong></div>
+        {% if poll.is_public and user == poll.creator %}
+        <div class="scored-users">
+          <span class="scored-users-label">Scored Users:</span>
+          <button class="view-voters-button" onclick="toggleVoters(this)">
+            View Voters
+          </button>
+          <ul class="voters-list" style="display: none">
+            {% for user in result.scored_users %}
+            <li>{{ user }}</li>
+            {% empty %}
+            <li>No users scored yet.</li>
+            {% endfor %}
+          </ul>
+        </div>
+        {% endif %} {% else %}
+        <div class="vote-count"><strong>{{ result.votes }} votes</strong></div>
+        {% endif %}
+      </div>
+      {% empty %}
+      <p>No responses yet.</p>
+      {% endfor %} {% elif poll.poll_type == "opinion" %} {% for result in results %}
+      <div
+        class="result-item"
+        data-percentage="{{ result.percentage }}"
+        data-votes="{{ result.votes }}"
+      >
+        <div class="option-title">
+          {% if result.option_image %}
+          <img
+            src="{{ result.option_image.url }}"
+            alt="{{ result.option_text }}"
+            class="option-image"
+          />
+          {% endif %} {{ result.option_text }}
+        </div>
+        <div class="progress-bar-container">
+          <div
+            class="progress-bar"
+            style="width: {{ result.percentage }}%;"
+          ></div>
+        </div>
+        <div class="vote-info">
+          <span class="vote-count">{{ result.votes }} votes</span>
+          <span class="percentage">{{ result.percentage|floatformat:0 }}%</span>
+        </div>
+      </div>
+      {% empty %}
+      <p>No votes yet.</p>
+      {% endfor %} {% endif %}
+    </div>
+  </div>
+
+  <!-- Graph Section -->
+  <div class="graph_section">
+    <div class="title-bar">
+      <h3>Graph Presentation</h3>
+      <div style="gap: 6px; display: flex">
+        <button
+          class="ico-button"
+          onclick="sortResults()"
+          style="margin-right: 10px"
+        >
+          <i class="fa-solid fa-arrow-down-wide-short"></i>
+        </button>
+        {% if poll.show_share_button %}
+        <button class="ico-button" onclick="downloadChart()">
+          <i class="fa fa-download" aria-hidden="true"></i>
+        </button>
+        {% endif %}
+      </div>
+    </div>
+    <canvas id="resultsGraph"></canvas>
+    <div class="graph-summary">
+      <p>Total Votes: {{ total_votes }}</p>
+      <p>Top Voted Option: {{ top_voted_option }}</p>
+    </div>
+    <div class="graph-description">
+      <p>
+        This graph shows the percentage of votes for each option in the "{{ poll.title }}" poll.
+      </p>
+    </div>
+    <div class="download-instructions">
+      <p>Click the download icon to save this chart as an image.</p>
+    </div>
+    <div class="graph-legend">
+      <p>
+        <strong>Legend:</strong> Click on any bar in the graph to see more
+        details about that option.
+      </p>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const labels = [];
+      const data = [];
+      const colors = [];
+      const correctIcon = "✔️";
+      const incorrectIcon = "❌";
+
+      function getRandomColor() {
+        return `rgba(${Math.floor(
+          Math.random() * 255
+        )}, ${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)}, 0.6)`;
+      }
+
+      document.querySelectorAll(".result-item").forEach(function (item) {
+        const optionText = item.querySelector(".option-title").innerText.trim();
+        const percentage = parseFloat(item.dataset.percentage) || 0;
+        const isCorrect = item.querySelector(".correct-answer") !== null;
+
+        let labelWithIcon;
+        if ("{{ poll.poll_type }}" !== "opinion") {
+          labelWithIcon = isCorrect
+            ? `${optionText} ${correctIcon}`
+            : `${optionText} ${incorrectIcon}`;
+        } else {
+          labelWithIcon = optionText;
+        }
+
+        labels.push(labelWithIcon);
+        data.push(percentage);
+        colors.push(getRandomColor());
+      });
+
+      const ctx = document.getElementById("resultsGraph").getContext("2d");
+
+      const pollTitle = "{{ poll.title }}";
+      const chart = new Chart(ctx, {
+        type: "bar",
+        data: {
+          labels: labels,
+          datasets: [
+            {
+              label: "Votes (%)",
+              data: data,
+              backgroundColor: colors,
+              borderColor: colors.map((color) => color.replace("0.6", "1")),
+              borderWidth: 1,
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: {
+              beginAtZero: true,
+              max: 100,
+            },
+          },
+          plugins: {
+            legend: {
+              display: false,
+            },
+            title: {
+              display: true,
+              text: `${pollTitle} Results`,
+              font: {
+                size: 18,
+                weight: "bold",
+              },
+              padding: {
+                top: 10,
+                bottom: 20,
+              },
+            },
+          },
+        },
+      });
+
+      window.sortResults = function () {
+        const sorted = labels
+          .map((label, index) => ({
+            label,
+            value: data[index],
+            color: colors[index],
+          }))
+          .sort((a, b) => b.value - a.value);
+
+        chart.data.labels = sorted.map((item) => item.label);
+        chart.data.datasets[0].data = sorted.map((item) => item.value);
+        chart.data.datasets[0].backgroundColor = sorted.map(
+          (item) => item.color
+        );
+        chart.data.datasets[0].borderColor = sorted.map((item) =>
+          item.color.replace("0.6", "1")
+        );
+
+        chart.update();
+      };
+
+      window.downloadChart = function () {
+        const link = document.createElement("a");
+        link.href = chart.toBase64Image();
+        link.download = `${pollTitle}-results-chart.png`;
+        link.click();
+      };
+    });
+  </script>
+
+  <script>
     function showEmbedPopup() {
-        document.getElementById('embedPopupOverlay').style.display = 'flex';
-        document.addEventListener('keydown', closePopupOnEsc); // Add listener for Esc key
+      document.getElementById("embedPopupOverlay").style.display = "flex";
+      document.addEventListener("keydown", closePopupOnEsc); // Add listener for Esc key
     }
 
     function closeEmbedPopup(event) {
-        document.getElementById('embedPopupOverlay').style.display = 'none';
-        document.removeEventListener('keydown', closePopupOnEsc); // Remove listener when closing
+      document.getElementById("embedPopupOverlay").style.display = "none";
+      document.removeEventListener("keydown", closePopupOnEsc); // Remove listener when closing
     }
 
     function closePopupOnEsc(event) {
-        if (event.key === 'Escape') {
-            closeEmbedPopup(); // Call the function to close the popup
-        }
+      if (event.key === "Escape") {
+        closeEmbedPopup(); // Call the function to close the popup
+      }
     }
 
     function copyTextareaToClipboard() {
-        const textarea = document.getElementById("embedCode");
-        textarea.select();
-        document.execCommand("copy");
-        alert('Code copied!');
+      const textarea = document.getElementById("embedCode");
+      textarea.select();
+      document.execCommand("copy");
+      alert("Code copied!");
     }
 
     function copyInputToClipboard() {
-        const input = document.getElementById("embedLink");
-        input.select();
-        document.execCommand("copy");
-        alert('Link copied!');
+      const input = document.getElementById("embedLink");
+      input.select();
+      document.execCommand("copy");
+      alert("Link copied!");
     }
-</script>
+  </script>
 
-<script>
+  <script>
     function sortResults() {
-        const resultsContainer = document.querySelector('.results-list'); // Adjusted selector
-        const results = Array.from(resultsContainer.querySelectorAll('.result-item')); // Get all result items
+      const resultsContainer = document.querySelector(".results-list"); // Adjusted selector
+      const results = Array.from(
+        resultsContainer.querySelectorAll(".result-item")
+      ); // Get all result items
 
-        // Determine sorting criterion
-        const criterion = 'percentage'; // Change to 'votes' if you want to sort by vote count
+      // Determine sorting criterion
+      const criterion = "percentage"; // Change to 'votes' if you want to sort by vote count
 
-        // Sort results based on the chosen criterion
-        results.sort((a, b) => {
-            const aValue = parseFloat(a.getAttribute(`data-${criterion}`));
-            const bValue = parseFloat(b.getAttribute(`data-${criterion}`));
-            return bValue - aValue; // Sort descending
-        });
+      // Sort results based on the chosen criterion
+      results.sort((a, b) => {
+        const aValue = parseFloat(a.getAttribute(`data-${criterion}`));
+        const bValue = parseFloat(b.getAttribute(`data-${criterion}`));
+        return bValue - aValue; // Sort descending
+      });
 
-        // Clear the results container and re-append sorted results
-        resultsContainer.innerHTML = ''; // Clear existing results
-        results.forEach(result => resultsContainer.appendChild(result)); // Re-append sorted results
+      // Clear the results container and re-append sorted results
+      resultsContainer.innerHTML = ""; // Clear existing results
+      results.forEach((result) => resultsContainer.appendChild(result)); // Re-append sorted results
     }
-</script>
+  </script>
 
-
-<!-- Include JavaScript for toggling the voters' list -->
-<script>
+  <!-- Include JavaScript for toggling the voters' list -->
+  <script>
     function toggleVoters(button) {
-        const votersList = button.nextElementSibling;
-        if (votersList.style.display === "none" || votersList.style.display === "") {
-            votersList.style.display = "block";
-            button.textContent = "Hide Voters";
-        } else {
-            votersList.style.display = "none";
-            button.textContent = "View Voters";
-        }
+      const votersList = button.nextElementSibling;
+      if (
+        votersList.style.display === "none" ||
+        votersList.style.display === ""
+      ) {
+        votersList.style.display = "block";
+        button.textContent = "Hide Voters";
+      } else {
+        votersList.style.display = "none";
+        button.textContent = "View Voters";
+      }
     }
-</script>
+  </script>
 
-
-{% endblock %}
+  {% endblock %}
+</div>

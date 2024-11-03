@@ -1,8 +1,8 @@
-{% extends 'base.html' %} {% block title %}Polls - You Poll{% endblock %}
- {% block content %}
- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+{% extends 'base.html' %} {% block title %}Polls - Your Polls{% endblock %} 
+{%block content %}
+<!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"> -->
 <style>
-    .poll_navbar {
+  .poll_navbar {
     padding: 10px 20px;
   }
   .navbar-buttons {
@@ -42,7 +42,7 @@
   }
 
   .toggle-filters-btn {
-    background-color: #4a56e2; 
+    background-color: #4a56e2;
     color: #fff;
     padding: 8px 12px;
     border: none;
@@ -85,310 +85,406 @@
     color: #333;
   }
   .containerq {
-        width: 98%;
-        padding: 10px;
-        background-color: #ffffff;
-        overflow: hidden;
-        border-radius: 8px;
-        display: flex;
-        align-items: center;
-        margin: 5px 0;
-        box-sizing: border-box; 
-        box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
-    }
+    width: 98%;
+    padding: 10px;
+    background-color: #ffffff;
+    overflow: hidden;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    margin: 5px 0;
+    box-sizing: border-box;
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
+  }
 
-    .buttong {
-        margin: 4px;
-        border: none;
-        padding: 10px 15px;
-        text-decoration: none;
-        font-size: 16px;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        border-radius: 5px;
-        color: #fff !important; /* Ensures text color is always white */
-    }
+  .buttong {
+    margin: 4px;
+    border: none;
+    padding: 10px 15px;
+    text-decoration: none;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border-radius: 5px;
+    color: #fff !important; /* Ensures text color is always white */
+  }
 
-    .buttong.copy {
-        background-color: #4e9e4a;
-    }
+  .buttong.copy {
+    background-color: #4e9e4a;
+  }
 
-    .buttong.view {
-        background-color: #458dcc;
-    }
+  .buttong.view {
+    background-color: #458dcc;
+  }
 
-    .buttong.edit {
-        background-color: #c76c2c;
-    }
+  .buttong.edit {
+    background-color: #c76c2c;
+  }
 
-    .buttong.delete {
-        background-color: #bd3737;
-    }
+  .buttong.delete {
+    background-color: #bd3737;
+  }
 
-    .buttong:hover {
-        filter: brightness(0.9);
-    }
+  .buttong:hover {
+    filter: brightness(0.9);
+  }
 
-    .buttong:visited {
-        color: #fff !important;
-    }
+  .buttong:visited {
+    color: #fff !important;
+  }
 
-    #info, #error {
-        width: 100%;
-        padding: 12px;
-        text-align: center;
-        box-sizing: border-box;
-        color: #fff;
-    }
+  #info,
+  #error {
+    width: 100%;
+    padding: 12px;
+    text-align: center;
+    box-sizing: border-box;
+    color: #fff;
+  }
 
-    #info {
-        background-color: #2cb858;
-    }
+  #info {
+    background-color: #2cb858;
+  }
 
-    #error {
-        background-color: #bf2222;
-    }
+  #error {
+    background-color: #bf2222;
+  }
 
-    .poll-title {
-        padding-bottom: 10px;
-        font-size: 24px;
-        color: #000;
-        width: fit-content;
-        margin: 0 auto;
-    }
+  .poll-title {
+    padding-bottom: 10px;
+    font-size: 24px;
+    color: #000;
+    width: fit-content;
+    margin: 0 auto;
+  }
 
-    .poll-list {
-        max-width: 1100px;
-        margin: 0 auto;
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: space-between;
-    }
-    .poll-title{
-        text-align: center;
-        font-size: 30px;
-        font-family: "Roboto", sans-serif;
+  .poll-list {
+    max-width: 1100px;
+    margin: 0 auto;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+  }
+  .poll-title {
+    text-align: center;
+    font-size: 30px;
+    font-family: "Roboto", sans-serif;
     font-weight: 900;
     font-style: normal;
     text-transform: uppercase;
-    }
-    /* Modal Styles */
-    .modal {
-        display: none; /* Hidden by default */
-        position: fixed; /* Stay in place */
-        z-index: 1000; /* Sit on top */
-        left: 0;
-        top: 0;
-        width: 100%; /* Full width */
-        height: 100%; /* Full height */
-        overflow: auto; /* Enable scroll if needed */
-        background-color: rgba(0, 0, 0, 0.5); /* Black w/ opacity */
-    }
+  }
+  /* Modal Styles */
+  .modal {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 1000; /* Sit on top */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgba(0, 0, 0, 0.5); /* Black w/ opacity */
+  }
 
-    /* Modal Content */
-    .modal-content {
-        background-color: #fefefe;
-        margin: 15% auto; /* 15% from the top and centered */
-        padding: 20px;
-        border: 1px solid #888;
-        width: 80%; /* Could be more or less, depending on screen size */
-        max-width: 500px; /* Maximum width */
-        border-radius: 5px; /* Rounded corners */
-    }
+  /* Modal Content */
+  .modal-content {
+    background-color: #fefefe;
+    margin: 15% auto; /* 15% from the top and centered */
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%; /* Could be more or less, depending on screen size */
+    max-width: 500px; /* Maximum width */
+    border-radius: 5px; /* Rounded corners */
+  }
 
-    /* Header Styles */
-    .modal-header {
-        display: flex;
-        justify-content: space-between; /* Space between title and close button */
-        align-items: center; /* Center vertically */
-    }
+  /* Header Styles */
+  .modal-header {
+    display: flex;
+    justify-content: space-between; /* Space between title and close button */
+    align-items: center; /* Center vertically */
+  }
 
-    /* Close Button */
-    .close {
-        cursor: pointer; /* Pointer on hover */
-        font-size: 24px; /* Large font size */
-    }
+  /* Close Button */
+  .close {
+    cursor: pointer; /* Pointer on hover */
+    font-size: 24px; /* Large font size */
+  }
 
-    /* Button Styles */
-    .btn {
-        padding: 10px 20px;
-        margin: 5px;
-        border: none;
-        border-radius: 5px; /* Rounded corners */
-        cursor: pointer; /* Pointer on hover */
-    }
+  /* Button Styles */
+  .btn {
+    padding: 10px 20px;
+    margin: 5px;
+    border: none;
+    border-radius: 5px; /* Rounded corners */
+    cursor: pointer; /* Pointer on hover */
+  }
 
-    /* Cancel Button */
-    .btn.cancel {
-        background-color: #f44336; /* Red */
-        color: white; /* White text */
-    }
+  /* Cancel Button */
+  .btn.cancel {
+    background-color: #f44336; /* Red */
+    color: white; /* White text */
+  }
 
-    /* Confirm Button */
-    .btn.confirm {
-        background-color: #4CAF50; /* Green */
-        color: white; /* White text */
-    }
+  /* Confirm Button */
+  .btn.confirm {
+    background-color: #4caf50; /* Green */
+    color: white; /* White text */
+  }
 
-    /* Footer Styles */
-    .modal-footer {
-        display: flex;
-        justify-content: flex-end; /* Align buttons to the right */
+  /* Footer Styles */
+  .modal-footer {
+    display: flex;
+    justify-content: flex-end; /* Align buttons to the right */
+  }
+  @media (max-width: 768px) {
+    .poll_navbar .logo {
+      font-size: 23px;
     }
-
+    .create-poll-btn {
+      font-size: 12px;
+    }
+  }
 </style>
 
- <nav class="poll_navbar">
-    <div class="navbar-buttons">
-      <a  href="{% url 'polls:user_dashboard' %}"class="logo">Your Polls</a>
-      <a href="{% url 'polls:add_polls' %}" class="create-poll-btn"
-        >+ Create New Poll</a
+<nav class="poll_navbar">
+  <div class="navbar-buttons">
+    <a href="{% url 'polls:user_dashboard' %}" class="logo">Your Polls</a>
+    <a href="{% url 'polls:add_polls' %}" class="create-poll-btn"
+      >+ Create New Poll</a
+    >
+  </div>
+  <a href="{% url 'polls:base_poll' %}" class="dashboard">All Polls</a>
+</nav>
+<div class="poll-list">
+  {% for poll, is_active in polls_with_status %}
+  <div class="containerq">
+    <!-- Poll Info Section -->
+    <div
+      class="poll-info"
+      style="
+        line-height: 1.2;
+        flex-grow: 1;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        position: relative;
+      "
+    >
+      <a
+        href="{% url 'polls:vote_poll' poll.id %}"
+        target="_blank"
+        class="poll-title-link"
+        style="font-weight: 900; font-size: 15px; color: #000"
+        >{{ poll.title }}</a
+      ><br />
+
+      <!-- Link and Copy Option -->
+      <a
+        href="{{ poll.link }}"
+        target="_blank"
+        class="poll-url"
+        style="font-weight: 500; font-size: 13px; color: #2587d9"
+        >{{ poll.link }}</a
       >
+      <button
+        id="copy-button-{{ poll.id }}"
+        onclick="copy_url('{{ poll.link }}')"
+        class="copy-link"
+        style="
+          color: grey;
+          font-size: 12px;
+          margin-left: 10px;
+          outline: none;
+          border: none;
+        "
+      >
+        <i class="fa-regular fa-copy"></i> copy</button
+      ><br />
+      <div 
+        id="toast-{{ poll.id }}"
+        style="
+          display: none;
+          position: fixed;
+          bottom: 20px;
+          left: 50%;
+          transform: translateX(-50%);
+          background-color: #333;
+          color: white;
+          padding: 10px 20px;
+          border-radius: 5px;
+          z-index: 1000;
+        "
+      >
+        Link copied to clipboard!
+      </div>
+
+      <!-- Poll Stats -->
+      <span style="font-size: 14px">
+        <i class="fa-regular fa-eye"></i> {{ poll.view_count }}
+      </span>
+      <span style="font-size: 14px; margin-left: 20px">
+        <i class="fa-solid fa-square-poll-horizontal"></i> {{ poll.total_votes }}
+      </span>
+      <span
+        id="poll-status-{{ poll.id }}"
+        style="font-size: 14px; margin-left: 20px"
+        data-expiration-time="{{ poll.expiration_time|date:'Y-m-d H:i:s' }}"
+      >
+        <i class="fa-regular fa-calendar"></i>
+        <span id="status-text-{{ poll.id }}">
+          {% if not poll.is_active %} Expired {% elif poll.allow_expiration %}
+          Expires on: {{ poll.expiration_time|date:"n/j/Y H:iA" }} {% else %}
+          No expiration {% endif %}
+        </span>
+      </span>
     </div>
-    <a  href="{% url 'polls:base_poll' %}" class="dashboard">All Polls</a>
-  </nav>
-  <div class="poll-list">
-    
-    {% for poll, is_active in polls_with_status %}
-    <div class="containerq">
-        <!-- Poll Info Section -->
-        <div class="poll-info" style="line-height: 1.2; flex-grow: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; position: relative;">
-            <a href="{% url 'polls:vote_poll' poll.id %}" target="_blank" class="poll-title-link" style="font-weight:900; font-size:15px; color:#000;">{{ poll.title }}</a><br>
 
-            <!-- Link and Copy Option -->
-            <a href="{{ poll.link }}" target="_blank" class="poll-url" style="font-weight:500; font-size:13px; color:#2587d9;">{{ poll.link }}</a>
-            <button id="{{ poll.id }}" onclick="copy_url('{{ poll.link }}')" class="copy-link" style="color:grey; font-size:12px; margin-left:10px; outline: none; border: none;">
-                <i class="fa-regular fa-copy"></i> copy
-            </button><br>
-            <div id="toast" style="display: none; position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background-color: #333; color: white; padding: 10px 20px; border-radius: 5px; z-index: 1000;">
-                Link copied to clipboard!
-            </div>
+    <!-- Poll Actions -->
+    <div style="display: flex">
+      <a
+        href="{% url 'polls:vote_poll' poll.id %}"
+        class="buttong view"
+        title="View"
+      >
+        <i class="fa-regular fa-eye"></i>
+      </a>
+      <a
+        href="{% url 'polls:poll_results' poll.id %}"
+        class="buttong view"
+        title="Results"
+      >
+        <i class="fa-solid fa-square-poll-horizontal"></i>
+      </a>
+      <a
+        href="{% url 'polls:edit_poll' poll.id %}"
+        class="buttong edit"
+        title="Edit"
+      >
+        <i class="fa-regular fa-pen-to-square"></i>
+      </a>
+      <form
+        method="post"
+        action="{% url 'polls:delete_poll' poll.id %}"
+        id="deletePollForm{{ poll.id }}"
+      >
+        {% csrf_token %}
+        <button
+          type="button"
+          class="buttong delete"
+          onclick="openModal('{{ poll.id }}')"
+          title="Delete"
+        >
+          <i class="fa-solid fa-trash"></i>
+        </button>
+      </form>
 
-            <!-- Poll Stats -->
-            <span style="font-size:14px;">
-                <i class="fa-regular fa-eye"></i> {{ poll.view_count }}
-            </span>
-            <span style="font-size:14px; margin-left:20px;">
-                <i class="fa-solid fa-square-poll-horizontal"></i> {{ poll.total_votes }}
-            </span>
-            <span style="font-size:14px; margin-left:20px;">
-                <i class="fa-regular fa-calendar"></i> 
-                {% if not is_active %}
-                    Expired
-                {% elif poll.expiration_time %}
-                    {{ poll.expiration_time|date:"Y-m-d H:i" }}
-                {% else %}
-                    No Expiration
-                {% endif %}
-            </span>
+      <!-- Delete Confirmation Modal -->
+      <div
+        id="deletePollModal{{ poll.id }}"
+        class="modal"
+        style="display: none"
+      >
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5>Confirm Delete</h5>
+            <span class="close" onclick="closeModal('{{ poll.id }}')"
+              >&times;</span
+            >
+          </div>
+          <div class="modal-body">
+            Are you sure you want to delete this poll?
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn cancel"
+              onclick="closeModal('{{ poll.id }}')"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              class="btn confirm"
+              onclick="confirmDelete('{{ poll.id }}')"
+            >
+              Delete
+            </button>
+          </div>
         </div>
-
-        <!-- Poll Actions -->
-        <div style="display: flex;">
-            <a href="{% url 'polls:vote_poll' poll.id %}" class="buttong view" title="View">
-                <i class="fa-regular fa-eye"></i>
-            </a> 
-            <a href="{% url 'polls:poll_results' poll.id %}" class="buttong view" title="Results">
-                <i class="fa-solid fa-square-poll-horizontal"></i>
-            </a> 
-            <a href="{% url 'polls:edit_poll' poll.id %}" class="buttong edit" title="Edit">
-                <i class="fa-regular fa-pen-to-square"></i>
-            </a>
-            <form method="post" action="{% url 'polls:delete_poll' poll.id %}" id="deletePollForm{{ poll.id }}">
-                {% csrf_token %}
-                <button type="button" class="buttong delete" onclick="openModal('{{ poll.id }}')" title="Delete">
-                    <i class="fa-solid fa-trash"></i>
-                </button>
-            </form>
-
-            <!-- Delete Confirmation Modal -->
-            <div id="deletePollModal{{ poll.id }}" class="modal" style="display: none;">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5>Confirm Delete</h5>
-                        <span class="close" onclick="closeModal('{{ poll.id }}')">&times;</span>
-                    </div>
-                    <div class="modal-body">
-                        Are you sure you want to delete this poll?
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn cancel" onclick="closeModal('{{ poll.id }}')">Cancel</button>
-                        <button type="button" class="btn confirm" onclick="confirmDelete('{{ poll.id }}')">Delete</button>
-                    </div>
-                </div>
-            </div>
-        </div>
+      </div>
     </div>
-{% empty %}
-    <p>You've not created any Poll.</p>
-{% endfor %}
-
+  </div>
+  {% empty %}
+  <p>You've not created any Poll.</p>
+  {% endfor %}
 </div>
 <script>
-    // Function to open the modal
-    function openModal(pollId) {
-        const modal = document.getElementById(`deletePollModal${pollId}`);
-        modal.style.display = "block";
-    }
+  // Function to open the modal
+  function openModal(pollId) {
+    const modal = document.getElementById(`deletePollModal${pollId}`);
+    modal.style.display = "block";
+  }
 
-    // Function to close the modal
-    function closeModal(pollId) {
-        const modal = document.getElementById(`deletePollModal${pollId}`);
+  // Function to close the modal
+  function closeModal(pollId) {
+    const modal = document.getElementById(`deletePollModal${pollId}`);
+    modal.style.display = "none";
+  }
+
+  // Function to confirm delete and submit the form
+  function confirmDelete(pollId) {
+    const deletePollForm = document.getElementById(`deletePollForm${pollId}`);
+    deletePollForm.submit(); // Submit the form
+  }
+
+  // Close the modal if the user clicks anywhere outside of the modal
+  window.onclick = function (event) {
+    const modals = document.querySelectorAll(".modal");
+    modals.forEach((modal) => {
+      if (event.target === modal) {
         modal.style.display = "none";
-    }
-
-    // Function to confirm delete and submit the form
-    function confirmDelete(pollId) {
-        const deletePollForm = document.getElementById(`deletePollForm${pollId}`);
-        deletePollForm.submit(); // Submit the form
-    }
-
-    // Close the modal if the user clicks anywhere outside of the modal
-    window.onclick = function (event) {
-        const modals = document.querySelectorAll('.modal');
-        modals.forEach(modal => {
-            if (event.target === modal) {
-                modal.style.display = "none";
-            }
-        });
-    }
-
-    // Allow use of Esc key to close the modal
-    window.addEventListener('keydown', function(event) {
-        if (event.key === "Escape") { // Check if the pressed key is "Escape"
-            const visibleModal = document.querySelector('.modal[style*="display: block"]'); // Find visible modal
-            if (visibleModal) {
-                visibleModal.style.display = "none"; // Close it
-            }
-        }
+      }
     });
-</script>
+  };
 
+  // Allow use of Esc key to close the modal
+  window.addEventListener("keydown", function (event) {
+    if (event.key === "Escape") {
+      // Check if the pressed key is "Escape"
+      const visibleModal = document.querySelector(
+        '.modal[style*="display: block"]'
+      ); // Find visible modal
+      if (visibleModal) {
+        visibleModal.style.display = "none"; // Close it
+      }
+    }
+  });
+</script>
 
 <script>
-    function copy_url(link) {
-        // Create a temporary input element
-        const tempInput = document.createElement('input');
-        // Set its value to the link you want to copy
-        tempInput.value = link;
-        // Append it to the body (required for older browsers)
-        document.body.appendChild(tempInput);
-        // Select the text in the input
-        tempInput.select();
-        // Execute the copy command
-        document.execCommand('copy');
-        // Remove the input element from the DOM
-        document.body.removeChild(tempInput);
+  function copy_url(link) {
+    // Create a temporary input element
+    const tempInput = document.createElement("input");
+    // Set its value to the link you want to copy
+    tempInput.value = link;
+    // Append it to the body (required for older browsers)
+    document.body.appendChild(tempInput);
+    // Select the text in the input
+    tempInput.select();
+    // Execute the copy command
+    document.execCommand("copy");
+    // Remove the input element from the DOM
+    document.body.removeChild(tempInput);
 
-        // Show the toast notification
-        const toast = document.getElementById('toast');
-        toast.style.display = 'block';
+    // Show the toast notification
+    const toast = document.getElementById("toast");
+    toast.style.display = "block";
 
-        // Hide the toast after 2 seconds
-        setTimeout(() => {
-            toast.style.display = 'none';
-        }, 2000);
-    }
+    // Hide the toast after 2 seconds
+    setTimeout(() => {
+      toast.style.display = "none";
+    }, 2000);
+  }
 </script>
 
-    {% endblock %}
+{% endblock %}

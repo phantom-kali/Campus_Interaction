@@ -3,7 +3,9 @@ __pycache__/
 *.py[cod]
 **/__pycache__/
 *.pyo
-
+/lib
+/bin
+pyvenv.cfg
 # Virtual environment
 venv/
 env/

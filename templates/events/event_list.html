@@ -11,128 +11,58 @@
     
     <!-- Toggle Filters Button -->
     <button @click="showFilters = !showFilters" 
-            aria-expanded="false" 
             class="btn btn-primary mb-3">
         <i class="fas fa-filter"></i> Toggle Filters
     </button>
 
     <!-- Filters Section -->
     <div x-show="showFilters" class="bg-light p-4 rounded shadow-sm mb-4">
-        <form hx-get="{% url 'events:event_list' %}" hx-target="#events-container" class="row g-3">
+        <form class="row g-3">
             <div class="col-md-6">
-                <label for="university" class="form-label">University</label>
-                <select name="university" id="university" class="form-select">
-                    <option value="">All Universities</option>
-                    {% for university in universities %}
-                        <option value="{{ university.id }}">{{ university.name }}</option>
+                <label for="campus" class="form-label">Campus</label>
+                <select name="campus" id="campus" class="form-select"
+                        hx-get="{% url 'events:event_list' %}"
+                        hx-target="#events-container"
+                        hx-trigger="change"
+                        hx-indicator="#loading-indicator">
+                    <option value="">All Campuses</option>
+                    {% for campus in campuses %}
+                        <option value="{{ campus }}" 
+                                {% if campus == request.GET.campus %}selected{% endif %}>
+                            {{ campus }}
+                        </option>
                     {% endfor %}
                 </select>
             </div>
             <div class="col-md-6">
                 <label for="status" class="form-label">Status</label>
-                <select name="status" id="status" class="form-select">
+                <select name="status" id="status" class="form-select"
+                        hx-get="{% url 'events:event_list' %}"
+                        hx-target="#events-container"
+                        hx-trigger="change"
+                        hx-indicator="#loading-indicator">
                     <option value="">All Status</option>
-                    <option value="upcoming">Upcoming</option>
-                    <option value="ongoing">Ongoing</option>
-                    <option value="completed">Completed</option>
+                    <option value="upcoming" {% if request.GET.status == 'upcoming' %}selected{% endif %}>Upcoming</option>
+                    <option value="ongoing" {% if request.GET.status == 'ongoing' %}selected{% endif %}>Ongoing</option>
+                    <option value="completed" {% if request.GET.status == 'completed' %}selected{% endif %}>Completed</option>
                 </select>
             </div>
-            <div class="col-md-12">
-                <button type="submit" class="btn btn-primary">
-                    <i class="fas fa-check"></i> Apply Filters
-                </button>
-            </div>
         </form>
+    </div>
+
+    <!-- Loading Indicator -->
+    <div id="loading-indicator" class="htmx-indicator text-center py-4">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
     </div>
 
     <!-- Events Feed -->
     <div class="row justify-content-center">
         <div class="col-12 col-lg-8">
             <div id="events-container">
-                {% if events %}
-                    {% for event in events %}
-                        <div class="card mb-4 shadow-sm">
-                            <!-- Event Header -->
-                            <div class="card-header bg-white border-bottom-0 py-3">
-                                <div class="d-flex align-items-center">
-                                    <div class="flex-grow-1">
-                                        <h4 class="mb-1">{{ event.title }}</h4>
-                                        <div class="text-muted small">
-                                            <i class="fas fa-calendar-alt"></i> 
-                                            {{ event.start_date|date:"F d, Y" }}
-                                            {% if event.end_date %}
-                                                - {{ event.end_date|date:"F d, Y" }}
-                                            {% endif %}
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <!-- Event Image -->
-                            {% if event.image %}
-                                <img src="{{ event.image.url }}" 
-                                     alt="{{ event.title }}" 
-                                     class="card-img-top" 
-                                     style="max-height: 400px; object-fit: cover;">
-                            {% endif %}
-                            
-                            <!-- Event Content -->
-                            <div class="card-body">
-                                <p class="card-text">{{ event.description }}</p>
-                                
-                                {% if event.event_type == 'text' %}
-                                    <div class="card-text text-muted mb-3">
-                                        {{ event.content|truncatewords:50 }}
-                                    </div>
-                                {% endif %}
-                                
-                                <div class="d-flex justify-content-between align-items-center mt-3">
-                                    <a href="{% url 'events:event_detail' event.id %}" 
-                                       class="btn btn-primary">
-                                        <i class="fas fa-info-circle"></i> View Details
-                                    </a>
-                                    <div class="text-muted">
-                                        <i class="fas fa-map-marker-alt"></i> 
-                                        {{ event.location|default:"Location TBA" }}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    {% endfor %}
-                {% else %}
-                    <div class="text-center text-muted py-5">
-                        <i class="fas fa-calendar-times fa-3x mb-3"></i>
-                        <p>No events found.</p>
-                    </div>
-                {% endif %}
+                {% include "events/partials/event_list_content.html" %}
             </div>
-
-            <!-- Pagination -->
-            <nav aria-label="Page navigation" class="mt-4">
-                <ul class="pagination justify-content-center">
-                    {% if events.has_previous %}
-                        <li class="page-item">
-                            <a class="page-link" href="?page={{ events.previous_page_number }}">
-                                <i class="fas fa-arrow-left"></i> Previous
-                            </a>
-                        </li>
-                    {% endif %}
-                    {% for page_num in events.paginator.page_range %}
-                        <li class="page-item {% if events.number == page_num %}active{% endif %}">
-                            <a class="page-link" href="?page={{ page_num }}">
-                                {{ page_num }}
-                            </a>
-                        </li>
-                    {% endfor %}
-                    {% if events.has_next %}
-                        <li class="page-item">
-                            <a class="page-link" href="?page={{ events.next_page_number }}">
-                                Next <i class="fas fa-arrow-right"></i>
-                            </a>
-                        </li>
-                    {% endif %}
-                </ul>
-            </nav>
         </div>
     </div>
 </div>

@@ -84,5 +84,18 @@ class OptionFormSet(BaseModelFormSet):
         if filled_options_count < 2:
             raise forms.ValidationError("You must fill at least two options with either text or an image.")
 
-# Create the formset using the custom formset class
+# Create the formset without extra forms for editing
 OptionFormSet = modelformset_factory(Option, form=OptionForm, formset=OptionFormSet, extra=2)
+class EditPollForm(PollForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)  # Call the parent constructor
+
+        # Make fields optional or change initial values if needed
+        self.fields['title'].required = True  # Ensure title is required
+        self.fields['description'].required = False  # Description is optional
+        self.fields['expiration_time'].required = False  # Make expiration time optional if editing
+
+        # If you want to set any initial values based on the instance, you can do that here
+        if self.instance and self.instance.pk:
+            # Example: Set the initial value of the poll type to the current type
+            self.fields['poll_type'].initial = self.instance.poll_type

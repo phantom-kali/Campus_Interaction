@@ -1,22 +1,5 @@
 <div id="postsContainer">
-    <!-- Loading State -->
-    <div class="placeholder-glow">
-        {% for i in '12'|make_list %}
-        <div class="card border-0 shadow-2 mb-4">
-            <div class="card-body p-4">
-                <div class="d-flex align-items-center mb-3">
-                    <div class="placeholder rounded-circle me-3" style="width: 48px; height: 48px;"></div>
-                    <div class="flex-grow-1">
-                        <div class="placeholder col-4 mb-1"></div>
-                        <div class="placeholder col-3"></div>
-                    </div>
-                </div>
-                <div class="placeholder col-12 mb-3" style="height: 100px;"></div>
-                <div class="placeholder col-3"></div>
-            </div>
-        </div>
-        {% endfor %}
-    </div>
+
     <!-- Error State -->
     <div class="d-none text-center py-5" id="postsError">
         <i class="fas fa-exclamation-circle text-danger mb-3" style="font-size: 3rem;"></i>
@@ -38,3 +21,23 @@
 <button id="loadMoreBtn" class="btn btn-light w-100 mb-4 d-none shadow-2" data-mdb-ripple-init>
     Load More
 </button>
+
+
+    <!-- Loading State
+    <div class="placeholder-glow">
+        {% for i in '12'|make_list %}
+        <div class="card border-0 shadow-2 mb-4">
+            <div class="card-body p-4">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="placeholder rounded-circle me-3" style="width: 48px; height: 48px;"></div>
+                    <div class="flex-grow-1">
+                        <div class="placeholder col-4 mb-1"></div>
+                        <div class="placeholder col-3"></div>
+                    </div>
+                </div>
+                <div class="placeholder col-12 mb-3" style="height: 100px;"></div>
+                <div class="placeholder col-3"></div>
+            </div>
+        </div>
+        {% endfor %}
+    </div> -->

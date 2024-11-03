@@ -1,6 +1,5 @@
-{% extends 'base.html' %} {% block title %}Polls - Dashboard{% endblock %}
- {% block content %}
-
+{% extends 'base.html' %} {% block title %}Poll - Edit {{poll.title}}{% endblock %} 
+{% block content %}
 <style>
   .poll_navbar {
     padding: 10px 20px;
@@ -363,7 +362,7 @@
 
   /* Header and span styling */
   header {
-    font-size: 18px;
+    /* font-size: 18px; */
     font-weight: bold;
     color: #333; /* Dark text color for header */
   }
@@ -437,611 +436,639 @@
         .fade-out {
             opacity: 0;
         }
+        .form-control-file{
+          display: none !important;
+        }
+    @media (max-width: 768px) {
+    .polls-container {
+      flex-direction: column;
+    }
+
+    .polls_items {
+      flex: none; /* Reset flex property */
+      margin-bottom: 20px; /* Space between polls and sidebar */
+    }
+
+    .sidebar {
+      border-left: none; /* Remove left border on small screens */
+      border-top: 1px solid #ccc; /* Add top border for separation */
+    }
+    .poll_navbar .logo{
+      font-size: 23px;
+    }
+    .create-poll-btn{
+      font-size: 12px;
+    }
+  }
 </style>
 <nav class="poll_navbar">
-    <div class="navbar-buttons">
-      <a href="{% url 'polls:edit_poll' poll.id %}"  class="logo">Edit Poll</a>
-      <a href="{% url 'polls:add_polls' %}" class="create-poll-btn"
-        >+ Create New Poll</a
-      >
-    </div>
-    <a href="{% url 'polls:user_dashboard' %}" class="dashboard">Your Polls</a>
-  </nav>
-  {% if error_message %}
+  <div class="navbar-buttons">
+    <a href="{% url 'polls:edit_poll' poll.id %}" class="logo">Edit - {{ poll.title|slice:":7" }}{% if poll.title|length > 7 %}...{% endif %}
+    </a>
+    <a href="{% url 'polls:add_polls' %}" class="create-poll-btn"
+      >+ Create New Poll</a
+    >
+  </div>
+  <a href="{% url 'polls:user_dashboard' %}" class="dashboard">Your Polls</a>
+</nav>
+
+<!-- <h1 class="poll-title">Your Polls</h1> -->
+{% if error_message %}
 <div id="error-message" class="alert alert-danger" role="alert">
     {{ error_message }}
     <i class='bx bx-x' onclick="dismissErrorMessage()"></i> <!-- Dismiss button -->
 </div>
 {% endif %}
 
-
 <form method="post" enctype="multipart/form-data" class="create_poll_form">
-    {% csrf_token %}
-    <div class="poll-type-container">
-      <b class="poll-type-title">Poll Type:</b>
-      <div class="poll-type-options">
-        {% for choice in poll_form.poll_type.field.choices %}
-        <label class="poll-type-option">
-          <input type="radio" name="poll_type" value="{{ choice.0 }}" id="poll-type-{{ choice.0 }}" {% if choice.0 == poll_form.poll_type.value %}checked{% endif %}  onchange="toggleCorrectAnswerInputs()">
-            <span class="custom-radio"></span>
-          {{ choice.1 }}
-        </label>
-        {% endfor %}
-      </div>
-    </div>
-  
-    <div class="question-container">
-      <b> {{ poll_form.title.label_tag }}</b>
-      {{ poll_form.title }} {% if poll_form.title.errors %}
-      <div class="text-danger">{{ poll_form.title.errors }}</div>
-      {% endif %}
-  
-      <br /><br />
-      <label
-        for="id_description"
-        class="description-label"
-        id="description-label"
-        style="font-size: 14px; color: #3872cf; cursor: pointer"
-      >
-        Add Description (optional):
+  {% csrf_token %}
+  <div class="poll-type-container">
+    <b class="poll-type-title">Poll Type:</b>
+    <div class="poll-type-options">
+      {% for choice in poll_form.poll_type.field.choices %}
+      <label class="poll-type-option">
+        <input type="radio" name="poll_type" value="{{ choice.0 }}" id="poll-type-{{ choice.0 }}" {% if choice.0 == poll_form.poll_type.value %}checked{% endif %}  onchange="toggleCorrectAnswerInputs()">
+          <span class="custom-radio"></span>
+        {{ choice.1 }}
       </label>
-      <textarea
-        name="description"
-        class="form-description"
-        id="id_description"
-        placeholder="Enter poll description (optional)"
-        style="display: none; overflow: hidden"
-      ></textarea>
-      <div id="description-error" class="text-danger">
-        {% for error in poll_form.description.errors %} {{ error }} {% endfor %}
-      </div>
-    </div>
-    {{ option_formset.management_form }}
-    <div id="option-formset">
-      {% for form in option_formset %}
-      <label for="{{ form.option_text.id_for_label }}"><b>Option Text:</b></label>
-      <div class="option-form">
-        {{ form.option_text }}
-        <label class="upload-btn">
-          <i class="fa-solid fa-image"></i>
-          {{ form.option_image }}
-        </label>
-      </div>
-      <div class="file-info">
-        <img class="preview-image" style="display: none" alt="Preview" />
-        <span class="delete-btn" style="display: none" onclick="deleteFile(this)"
-          >Delete</span
-        >
-      </div>
-  
-      <div
-        class="correct-answer"
-        style="{% if poll_form.instance.poll_type != 'question' %}display: none;{% endif %}"
-      >
-        <label class="correct-answer-label">
-          {{ form.is_correct }} Mark as correct
-        </label>
-      </div>
-  
       {% endfor %}
     </div>
-  
-    <div class="actions">
-      <button type="button" id="add-option">
-        Add Option<i class="bx bx-plus"></i>
-      </button>
-      <button type="button" id="toggle-options">
-        Customize<i class="bx bx-cog"></i>
-      </button>
-      <button type="submit">Save<i class="bx bx-save"></i></button>
+  </div>
+
+  <div class="question-container">
+    <b> {{ poll_form.title.label_tag }}</b>
+    {{ poll_form.title }} {% if poll_form.title.errors %}
+    <div class="text-danger">{{ poll_form.title.errors }}</div>
+    {% endif %}
+
+    <br /><br />
+    <label
+      for="id_description"
+      class="description-label"
+      id="description-label"
+      style="font-size: 14px; color: #3872cf; cursor: pointer"
+    >
+      Add Description (optional):
+    </label>
+    <textarea
+    name="description"
+    class="form-description"
+    id="id_description"
+    placeholder="Enter poll description (optional)"
+    style="display: none; overflow: hidden"
+>{{ poll.description }}</textarea>
+
+    <div id="description-error" class="text-danger">
+      {% for error in poll_form.description.errors %} {{ error }} {% endfor %}
     </div>
-  
-    <div class="options" style="display: none">
-      <!-- Background Color Selection -->
-      <div>
-        <label for="background-color-picker"
-          ><b>Choose Background Color:</b></label
-        >
-        <div class="color-options">
-          <!-- Color swatches with common colors -->
-          <div
-            class="color-swatch"
-            data-color="#ffffff"
-            style="background-color: #fff"
-          ></div>
-          <div
-            class="color-swatch"
-            data-color="#d3d3d3"
-            style="background-color: #d3d3d3"
-          ></div>
-          <div
-            class="color-swatch"
-            data-color="#ff5733"
-            style="background-color: #ff5733"
-          ></div>
-          <div
-            class="color-swatch"
-            data-color="#33ff57"
-            style="background-color: #33ff57"
-          ></div>
-          <div
-            class="color-swatch"
-            data-color="#3357ff"
-            style="background-color: #3357ff"
-          ></div>
-          <div
-            class="color-swatch"
-            data-color="#ff33a1"
-            style="background-color: #ff33a1"
-          ></div>
-          <div
-            class="color-swatch"
-            data-color="#ffd633"
-            style="background-color: #ffd633"
-          ></div>
-          <div
-            class="color-swatch"
-            data-color="#dc3545"
-            style="background-color: #dc3545"
-          ></div>
-          <div
-            class="color-swatch"
-            data-color="#a6a6a6"
-            style="background-color: #a6a6a6"
-          ></div>
-          <div
-            class="color-swatch"
-            data-color="#17a2b8"
-            style="background-color: #17a2b8"
-          ></div>
-          <div
-            class="color-swatch"
-            data-color="#388eeb"
-            style="background-color: #388eeb"
-          ></div>
-          <div
-            class="color-swatch"
-            data-color="#33ffd6"
-            style="background-color: #33ffd6"
-          ></div>
-          <div
-            class="color-swatch"
-            data-color="#ff3333"
-            style="background-color: #ff3333"
-          ></div>
-          <div
-            class="color-swatch"
-            data-color="#33ffcc"
-            style="background-color: #33ffcc"
-          ></div>
-          <div
-            class="color-swatch"
-            data-color="#cccccc"
-            style="background-color: #cccccc"
-          ></div>
-        </div>
-        <input
-          type="hidden"
-          id="background-color-picker"
-          name="background_color"
-          value="#ffffff"
-        />
-      </div>
-      <br />
-      <div class="form-check mb-3">
-        <input
-          type="checkbox"
-          id="allow-expiration"
-          name="allow_expiration"
-          class="form-check-input"
-          value="True"
-          {%
-          if
-          poll_form.allow_expiration.value
-          %}checked{%
-          endif
-          %}
-        />
-        <label for="allow-expiration" class="form-check-label"
-          ><b>{{ poll_form.allow_expiration.label }}</b></label
-        >
-  
-        {% if poll_form.allow_expiration.errors %}
-        <div class="text-danger">{{ poll_form.allow_expiration.errors }}</div>
-        {% endif %}
-      </div>
-  
-      <div class="mb-3 expiration-fields" style="display: none">
-        <b>{{ poll_form.expiration_time.label_tag }}</b>
-        {{ poll_form.expiration_time }} {% if poll_form.expiration_time.errors %}
-        <div class="text-danger">{{ poll_form.expiration_time.errors }}</div>
-        {% endif %}
-      </div>
-      <div class="mb-3 expiration-fields" style="display: none">
-        <b>{{ poll_form.expiration_time.label_tag }}</b>
-        {{ poll_form.expiration_time }} {% if poll_form.expiration_time.errors %}
-        <div class="text-danger">{{ poll_form.expiration_time.errors }}</div>
-        {% endif %}
-      </div>
-  
-   
-      
-      <div class="form-check mb-3">
-        <b> {{ poll_form.multi_option.label_tag }}</b>
-        {{ poll_form.multi_option }} {% if poll_form.multi_option.errors %}
-        <div class="text-danger">{{ poll_form.multi_option.errors }}</div>
-        {% endif %}
-      </div>
-      <div class="form-check mb-3">
-          <b> {{ poll_form.is_public.label_tag }}</b>
-          {{ poll_form.is_public }} {% if poll_form.is_public.errors %}
-          <div class="text-danger">{{ poll_form.is_public.errors }}</div>
-          {% endif %}
-        </div>
-        <div class="form-check mb-3">
-          <b>{{ poll_form.show_share_button.label_tag }}</b>
-          {{ poll_form.show_share_button }} {% if poll_form.show_share_button.errors %}
-          <div class="text-danger">{{ poll_form.show_share_button.errors }}</div>
-          {% endif %}
-        </div>
-  
-      <br />
-      <label for="banner-image"><b>Banner Image(Optional):</b></label>
-      <div class="drag-area" id="drag-area">
-        <div class="icon"><i class="fas fa-cloud-upload-alt"></i></div>
-        <header>Drag & Drop to Upload File</header>
-        <span>OR</span>
-        <button type="button" id="browse-btn">Browse File</button>
-        <input
-          type="file"
-          name="banner_image"
-          id="banner_image"
-          hidden
-          accept="image/*"
-        />
-        <div id="preview-container" class="preview-container"></div>
-      </div>
+  </div>
+{{ option_formset.management_form }}
+<div id="option-formset">
+    {% for form in option_formset|slice:":-2" %}
+    <input type="hidden" name="form-{{ forloop.counter0 }}-id" value="{{ form.instance.id }}">
+    <label for="{{ form.option_text.id_for_label }}"><b>Option Text:</b></label>
+    <div class="option-form">
+        {{ form.option_text }}
+        <label class="upload-btn">
+            <i class="fa-solid fa-image"></i>
+            <input type="file" name="form-{{ forloop.counter0 }}-option_image" style="display: none;">
+        </label>
     </div>
-  </form>
+    <div class="file-info">
+        <img class="preview-image"
+             style="{% if form.instance.option_image %}display: block;{% else %}display: none;{% endif %}"
+             src="{% if form.instance.option_image %}{{ form.instance.option_image.url }}{% endif %}"
+             alt="Preview" />
+        <span class="delete-btn" style="{% if form.instance.option_image %}display: inline{% else %}display: none{% endif %}"
+              onclick="deleteFile(this)">Delete</span>
+    </div>
+    <div class="correct-answer"
+         style="{% if poll_form.instance.poll_type != 'question' %}display: none;{% endif %}">
+        <label class="correct-answer-label">
+            {{ form.is_correct }} Mark as correct
+        </label>
+    </div>
+    {% endfor %}
+</div>
+
+  <div class="actions" style="margin-top: 5px;">
+    <button type="button" id="add-option">
+      Add Option<i class="bx bx-plus"></i>
+    </button>
+    <button type="button" id="toggle-options">
+      Customize<i class="bx bx-cog"></i>
+    </button>
+    <button type="submit">Save<i class="bx bx-save"></i></button>
+  </div>
+
+  <div class="options" style="display: none">
+    <!-- Background Color Selection -->
+    <div>
+      <label for="background-color-picker"
+        ><b>Choose Background Color:</b></label
+      >
+      <div class="color-options">
+        <!-- Color swatches with common colors -->
+        <div
+          class="color-swatch"
+          data-color="#ffffff"
+          style="background-color: #fff"
+        ></div>
+        <div
+          class="color-swatch"
+          data-color="#d3d3d3"
+          style="background-color: #d3d3d3"
+        ></div>
+        <div
+          class="color-swatch"
+          data-color="#ff5733"
+          style="background-color: #ff5733"
+        ></div>
+        <div
+          class="color-swatch"
+          data-color="#33ff57"
+          style="background-color: #33ff57"
+        ></div>
+        <div
+          class="color-swatch"
+          data-color="#3357ff"
+          style="background-color: #3357ff"
+        ></div>
+        <div
+          class="color-swatch"
+          data-color="#ff33a1"
+          style="background-color: #ff33a1"
+        ></div>
+        <div
+          class="color-swatch"
+          data-color="#ffd633"
+          style="background-color: #ffd633"
+        ></div>
+        <div
+          class="color-swatch"
+          data-color="#dc3545"
+          style="background-color: #dc3545"
+        ></div>
+        <div
+          class="color-swatch"
+          data-color="#a6a6a6"
+          style="background-color: #a6a6a6"
+        ></div>
+        <div
+          class="color-swatch"
+          data-color="#17a2b8"
+          style="background-color: #17a2b8"
+        ></div>
+        <div
+          class="color-swatch"
+          data-color="#388eeb"
+          style="background-color: #388eeb"
+        ></div>
+        <div
+          class="color-swatch"
+          data-color="#33ffd6"
+          style="background-color: #33ffd6"
+        ></div>
+        <div
+          class="color-swatch"
+          data-color="#ff3333"
+          style="background-color: #ff3333"
+        ></div>
+        <div
+          class="color-swatch"
+          data-color="#33ffcc"
+          style="background-color: #33ffcc"
+        ></div>
+        <div
+          class="color-swatch"
+          data-color="#cccccc"
+          style="background-color: #cccccc"
+        ></div>
+      </div>
+      <input
+        type="hidden"
+        id="background-color-picker"
+        name="background_color"
+        value="#ffffff"
+      />
+    </div>
+
+    <br />
+    <div class="form-check mb-3">
+      <input
+        type="checkbox"
+        id="allow-expiration"
+        name="allow_expiration"
+        class="form-check-input"
+        value="True"
+        {%
+        if
+        poll_form.allow_expiration.value
+        %}checked{%
+        endif
+        %}
+      />
+      <label for="allow-expiration" class="form-check-label"
+        ><b>{{ poll_form.allow_expiration.label }}</b></label
+      >
+
+      {% if poll_form.allow_expiration.errors %}
+      <div class="text-danger">{{ poll_form.allow_expiration.errors }}</div>
+      {% endif %}
+    </div>
+
+    <div class="mb-3 expiration-fields" style="display: none">
+      <b>{{ poll_form.expiration_time.label_tag }}</b>
+      {{ poll_form.expiration_time }} {% if poll_form.expiration_time.errors %}
+      <div class="text-danger">{{ poll_form.expiration_time.errors }}</div>
+      {% endif %}
+    </div>
+    <div class="mb-3 expiration-fields" style="display: none">
+      <b>{{ poll_form.expiration_time.label_tag }}</b>
+      {{ poll_form.expiration_time }} {% if poll_form.expiration_time.errors %}
+      <div class="text-danger">{{ poll_form.expiration_time.errors }}</div>
+      {% endif %}
+    </div>
+
+ 
+    
+    <div class="form-check mb-3">
+      <b> {{ poll_form.multi_option.label_tag }}</b>
+      {{ poll_form.multi_option }} {% if poll_form.multi_option.errors %}
+      <div class="text-danger">{{ poll_form.multi_option.errors }}</div>
+      {% endif %}
+    </div>
+    <div class="form-check mb-3">
+        <b> {{ poll_form.is_public.label_tag }}</b>
+        {{ poll_form.is_public }} {% if poll_form.is_public.errors %}
+        <div class="text-danger">{{ poll_form.is_public.errors }}</div>
+        {% endif %}
+      </div>
+      <div class="form-check mb-3">
+        <b>{{ poll_form.show_share_button.label_tag }}</b>
+        {{ poll_form.show_share_button }} {% if poll_form.show_share_button.errors %}
+        <div class="text-danger">{{ poll_form.show_share_button.errors }}</div>
+        {% endif %}
+      </div>
+
+    <br />
+    <label for="banner-image"><b>Banner Image(Optional):</b></label>
+    <div class="drag-area" id="drag-area">
+      <div class="icon"><i class="fas fa-cloud-upload-alt"></i></div>
+      <header>Drag & Drop to Upload File</header>
+      <span>OR</span>
+      <button type="button" id="browse-btn">Browse File</button>
+      <input
+        type="file"
+        name="banner_image"
+        id="banner_image"
+        hidden
+        accept="image/*"
+      />
+      <div id="preview-container" class="preview-container"></div>
+    </div>
+  </div>
+  <div style="width: 100%; display: flex; justify-content: space-between; align-items: center; margin-top:15px;">
+    <div>
+      <a href="{% url 'polls:user_dashboard' %}" style="padding-top: 9px; font-size: 15px; display: block; color: #c93b30;">
+        Delete poll
+    </a>
+    </div>
+  </div>
+</form>
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const dragArea = document.getElementById("drag-area");
+    const fileInput = document.getElementById("banner_image");
+    const browseButton = document.getElementById("browse-btn");
+    const previewContainer = document.getElementById("preview-container");
+
+    // Show the file input when the browse button is clicked
+    browseButton.addEventListener("click", () => {
+      fileInput.click();
+    });
+
+    // Handle drag and drop
+    dragArea.addEventListener("dragover", (event) => {
+      event.preventDefault(); // Prevent default behavior
+      dragArea.classList.add("hover"); // Add hover class
+    });
+
+    dragArea.addEventListener("dragleave", () => {
+      dragArea.classList.remove("hover"); // Remove hover class
+    });
+
+    dragArea.addEventListener("drop", (event) => {
+      event.preventDefault(); // Prevent default behavior
+      dragArea.classList.remove("hover"); // Remove hover class
+      const files = event.dataTransfer.files; // Get the dropped files
+      if (files.length) {
+        handleFiles(files); // Handle the files
+      }
+    });
+
+    // Handle file input change
+    fileInput.addEventListener("change", () => {
+      const files = fileInput.files; // Get selected files
+      if (files.length) {
+        handleFiles(files); // Handle the files
+      }
+    });
+
+    // Function to handle file(s)
+    function handleFiles(files) {
+      const file = files[0]; // Assuming single file upload
+      if (file && file.type.startsWith("image/")) {
+        // Check if the file is an image
+        const reader = new FileReader();
+        reader.onload = () => {
+          // Create an image element for preview
+          const img = document.createElement("img");
+          img.src = reader.result; // Set the source to the FileReader result
+
+          // Clear previous preview and hide original content
+          previewContainer.innerHTML = "";
+          previewContainer.appendChild(img); // Add image to preview container
+          dragArea.classList.add("hide-content"); // Hide original content
+
+          // Set the selected file to the hidden input
+          const dataTransfer = new DataTransfer();
+          dataTransfer.items.add(file); // Add the file to the DataTransfer
+          fileInput.files = dataTransfer.files; // Update the input's files
+        };
+        reader.readAsDataURL(file); // Read file as data URL
+      } else {
+        alert("Please upload an image file."); // Alert for non-image file
+      }
+    }
+  });
+</script>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const colorSwatches = document.querySelectorAll(".color-swatch");
+    const colorPickerInput = document.getElementById("background-color-picker");
+
+    colorSwatches.forEach((swatch) => {
+      swatch.addEventListener("click", function () {
+        const selectedColor = swatch.getAttribute("data-color");
+        colorPickerInput.value = selectedColor;
+
+        colorSwatches.forEach((s) => s.classList.remove("selected"));
+        swatch.classList.add("selected");
+      });
+    });
+  });
+</script>
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    // Get the expiration time input field
+    const expirationField = document.querySelector('[name="expiration_time"]');
+
+    if (expirationField) {
+      // Function to set min attribute dynamically using local time
+      function updateMinDateTime() {
+        const now = new Date();
+
+        // Format current local time to "YYYY-MM-DDTHH:MM"
+        const formattedLocalTime = now.toISOString().slice(0, 16);
+
+        // Set the min attribute to prevent past date and time
+        expirationField.setAttribute("min", formattedLocalTime);
+
+        // Add an event listener to check if the selected date is today
+        expirationField.addEventListener("input", function () {
+          const selectedDate = new Date(expirationField.value);
+
+          // Check if the selected date is today in local time
+          if (
+            selectedDate.getFullYear() === now.getFullYear() &&
+            selectedDate.getMonth() === now.getMonth() &&
+            selectedDate.getDate() === now.getDate()
+          ) {
+            // If today, limit to current or future hours and minutes
+            expirationField.setAttribute("min", formattedLocalTime);
+          } else {
+            // If not today, allow any time (start from midnight 00:00 of that date)
+            const nextDay = new Date();
+            nextDay.setDate(now.getDate() + 1);
+            expirationField.setAttribute(
+              "min",
+              nextDay.toISOString().slice(0, 10) + "T00:00"
+            );
+          }
+        });
+      }
+
+      updateMinDateTime();
+      setInterval(updateMinDateTime, 60000); // Update every minute
+    }
+  });
+</script>
 
 
-  <script>
-    document.addEventListener("DOMContentLoaded", function () {
-      const dragArea = document.getElementById("drag-area");
-      const fileInput = document.getElementById("banner_image");
-      const browseButton = document.getElementById("browse-btn");
-      const previewContainer = document.getElementById("preview-container");
-  
-      // Show the file input when the browse button is clicked
-      browseButton.addEventListener("click", () => {
-        fileInput.click();
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const allowExpirationCheckbox = document.getElementById("allow-expiration");
+    const expirationFields = document.querySelector(".expiration-fields");
+
+    // Function to toggle the display of the expiration fields
+    function toggleExpirationFields() {
+      if (allowExpirationCheckbox.checked) {
+        expirationFields.style.display = "block"; // Show expiration fields
+      } else {
+        expirationFields.style.display = "none"; // Hide expiration fields
+      }
+    }
+
+    // Add event listener for checkbox change
+    allowExpirationCheckbox.addEventListener("change", toggleExpirationFields);
+  });
+</script>
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const toggleButton = document.getElementById("toggle-options");
+    const optionsDiv = document.querySelector(".options");
+
+    toggleButton.addEventListener("click", function () {
+      if (
+        optionsDiv.style.display === "none" ||
+        optionsDiv.style.display === ""
+      ) {
+        optionsDiv.style.display = "block"; // Show options
+        toggleButton.innerHTML = 'Customize<i class="bx bx-cog"></i>'; // Change button text
+      } else {
+        optionsDiv.style.display = "none"; // Hide options
+        toggleButton.innerHTML = 'Customize<i class="bx bx-cog"></i>'; // Change button text
+      }
+    });
+  });
+</script>
+
+<script>
+  function toggleCorrectAnswerInputs() {
+    const selectedPollType = document.querySelector(
+      'input[name="poll_type"]:checked'
+    ).value;
+    const correctAnswerContainers =
+      document.querySelectorAll(".correct-answer");
+
+    correctAnswerContainers.forEach((container) => {
+      if (selectedPollType === "question") {
+        container.style.display = "block";
+      } else {
+        container.style.display = "none";
+      }
+    });
+  }
+  document.addEventListener("DOMContentLoaded", function () {
+    toggleCorrectAnswerInputs();
+  });
+</script>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const pollTypeElement = document.querySelector('input[name="poll_type"]:checked'); // Use the checked radio button
+    const optionFormsetContainer = document.getElementById("option-formset");
+    const addOptionButton = document.getElementById("add-option");
+    const totalFormsInput = document.querySelector("#id_form-TOTAL_FORMS");
+
+    function toggleCorrectAnswerCheckbox() {
+      const pollType = document.querySelector('input[name="poll_type"]:checked').value;
+      const correctAnswerLabels = document.querySelectorAll(".correct-answer");
+
+      correctAnswerLabels.forEach((label) => {
+        label.style.display = pollType === "question" ? "block" : "none";
       });
-  
-      // Handle drag and drop
-      dragArea.addEventListener("dragover", (event) => {
-        event.preventDefault(); // Prevent default behavior
-        dragArea.classList.add("hover"); // Add hover class
-      });
-  
-      dragArea.addEventListener("dragleave", () => {
-        dragArea.classList.remove("hover"); // Remove hover class
-      });
-  
-      dragArea.addEventListener("drop", (event) => {
-        event.preventDefault(); // Prevent default behavior
-        dragArea.classList.remove("hover"); // Remove hover class
-        const files = event.dataTransfer.files; // Get the dropped files
-        if (files.length) {
-          handleFiles(files); // Handle the files
-        }
-      });
-  
-      // Handle file input change
-      fileInput.addEventListener("change", () => {
-        const files = fileInput.files; // Get selected files
-        if (files.length) {
-          handleFiles(files); // Handle the files
-        }
-      });
-  
-      // Function to handle file(s)
-      function handleFiles(files) {
-        const file = files[0]; // Assuming single file upload
-        if (file && file.type.startsWith("image/")) {
-          // Check if the file is an image
+    }
+
+    // Initial call to set the correct state on page load
+    toggleCorrectAnswerCheckbox();
+
+    // Event listener for poll type change
+    document.querySelectorAll('input[name="poll_type"]').forEach((radio) => {
+      radio.addEventListener("change", toggleCorrectAnswerCheckbox);
+    });
+
+    function initializeImagePreview(input) {
+      input.addEventListener("change", function (event) {
+        const file = event.target.files[0];
+        const fileInfo = input.closest(".option-form").nextElementSibling;
+        const previewImage = fileInfo.querySelector(".preview-image");
+        const deleteButton = fileInfo.querySelector(".delete-btn");
+
+        if (file) {
           const reader = new FileReader();
-          reader.onload = () => {
-            // Create an image element for preview
-            const img = document.createElement("img");
-            img.src = reader.result; // Set the source to the FileReader result
-  
-            // Clear previous preview and hide original content
-            previewContainer.innerHTML = "";
-            previewContainer.appendChild(img); // Add image to preview container
-            dragArea.classList.add("hide-content"); // Hide original content
-  
-            // Set the selected file to the hidden input
-            const dataTransfer = new DataTransfer();
-            dataTransfer.items.add(file); // Add the file to the DataTransfer
-            fileInput.files = dataTransfer.files; // Update the input's files
+          reader.onload = function (e) {
+            previewImage.src = e.target.result;
+            previewImage.style.display = "block";
+            deleteButton.style.display = "inline";
           };
-          reader.readAsDataURL(file); // Read file as data URL
-        } else {
-          alert("Please upload an image file."); // Alert for non-image file
-        }
-      }
-    });
-  </script>
-  
-  <script>
-    document.addEventListener("DOMContentLoaded", function () {
-      const colorSwatches = document.querySelectorAll(".color-swatch");
-      const colorPickerInput = document.getElementById("background-color-picker");
-  
-      colorSwatches.forEach((swatch) => {
-        swatch.addEventListener("click", function () {
-          const selectedColor = swatch.getAttribute("data-color");
-          colorPickerInput.value = selectedColor;
-  
-          colorSwatches.forEach((s) => s.classList.remove("selected"));
-          swatch.classList.add("selected");
-        });
-      });
-    });
-  </script>
-  <script>
-    document.addEventListener("DOMContentLoaded", function () {
-      // Get the expiration time input field
-      const expirationField = document.querySelector('[name="expiration_time"]');
-  
-      if (expirationField) {
-        // Function to set min attribute dynamically using local time
-        function updateMinDateTime() {
-          const now = new Date();
-  
-          // Format current local time to "YYYY-MM-DDTHH:MM"
-          const formattedLocalTime = now.toISOString().slice(0, 16);
-  
-          // Set the min attribute to prevent past date and time
-          expirationField.setAttribute("min", formattedLocalTime);
-  
-          // Add an event listener to check if the selected date is today
-          expirationField.addEventListener("input", function () {
-            const selectedDate = new Date(expirationField.value);
-  
-            // Check if the selected date is today in local time
-            if (
-              selectedDate.getFullYear() === now.getFullYear() &&
-              selectedDate.getMonth() === now.getMonth() &&
-              selectedDate.getDate() === now.getDate()
-            ) {
-              // If today, limit to current or future hours and minutes
-              expirationField.setAttribute("min", formattedLocalTime);
-            } else {
-              // If not today, allow any time (start from midnight 00:00 of that date)
-              const nextDay = new Date();
-              nextDay.setDate(now.getDate() + 1);
-              expirationField.setAttribute(
-                "min",
-                nextDay.toISOString().slice(0, 10) + "T00:00"
-              );
-            }
-          });
-        }
-  
-        updateMinDateTime();
-        setInterval(updateMinDateTime, 60000); // Update every minute
-      }
-    });
-  </script>
-  
-  
-  <script>
-    document.addEventListener("DOMContentLoaded", function () {
-      const allowExpirationCheckbox = document.getElementById("allow-expiration");
-      const expirationFields = document.querySelector(".expiration-fields");
-  
-      // Function to toggle the display of the expiration fields
-      function toggleExpirationFields() {
-        if (allowExpirationCheckbox.checked) {
-          expirationFields.style.display = "block"; // Show expiration fields
-        } else {
-          expirationFields.style.display = "none"; // Hide expiration fields
-        }
-      }
-  
-      // Add event listener for checkbox change
-      allowExpirationCheckbox.addEventListener("change", toggleExpirationFields);
-    });
-  </script>
-  <script>
-    document.addEventListener("DOMContentLoaded", function () {
-      const toggleButton = document.getElementById("toggle-options");
-      const optionsDiv = document.querySelector(".options");
-  
-      toggleButton.addEventListener("click", function () {
-        if (
-          optionsDiv.style.display === "none" ||
-          optionsDiv.style.display === ""
-        ) {
-          optionsDiv.style.display = "block"; // Show options
-          toggleButton.innerHTML = 'Customize<i class="bx bx-cog"></i>'; // Change button text
-        } else {
-          optionsDiv.style.display = "none"; // Hide options
-          toggleButton.innerHTML = 'Customize<i class="bx bx-cog"></i>'; // Change button text
-        }
-      });
-    });
-  </script>
-  
-  <script>
-    function toggleCorrectAnswerInputs() {
-      const selectedPollType = document.querySelector(
-        'input[name="poll_type"]:checked'
-      ).value;
-      const correctAnswerContainers =
-        document.querySelectorAll(".correct-answer");
-  
-      correctAnswerContainers.forEach((container) => {
-        if (selectedPollType === "question") {
-          container.style.display = "block";
-        } else {
-          container.style.display = "none";
+          reader.readAsDataURL(file);
         }
       });
     }
-    document.addEventListener("DOMContentLoaded", function () {
-      toggleCorrectAnswerInputs();
-    });
-  </script>
-  
-  <script>
-    document.addEventListener("DOMContentLoaded", function () {
-      const pollTypeElement = document.querySelector(
-        'input[name="poll_type"]:checked'
-      ); // Use the checked radio button
-      const optionFormsetContainer = document.getElementById("option-formset");
-      const addOptionButton = document.getElementById("add-option");
-      const totalFormsInput = document.querySelector("#id_form-TOTAL_FORMS");
-  
-      function toggleCorrectAnswerCheckbox() {
-        const pollType = document.querySelector(
-          'input[name="poll_type"]:checked'
-        ).value;
-        const correctAnswerLabels = document.querySelectorAll(".correct-answer");
-  
-        correctAnswerLabels.forEach((label) => {
-          label.style.display = pollType === "question" ? "block" : "none";
-        });
-      }
-  
-      // Initial call to set the correct state on page load
+
+    addOptionButton.addEventListener("click", function () {
+      const formCount = parseInt(totalFormsInput.value, 10);
+
+      // Create new form HTML with a unique ID for the option text
+      const newFormHtml = `
+                <label><b>Option Text:</b></label>
+                <div class="option-form">
+                    <input type="text" id="id_form-${formCount}-option_text" name="form-${formCount}-option_text" maxlength="100" class="form-option-text" placeholder="Enter option text" autocomplete="off">
+                    
+                    <label class="upload-btn"><i class="fa-solid fa-image"></i>
+                        <input type="file" name="form-${formCount}-option_image" accept="image/*" class="form-control-file">
+                    </label>
+                </div>
+                <div class="file-info">
+                    <img class="preview-image" style="display: none;" alt="Preview">
+                    <span class="delete-btn" style="display: none;" onclick="deleteFile(this)">Delete</span>
+                </div>
+                <div class="correct-answer" style="display: none;">
+                    <label class="correct-answer-label">
+                        <input type="checkbox" name="form-${formCount}-is_correct" class="form-check-input"> Mark as correct
+                    </label>
+                </div>
+            `;
+
+      optionFormsetContainer.insertAdjacentHTML("beforeend", newFormHtml);
+
+      // Check the poll type to set correct display for the new option
       toggleCorrectAnswerCheckbox();
-  
-      // Event listener for poll type change
-      document.querySelectorAll('input[name="poll_type"]').forEach((radio) => {
-        radio.addEventListener("change", toggleCorrectAnswerCheckbox);
-      });
-  
-      function initializeImagePreview(input) {
-        input.addEventListener("change", function (event) {
-          const file = event.target.files[0];
-          const fileInfo = input.closest(".option-form").nextElementSibling;
-          const previewImage = fileInfo.querySelector(".preview-image");
-          const deleteButton = fileInfo.querySelector(".delete-btn");
-  
-          if (file) {
-            const reader = new FileReader();
-            reader.onload = function (e) {
-              previewImage.src = e.target.result;
-              previewImage.style.display = "block";
-              deleteButton.style.display = "inline";
-            };
-            reader.readAsDataURL(file);
-          }
-        });
-      }
-  
-      addOptionButton.addEventListener("click", function () {
-        const formCount = parseInt(totalFormsInput.value, 10);
-  
-        // Create new form HTML
-        const newFormHtml = `
-                  <label><b>Option Text:</b></label>
-                  <div class="option-form">
-                      <input type="text" name="form-${formCount}-option_text" maxlength="100" class="form-option-text" placeholder="Enter option text" autocomplete="off">
-                      
-                      <label class="upload-btn"><i class="fa-solid fa-image"></i>
-                          <input type="file" name="form-${formCount}-option_image" accept="image/*" class="form-control-file">
-                      </label>
-                  </div>
-                  <div class="file-info">
-                      <img class="preview-image" style="display: none;" alt="Preview">
-                      <span class="delete-btn" style="display: none;" onclick="deleteFile(this)">Delete</span>
-                  </div>
-                  <div class="correct-answer" style="display: none;">
-                      <label class="correct-answer-label">
-                          <input type="checkbox" name="form-${formCount}-is_correct" class="form-check-input"> Mark as correct
-                      </label>
-                  </div>
-              `;
-  
-        optionFormsetContainer.insertAdjacentHTML("beforeend", newFormHtml);
-  
-        // Check the poll type to set correct display for the new option
-        toggleCorrectAnswerCheckbox();
-  
-        const newFileInput = optionFormsetContainer.querySelector(
-          `input[name="form-${formCount}-option_image"]`
-        );
-        initializeImagePreview(newFileInput);
-  
-        totalFormsInput.value = formCount + 1;
-      });
-  
-      document
-        .querySelectorAll("#option-formset input[type='file']")
-        .forEach(initializeImagePreview);
+
+      const newFileInput = optionFormsetContainer.querySelector(
+        `input[name="form-${formCount}-option_image"]`
+      );
+      initializeImagePreview(newFileInput);
+
+      totalFormsInput.value = formCount + 1;
     });
-  
-    function deleteFile(element) {
-      const fileInfo = element.closest(".file-info");
-      const previewImage = fileInfo.querySelector(".preview-image");
-      const optionForm = fileInfo.previousElementSibling;
-      const inputFile = optionForm.querySelector("input[type='file']");
-  
-      // Clear the file input and hide preview
-      inputFile.value = "";
-      previewImage.style.display = "none";
-      previewImage.src = "";
-      element.style.display = "none";
+
+    document
+      .querySelectorAll("#option-formset input[type='file']")
+      .forEach(initializeImagePreview);
+  });
+
+  function deleteFile(element) {
+    const fileInfo = element.closest(".file-info");
+    const previewImage = fileInfo.querySelector(".preview-image");
+    const optionForm = fileInfo.previousElementSibling;
+    const inputFile = optionForm.querySelector("input[type='file']");
+
+    // Clear the file input and hide preview
+    inputFile.value = "";
+    previewImage.style.display = "none";
+    previewImage.src = "";
+    element.style.display = "none";
+  }
+</script>
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const descriptionInput = document.querySelector(".form-description"); // Target the textarea by its class
+    const descriptionLabel = document.getElementById("description-label");
+    function adjustHeight() {
+      this.style.height = "auto"; // Reset height to auto to calculate new height
+      this.style.height = this.scrollHeight + "px"; // Set height to scroll height
     }
-  </script>
-  
-  <script>
-    document.addEventListener("DOMContentLoaded", function () {
-      const descriptionInput = document.querySelector(".form-description"); // Target the textarea by its class
-      const descriptionLabel = document.getElementById("description-label");
-      function adjustHeight() {
-        this.style.height = "auto"; // Reset height to auto to calculate new height
-        this.style.height = this.scrollHeight + "px"; // Set height to scroll height
+
+    descriptionLabel.addEventListener("click", function () {
+      if (
+        descriptionInput.style.display === "none" ||
+        descriptionInput.style.display === ""
+      ) {
+        descriptionInput.style.display = "block";
+        descriptionInput.focus();
+        adjustHeight.call(descriptionInput);
+      } else {
+        descriptionInput.style.display = "none";
       }
-  
-      descriptionLabel.addEventListener("click", function () {
-        if (
-          descriptionInput.style.display === "none" ||
-          descriptionInput.style.display === ""
-        ) {
-          descriptionInput.style.display = "block";
-          descriptionInput.focus();
-          adjustHeight.call(descriptionInput);
-        } else {
-          descriptionInput.style.display = "none";
-        }
-      });
-      descriptionInput.addEventListener("input", adjustHeight);
     });
-  </script>
-  <script>
-      function dismissErrorMessage() {
-          const errorMessage = document.getElementById('error-message');
-          if (errorMessage) {
-              errorMessage.classList.add('fade-out'); // Add fade out class
-              setTimeout(() => {
-                  errorMessage.remove(); // Remove from DOM after fading out
-              }, 500); // Wait for the opacity transition to finish
-          }
-      }
-  
-      // Automatically dismiss the error message after 5 seconds
-      document.addEventListener('DOMContentLoaded', function() {
-          const errorMessage = document.getElementById('error-message');
-          if (errorMessage) {
-              setTimeout(() => {
-                  dismissErrorMessage(); // Automatically dismiss after 5 seconds
-              }, 3000); // Wait for 5 seconds before starting to fade out
-          }
-      });
-  </script>
-`  
+    descriptionInput.addEventListener("input", adjustHeight);
+  });
+</script>
+<script>
+    function dismissErrorMessage() {
+        const errorMessage = document.getElementById('error-message');
+        if (errorMessage) {
+            errorMessage.classList.add('fade-out'); // Add fade out class
+            setTimeout(() => {
+                errorMessage.remove(); // Remove from DOM after fading out
+            }, 500); // Wait for the opacity transition to finish
+        }
+    }
+
+    // Automatically dismiss the error message after 5 seconds
+    document.addEventListener('DOMContentLoaded', function() {
+        const errorMessage = document.getElementById('error-message');
+        if (errorMessage) {
+            setTimeout(() => {
+                dismissErrorMessage(); // Automatically dismiss after 5 seconds
+            }, 3000); // Wait for 5 seconds before starting to fade out
+        }
+    });
+</script>
+
+
 {% endblock %}

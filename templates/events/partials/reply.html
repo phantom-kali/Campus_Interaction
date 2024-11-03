@@ -1,0 +1,44 @@
+{# templates/events/partials/reply.html #}
+<div class="reply-card mb-3 border-start border-primary ps-3 py-2" id="reply-{{ reply.id }}">
+    <div class="d-flex">
+        <div class="flex-shrink-0 me-2">
+            <div class="rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center" 
+                 style="width: 32px; height: 32px;">
+                {{ reply.user.user.username|first|upper }}
+            </div>
+        </div>
+        <div class="flex-grow-1">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <h6 class="fw-bold mb-1">{{ reply.user.user.username }}</h6>
+                    <small class="text-muted">{{ reply.created_at|timesince }} ago</small>
+                </div>
+
+                <div class="d-flex gap-2">
+                     <button 
+                        onclick="toggleLike({{ reply.id }})" 
+                        class="btn btn-sm {% if request.user.profile in reply.likes.all %}btn-danger{% else %}btn-outline-danger{% endif %} like-button"
+                        data-reply-id="{{ reply.id }}"
+                    >
+                        <i class="fas fa-heart"></i>
+                        <span class="likes-count ms-1">{{ reply.likes.count }}</span>
+                    </button>
+                </div>
+                <div class="d-flex gap-2">
+                    {% if request.user.profile == reply.user %}
+                    <button 
+                        onclick="deleteComment({{ reply.id }}, true)" 
+                        class="btn btn-sm btn-outline-danger"
+                        data-reply-id="{{ reply.id }}"
+                    >
+                        <i class="fas fa-trash"></i>
+                    </button>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="reply-content mt-2">
+                <p class="mb-0">{{ reply.content }}</p>
+            </div>
+        </div>
+    </div>
+</div>

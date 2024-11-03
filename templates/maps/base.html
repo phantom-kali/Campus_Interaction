@@ -3,20 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>maps</title>
-
-    <!-- Link to the external CSS file -->
-    <link rel="stylesheet" href="/maps/styles.css"> <!-- Adjust the path if necessary -->
-
+    <title>Campus Mapping App</title>
+    <link rel="stylesheet" href="./styles.css">
 </head>
 <body>
-    <div id="header">
-        <h1>MAP YOUR WAY TO YOUR FAVOURED DESTINATION</h1>
+    <header class="header">
+        <h1>Map Your Way to Your Favored Destination</h1>
+    </header>
 
+    <div class="search-bar">
+        <input type="text" id="search-input" placeholder="Search for a building...">
+        <button onclick="searchBuilding()">Search</button>
     </div>
 
     <div id="container">
-        <!-- Google Maps iframe -->
         <iframe 
             src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d15898.736249162397!2d36.7971039681934!3d-1.2863890999999999!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x182f14e69c831b9f%3A0xe17aa53af5c99175!2sNairobi%2C%20Kenya!5e0!3m2!1sen!2sus!4v1626112109641!5m2!1sen!2sus" 
             width="100%" 
@@ -27,5 +27,89 @@
         </iframe>
     </div>
 
+    <section class="landmarks-section">
+        <h2>Find Nearby Landmarks</h2>
+        <button onclick="findNearbyLandmarks()">Show Nearby Landmarks</button>
+        <div id="map-container"></div>
+    </section>
+
+    <script>
+        function searchBuilding() {
+            const query = document.getElementById('search-input').value;
+            if (!query) {
+                alert("Please enter a building name to search.");
+                return;
+            }
+
+            fetch(`/search_building?query=${encodeURIComponent(query)}`)
+                .then(response => response.json())
+                .then(data => {
+                    const container = document.getElementById('map-container');
+                    container.innerHTML = '';
+
+                    if (data.length === 0) {
+                        container.innerHTML = '<p>No buildings found with that name.</p>';
+                        return;
+                    }
+                    data.forEach(building => {
+                        // Create an iframe for each building's location
+                        const iframe = document.createElement('iframe');
+                        iframe.src = `https://www.google.com/maps/embed/v1/view?key=YOUR_GOOGLE_MAPS_API_KEY&center=${building.latitude},${building.longitude}&zoom=16&maptype=roadmap`;
+                        iframe.width = "100%";
+                        iframe.height = "300";
+                        iframe.style.border = "0";
+                        container.appendChild(iframe);
+
+                        const info = document.createElement('p');
+                        info.textContent = `${building.name}: ${building.description}`;
+                        container.appendChild(info);
+                    });
+                })
+                .catch(error => {
+                    console.error("Error fetching search results:", error);
+                    alert("An error occurred while searching. Please try again.");
+                });
+        }
+
+        function findNearbyLandmarks() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    position => {
+                        const latitude = position.coords.latitude;
+                        const longitude = position.coords.longitude;
+
+                        fetch(`/landmarks_nearby?lat=${latitude}&lng=${longitude}&radius=5`)
+                            .then(response => response.json())
+                            .then(data => {
+                                const container = document.getElementById('map-container');
+                                container.innerHTML = '';
+
+                                data.forEach(landmark => {
+                                    const iframe = document.createElement('iframe');
+                                    iframe.src = `https://www.google.com/maps/embed/v1/view?key=YOUR_GOOGLE_MAPS_API_KEY&center=${landmark.latitude},${landmark.longitude}&zoom=16&maptype=satellite`;
+                                    iframe.width = "100%";
+                                    iframe.height = "300";
+                                    iframe.style.border = "0";
+                                    container.appendChild(iframe);
+
+                                    const info = document.createElement('p');
+                                    info.textContent = `${landmark.name}: ${landmark.description}`;
+                                    container.appendChild(info);
+                                });
+                            })
+                            .catch(error => {
+                                console.error("Error fetching nearby landmarks:", error);
+                                alert("An error occurred while fetching nearby landmarks.");
+                            });
+                    },
+                    error => {
+                        alert("Unable to access location. Please enable location services.");
+                    }
+                );
+            } else {
+                alert("Geolocation is not supported by this browser.");
+            }
+        }
+    </script>
 </body>
 </html>

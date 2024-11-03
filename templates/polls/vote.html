@@ -10,47 +10,136 @@
     display: flex; /* Use flexbox for layout */
     justify-content: space-between; /* Space between left and right sections */
     flex-wrap: wrap; /* Allow wrapping on small screens */
-    max-width: 900px; /* Set a max width for the container */
-    margin: 20px auto; /* Center the container */
+    max-width: 1000px; /* Set a max width for the container */
+    margin: 10px auto; /* Center the container */
 }
 
+/* Main text section styling */
 .text-section {
-    flex: 0.5;
+    flex: 1;
     padding: 24px;
-    min-width: 320px;
+    min-width: 400px;
     max-width: 600px;
     background-color: #ffffff;
-    margin-top: 32px;
+    margin-top: 20px;
     border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
     font-family: Arial, sans-serif;
     color: #333;
-    line-height: 1.6;
+    line-height: 1.5;
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeIn 1s ease-out forwards;
 }
 
+@keyframes fadeIn {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Heading animations and styling */
 .text-section h1 {
-    font-size: 24px;
+    font-size: 26px;
     font-weight: 700;
     color: #4a90e2;
     margin-bottom: 12px;
     text-transform: uppercase;
+    letter-spacing: 1px;
+    animation: slideIn 0.8s ease-out forwards;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(-20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
 }
 
 .text-section h3 {
-    font-size: 20px;
-    font-weight: 300;
+    font-size: 22px;
+    font-weight: 500;
     color: #333;
     margin-bottom: 8px;
-
-    letter-spacing: 0.5px;
+    animation: slideIn 0.8s ease-out forwards;
+    animation-delay: 0.2s;
 }
 
-.text-section p {
+/* Paragraph styling and icon alignment */
+.text-section .other_descriptions p {
     font-size: 16px;
-    color: #555;
-    margin-top: 8px;
+    color: #333;
+    margin-top: 10px;
     line-height: 1.8;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: color 0.3s ease, transform 0.3s ease;
+    padding: 8px 12px;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
 }
+
+/* Hover effect for better interactivity */
+.text-section .other_descriptions p:hover {
+    color: #1c436f;
+    background-color: #eaf4ff;
+    transform: scale(1.02);
+}
+
+/* Animation for paragraphs */
+.text-section p:not(:last-child) {
+    margin-bottom: 10px;
+    animation: fadeInUp 0.6s ease-out forwards;
+    opacity: 0;
+}
+
+@keyframes fadeInUp {
+    from {
+        transform: translateY(10px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+.more_info{
+    display: flex;
+    justify-content: space-around;
+}
+
+/* Span styling for labels */
+.text-section p span {
+    font-weight: 600;
+    color: #333;
+    transition: color 0.3s ease;
+}
+
+.text-section p span:hover {
+    color: #4a90e2;
+}
+
+/* Icon styling */
+.text-section p i {
+    font-size: 18px;
+    color: #4a90e2;
+    transition: transform 0.3s ease;
+}
+
+.text-section p:hover i {
+    transform: scale(1.1);
+    color: #333;
+}
+
+
 #vote-form {
     flex: 2; /* Allow the form to grow */
     background: #fff;
@@ -58,6 +147,7 @@
     border-radius: 8px; 
     overflow: hidden; 
     margin: 20px;
+    max-height: auto;
     padding: 20px; 
 }
 
@@ -274,68 +364,89 @@ label {
     background-color: #f0f0f0;
     color: #333;
   }
-  .message {
-    display: none;
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        background-color: rgba(0, 0, 0, 0.8);
-        color: #fff;
-        padding: 15px 30px;
-        border-radius: 10px;
-        text-align: center;
-        opacity: 1;
-        transition: opacity 1s ease-in-out;
-        z-index: 1000;
+.message {
+display: none;
+position: absolute;
+top: 50%;
+left: 50%;
+transform: translate(-50%, -50%);
+background-color: rgba(0, 0, 0, 0.8);
+color: #fff;
+padding: 15px 30px;
+border-radius: 10px;
+text-align: center;
+opacity: 1;
+transition: opacity 1s ease-in-out;
+z-index: 1000;
 }
 .embed-popup-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: rgba(0, 0, 0, 0.5);
-            display: none;
-            /* display: flex; */
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-        }
+position: fixed;
+top: 0;
+left: 0;
+right: 0;
+bottom: 0;
+background-color: rgba(0, 0, 0, 0.5);
+display: none;
+/* display: flex; */
+justify-content: center;
+align-items: center;
+z-index: 1000;
+}
 
-        .embed-popup-content {
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 10px;
-            text-align: center;
-            max-width: 400px;
-            width: 100%;
-            margin: 0 auto;
-        }
+.embed-popup-content {
+background-color: #fff;
+padding: 20px;
+border-radius: 10px;
+text-align: center;
+max-width: 400px;
+width: 100%;
+margin: 0 auto;
+}
 
-        .qr-code {
-            width: 120px; 
-            height: 120px;
-            object-fit: cover; 
-            border: 2px solid #3480c7; 
-            border-radius: 8px; 
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-            display: block; 
-            margin: 0 auto; 
-            padding: 5px; 
-            background-color: #ffffff; 
-        }
+.qr-code {
+width: 120px; 
+height: 120px;
+object-fit: cover; 
+border: 2px solid #3480c7; 
+border-radius: 8px; 
+box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+display: block; 
+margin: 0 auto; 
+padding: 5px; 
+background-color: #ffffff; 
+}
 
-        .poll_link {
-            display: block;
-            text-decoration: none;
-            color: #3480c7;
-            font-size: 16px;
-            transition: color 0.3s ease;
-            padding: 10px;
-            border-radius: 6px;
-            outline: none;
-        }
+.poll_link {
+display: block;
+text-decoration: none;
+color: #3480c7;
+font-size: 16px;
+transition: color 0.3s ease;
+padding: 10px;
+border-radius: 6px;
+outline: none;
+}
+@media (max-width: 768px) {
+.polls-container {
+flex-direction: column;
+}
+
+.polls_items {
+flex: none; /* Reset flex property */
+margin-bottom: 20px; /* Space between polls and sidebar */
+}
+
+.sidebar {
+border-left: none; /* Remove left border on small screens */
+border-top: 1px solid #ccc; /* Add top border for separation */
+}
+.poll_navbar .logo{
+font-size: 23px;
+}
+.create-poll-btn{
+font-size: 12px;
+}
+}
 </style>
 
 <nav class="poll_navbar">
@@ -350,31 +461,89 @@ label {
 
   <div id="message" class="message" style="display: none;"></div>
   <div class="poll-container">
-    <div class="text-section">
-        <h1>{{ poll.poll_type }} Poll</h1>
-        <h3>Title: {{ poll.title }}</h3>
-        
-        {% if poll.description %}
-            <p>Description: {{ poll.description }}</p>
-        {% endif %}
-    </div>
-    
 
+    <div class="text-section">
+        <h1>{% if poll.is_public %}
+            Public
+            {% else %}
+            Private
+            {% endif %}
+            {{ poll.poll_type }} Poll</h1>
+        <hr />
+        <div class="title_description">
+            <h3>Title: {{ poll.title }}</h3>
+            {% if poll.description %}
+                <p>Description: {{ poll.description }}</p>
+            {% endif %}
+        </div>
+        <hr />
+        <div class="other_descriptions">
+            {% if poll.is_public %}
+                <p><i class="fas fa-user"></i> Created by: {{ poll.creator.username }}</p>
+            {% endif %}
+            {% if not poll.is_active %}
+            <p style="color: red; font-weight: bold;">
+                <i class="fas fa-calendar-alt"></i> Expired
+            </p>
+                {% elif poll.allow_expiration and poll.expiration_time %}
+                    <p>
+                        <i class="fas fa-calendar-alt"></i> Expires on: {{ poll.expiration_time|date:"n/j/Y H:iA" }}
+                    </p>
+                {% else %}
+                    <p>
+                        <i class="fas fa-calendar-alt"></i> No expiration
+                    </p>
+                {% endif %}
+            <p><i class="fas fa-calendar"></i> Created on: {{ poll.created_at|date:"n/j/Y H:iA" }}</p>
+            <p>
+                {% if poll.multi_option %}
+                    <i class="fas fa-check-double"></i> Multiple Choice
+                {% else %}
+                    <i class="fas fa-check-circle"></i> Single Choice
+                {% endif %}
+            </p>
+        </div>
+        <hr />
+        <br>
+        <div class="more_info">
+            <p>
+                <a href="{% url 'polls:search_poll' poll.title %}?action=comment" class="more-info-link">
+                    <i class="fas fa-comment"></i> Comment ({{ poll.comment_count }})
+                </a>
+            </p>
+            <p>
+                <a href="{% url 'polls:search_poll' poll.title %}?action=like" class="more-info-link">
+                    <i class="fas fa-thumbs-up"></i> Like ({{ poll.poll_likes.count }})
+                </a>
+            </p>
+            <p>
+                {% if request.user == poll.creator %}
+                    <a href="{% url 'polls:edit_poll' poll.id %}">
+                        <i class="fa-solid fa-pen-to-square"></i> Edit poll
+                    </a>
+                {% endif %}
+            </p>
+        </div>
+        
+        
+    </div>
     <form method="post" id="vote-form" onsubmit="return validateForm();" data-poll-type="{% if poll.poll_type == 'question' %}question{% else %}opinion{% endif %}">
         <div class="banner-container">
+            {% load static %}
             {% if poll.banner_image %}
                 <img src="{{ poll.banner_image.url }}" alt="{{ poll.title }} banner" class="banner-image">
-            {% else %}                
+            {% else %}
                 {% if poll.poll_type == 'question' %}
-                    <img src="http://localhost:8000/media/default_poll_banner/questions.jpg" alt="Default Question Banner" class="banner-image">
+                    <img src="{% static 'images/default_poll_banner/questions.jpg' %}" alt="Default Question Banner" class="banner-image">
                 {% elif poll.poll_type == 'opinion' %}
-                    <img src="http://localhost:8000/media/default_poll_banner/opinions.jpg" alt="Default Opinion Banner" class="banner-image">
+                    <img src="{% static 'images/default_poll_banner/opinions.jpg' %}" alt="Default Opinion Banner" class="banner-image">
                 {% else %}
-                    <img src="http://localhost:8000/media/default_poll_banner/question_image.jpeg" alt="Default General Banner" class="banner-image">
+                    <img src="{% static 'images/default_poll_banner/question_image.jpeg' %}" alt="Default General Banner" class="banner-image">
                 {% endif %}
             {% endif %}
         </div>
         {% csrf_token %}
+        
         {% for option in poll.options.all %}
         <div class="option-container" 
              data-correct="{{ option.is_correct }}" 
@@ -383,42 +552,99 @@ label {
             {% if option.option_image %}
                 <img src="{{ option.option_image.url }}" alt="Option Image" class="option-img">
             {% endif %}
-            
+<style>
+    .polls-options {
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    border: 2px solid #007bff;
+    border-radius: 4px;
+    outline: none;
+    cursor: pointer;
+    transition: background-color 0.3s, border-color 0.3s;
+}
+
+/* Checked state styling */
+.polls-options:checked {
+    background-color: #007bff;
+    border-color: #0056b3;
+}
+
+.polls-options:checked::before {
+    content: "";
+    display: block;
+    width: 12px;
+    height: 12px;
+    margin: 4px;
+    background-color: white;
+    border-radius: 2px;
+}
+
+/* Hover state styling */
+.polls-options:hover {
+    border-color: #0056b3;
+}
+
+/* Focus state styling */
+.polls-options:focus {
+    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.5);
+}
+
+/* Disabled state styling */
+.polls-options:disabled {
+    border-color: #cccccc;
+    background-color: #f0f0f0;
+    cursor: not-allowed;
+}
+
+.polls-options:disabled:checked {
+    background-color: #cccccc;
+    border-color: #aaaaaa;
+}
+
+.polls-options:disabled:checked::before {
+    background-color: #ffffff;
+}
+
+</style>
             <input 
                 type="{% if poll.multi_option %}checkbox{% else %}radio{% endif %}" 
                 name="option{% if poll.multi_option %}[]{% endif %}" 
                 value="{{ option.id }}" 
-                id="option-{{ option.id }}"
+                id="option-{{ option.id }}" 
                 class="polls-options"
                 {% if user_vote and user_vote.option.id == option.id %}checked{% endif %}
-                {% if user_vote %}disabled{% endif %}> 
-          
+                {% if user_vote %}disabled{% endif %}
+                {% if not poll.is_active %}disabled{% endif %}  
+            >
             <label for="option-{{ option.id }}">{{ option.option_text }}</label>
+            <input type="hidden" name="cancel_vote" id="cancel_vote" value="0">
         </div>
-    {% empty %}
-        <p>No options available.</p>
-    {% endfor %}
-    
-    <hr>
-    <div class="actions">
-        {% if not user_vote %}
-            <button type="submit">Submit</button>
-        {% endif %}
-    
-        {% if poll.is_public and user_vote %}
-            <a href="{% url 'polls:poll_results' poll.id %}" class="view_result">View Results</a>
-        {% endif %}
+        {% empty %}
+            <p>No options available.</p>
+        {% endfor %}
         
-        {% if poll.show_share_button %}
-            <button id="share-button" type="button">Share</button>
-        {% endif %}
-    </div>
-    
+        <hr>
+        <div class="actions">
+            {% if not user_vote %}
+                <button type="submit" {% if not poll.is_active %}disabled{% endif %}>Submit</button>
+            {% else %}
+                {% if poll.poll_type == 'opinion' and user_vote.created_at >= time_limit and poll.is_active and poll.attempts < 2 %}
+                    <button type="button" id="cancel-vote-button" onclick="cancelVote();">Cancel Vote</button>
+                {% endif %}
+            {% endif %}
+        
+            {# Show "View Results" button only if attempts >= 2 and poll is public #}
+            {% if poll.is_public and user_vote and poll.attempts >= 2 %}
+                <a href="{% url 'polls:poll_results' poll.id %}" class="view_result">View Results</a>
+            {% endif %}
+            
+            {# Show "Share" button only if poll is public and show_share_button is true #}
+            {% if poll.is_public and poll.show_share_button %}
+                <button id="share-button" type="button">Share</button>
+            {% endif %}
+        </div>
     </form>
-
-    
-
-
 {% if poll_link %}
 <!-- Modal Structure -->
 <div id="embedPopupOverlay" class="embed-popup-overlay" onclick="closeEmbedPopup(event)">
@@ -426,14 +652,11 @@ label {
     <img src="{{ qr_code_url }}" class="qr-code">
         
        <br> <input type="text" value="{{ poll_link }}" style="width:100%;" readonly id="embedLink" class="poll_link">
-        <br><a href="" style="color: #3480c7; text-decoration: underline; font-size:14px;" onclick="copyInputToClipboard()">Copy link</a>
+        <br><a href="#" style="color: #3480c7; text-decoration: underline; font-size:14px;" onclick="copyInputToClipboard()">Copy link</a>
         <br><button onclick="closeEmbedPopup()" style="margin-top:10px; font-size:14px;" type="button" class="close_it">Close</button>
     </div>
 </div>
 {% endif %}
-
-
-
 <script>
     document.getElementById('vote-form').addEventListener('submit', function(e) {
         e.preventDefault(); // Prevent default form submission
@@ -522,7 +745,6 @@ label {
             return false; // Prevent form submission
         }
 
-
         messageDiv.style.display = 'none'; // Hide the message if valid
         return true; // Allow form submission
     }
@@ -538,7 +760,43 @@ label {
             location.reload();
         }, 2000); // 2 seconds delay
     }
+
+    function cancelVote() {
+    // Ensure the hidden input for cancel_vote exists or create it
+    let cancelVoteInput = document.getElementById('cancel_vote');
+    if (!cancelVoteInput) {
+        cancelVoteInput = document.createElement('input');
+        cancelVoteInput.type = 'hidden';
+        cancelVoteInput.name = 'cancel_vote';
+        cancelVoteInput.id = 'cancel_vote';
+        cancelVoteInput.value = '1';
+        document.getElementById('vote-form').appendChild(cancelVoteInput);
+    } else {
+        // If it already exists, just update the value
+        cancelVoteInput.value = '1';
+    }
+
+    // Remove existing selections and reset styles
+    document.querySelectorAll('.polls-options').forEach(option => {
+        option.checked = false; // Deselect all options
+        option.closest('.option-container').style.backgroundColor = ''; // Reset background
+    });
+
+    // Show cancellation message
+    const messageDiv = document.getElementById('message');
+    messageDiv.style.display = 'block';
+    messageDiv.style.color = '#fff';
+    messageDiv.textContent = 'Your vote has been canceled. Submitting your request...';
+
+    // Submit the form after a short delay
+    setTimeout(() => {
+        document.getElementById('vote-form').submit();
+    }, 1000); // Delay to show the message before submission
+}
+
+
 </script>
+
 
 <script>
     // Function to show the modal

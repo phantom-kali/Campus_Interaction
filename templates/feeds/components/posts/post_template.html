@@ -17,34 +17,20 @@
                     </div>
                 </div>
                 <div class="dropdown">
-                    <button class="btn btn-link text-dark" type="button" data-mdb-dropdown-init aria-expanded="false">
-                        <i class="fas fa-ellipsis-v"></i>
-                    </button>
-                    <ul class="dropdown-menu shadow-3">
-                        <li>
-                            <button class="dropdown-item view-engagement" data-type="likes">
-                                <i class="fas fa-heart me-2 text-danger"></i>View Likes
-                            </button>
-                        </li>
-                        <li>
-                            <button class="dropdown-item view-engagement" data-type="views">
-                                <i class="fas fa-eye me-2 text-primary"></i>View Views
-                            </button>
-                        </li>
-                        <li>
-                            <button class="dropdown-item view-engagement" data-type="comments">
-                                <i class="fas fa-comment me-2 text-success"></i>View Comments
-                            </button>
-                        </li>
-                        <li>
-                            <hr class="dropdown-divider">
-                        </li>
-                        <li>
-                            <button class="dropdown-item post-delete">
-                                <i class="fas fa-trash me-2 text-danger"></i>Delete
-                            </button>
-                        </li>
-                    </ul>
+                    <button class="btn btn-link text-dark post-dropdown-btn" type="button" data-mdb-toggle="dropdown"
+                        aria-expanded="false">
+                        <ul class="dropdown-menu post-dropdown-menu shadow-3">
+                            <li class="post-owner-actions d-none">
+                                <button class="dropdown-item post-delete">
+                                    <i class="fas fa-trash me-2 text-danger"></i>Delete Post
+                                </button>
+                            </li>
+                            <li class="post-non-owner-actions d-none">
+                                <button class="dropdown-item post-report">
+                                    <i class="fas fa-flag me-2 text-warning"></i>Report Post
+                                </button>
+                            </li>
+                        </ul>
                 </div>
             </div>
             <div class="post-content mb-3"></div>
@@ -66,6 +52,21 @@
                     <i class="far fa-eye me-1"></i>
                     <span class="post-views-count">0</span> views
                 </small>
+            </div>
+
+            <div class="comments-section mt-3 border-top pt-3">
+                <!-- Comments container -->
+                <div class="comments-container"></div>
+
+                <!-- Comment input -->
+                <div class="mt-3">
+                    <div class="d-flex gap-2">
+                        <input type="text" class="form-control comment-input" placeholder="Write a comment...">
+                        <button class="btn btn-primary btn-sm px-3 add-comment-btn">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

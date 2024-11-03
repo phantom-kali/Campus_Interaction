@@ -30,24 +30,54 @@ function debounce(func, wait) {
  * Search functionality
  */
 const handleSearch = debounce(async (query) => {
-    if (!query.trim()) {
-        // Reset feed to default state
-        try {
-            const data = await API.getFeed(1, 'all');
-            // Assuming you have a function to render posts
-            renderPosts(data.posts);
-        } catch (error) {
-            showNotification('Failed to reset feed', 'error');
-        }
-        return;
-    }
-
+    // Update search state in PostsState
+    PostsState.searchQuery = query.trim();
+    
+    // Reset posts state
+    PostsState.reset();
+    postsContainer.innerHTML = '';
+    
     try {
-        const data = await API.searchPosts(query);
-        // Assuming you have a function to render posts
-        renderPosts(data.posts);
+        if (!PostsState.searchQuery) {
+            // Reset feed to default state
+            PostsState.currentFilter = 'all';
+            loadPosts('all', true);
+            return;
+        }
+
+        // Show loading state
+        showLoading();
+        
+        const endpoint = `${API_ENDPOINTS.SEARCH_POSTS}?q=${encodeURIComponent(PostsState.searchQuery)}&page=1`;
+        const response = await apiCall(endpoint);
+        
+        if (!response.posts || response.posts.length === 0) {
+            // Show empty state with search-specific message
+            postsContainer.innerHTML = `
+                <div class="text-center py-5">
+                    <i class="fas fa-search text-muted mb-3" style="font-size: 3rem;"></i>
+                    <h5 class="text-muted">No posts found for "${PostsState.searchQuery}"</h5>
+                </div>
+            `;
+            PostsState.hasMore = false;
+        } else {
+            // Update PostsState
+            PostsState.currentPage = response.current_page + 1;
+            PostsState.hasMore = response.has_next;
+            
+            // Clear existing posts and render new ones
+            response.posts.forEach(post => PostsState.posts.set(post.id, post));
+            renderPosts(response.posts);
+        }
+        
+        hideError();
     } catch (error) {
+        console.error('Search error:', error);
         showNotification('Search failed', 'error');
+        showError();
+    } finally {
+        hideLoading();
+        updateLoadMoreButton();
     }
 }, DEBOUNCE_DELAY);
 

@@ -1,4 +1,6 @@
-<!-- seller_dashboard.html -->
+{% extends "base.html" %}
+
+{% block content %}
 
 <h1>Your Dashboard</h1>
 <!-- Include this block at the top of your HTML file -->
@@ -11,23 +13,23 @@
 {% endif %}
 
 
-<a href="{% url 'add_item' %}">Add New Item</a>
+<a href="{% url 'marketplace:add_item' %}">Add New Item</a>
 
 <h3>Your Items</h3>
 <ul>
     <ul>
         {% for item in user_items %}
             <li>
-                <a href="{% url 'item_detail' item.id %}">{{ item.title }}</a> - ${{ item.price }}
+                <a href="{% url 'marketplace:item_detail' item.id %}">{{ item.title }}</a> - ${{ item.price }}
                 {% if item.sold %}
                     <span>(Sold)</span>
                     <!-- Allow deletion only if the item is sold -->
-                    <form action="{% url 'delete_item' item.id %}" method="post" style="display: inline;">
+                    <form action="{% url 'marketplace:delete_item' item.id %}" method="post" style="display: inline;">
                         {% csrf_token %}
                         <button type="submit">Delete</button>
                     </form>
                 {% else %}
-                    <form action="{% url 'mark_as_sold' item.id %}" method="post" style="display: inline;">
+                    <form action="{% url 'marketplace:mark_as_sold' item.id %}" method="post" style="display: inline;">
                         {% csrf_token %}
                         <button type="submit">Mark as Sold</button>
                     </form>
@@ -47,3 +49,5 @@
     </ul>
     
 </ul>
+
+{% endblock %}

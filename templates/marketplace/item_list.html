@@ -1,174 +1,12 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MarketPlace</title>
-    <link rel="canonical" href="https://getbootstrap.com/docs/5.0/examples/navbars/">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+{% extends "base.html" %}
 
-    <style>
-        /* General styles */
-        body {
-            margin: 0;
-            padding: 0;
-            font-family: Arial, sans-serif;
-            background-color: #f8f9fa; /* Light background color */
-        }
-git 
-        .banner {
-            background-color: #ffeb3b; /* Bright yellow background */
-            color: #333; /* Dark text color */
-            padding: 10px 20px; /* Padding for the banner */
-            text-align: center; /* Center text */
-            position: fixed; /* Fix position to stay at the top */
-            top: 0; /* At the very top */
-            width: 100%; /* Full width */
-            z-index: 1050; /* Ensure it's above the navbar */
-            animation: slideIn 0.5s ease; /* Animation on load */
-            font-weight: bold; /* Bold text */
-            font-size: 1.2rem; /* Increase font size */
-            transition: transform 0.5s ease, top 0.5s ease; /* Smooth transition for sliding */
-        }
+{% block content %}
 
-        .banner.hidden {
-            transform: translateY(-100%); /* Move out of view */
-        }
-
-        .navbar {
-            position: fixed; /* Keep the navbar fixed */
-            top: 60px; /* Adjust top position to be below the banner */
-            width: 100%; /* Full width */
-            z-index: 1040; /* Below the banner */
-            transition: top 0.5s ease; /* Smooth transition for top property */
-        }
-
-        .custom-search-form {
-            display: flex;
-            align-items: center;
-            border-radius: 50px;
-            background-color: rgba(255, 255, 255, 0.1); 
-            padding: 5px 10px;
-            border: 1px solid rgba(255, 255, 255, 0.3); 
-            transition: all 0.3s ease;
-        }
-
-        .custom-search-input {
-            border: none;
-            background: none;
-            color: white;
-            padding: 10px 15px;
-            width: 100%;
-            outline: none;
-            font-size: 16px;
-            transition: all 0.3s ease;
-        }
-
-        .custom-search-input::placeholder {
-            color: rgba(255, 255, 255, 0.7);
-        }
-
-        .custom-search-btn {
-            background-color: #28a745;
-            color: white;
-            border-radius: 50px;
-            padding: 10px 20px;
-            border: none;
-            font-weight: bold;
-            transition: background-color 0.3s ease;
-        }
-
-        .custom-search-btn:hover {
-            background-color: #218838;
-        }
-
-        .custom-search-input:focus {
-            background-color: rgba(255, 255, 255, 0.2);
-            border-radius: 50px;
-            color: #fff;
-        }
-
-        /* Media Queries */
-        @media (max-width: 552px) {
-            .custom-search-form {
-                flex-grow: 1;
-                padding: 5px;
-                height: 40px; 
-            }
-
-            #navbar-search-form {
-                display: none;
-            }
-
-            #search-icon {
-                display: inline-block; 
-            }
-        }
-
-        #navbar-search-form.active {
-            display: flex !important;
-            flex-grow: 1; 
-        }
-
-        ul.navbar-nav.hidden {
-            display: none !important;
-        }
-
-        @media (min-width: 552px) {
-            #navbar-search-form {
-                display: flex !important;
-            }
-
-            #search-icon {
-                display: none; 
-            }
-        }
-
-        /* Body margin */
-        body {
-            margin-top: 60px; /* Adjust based on the height of the banner */
-        }
-
-        main {
-            padding: 20px; /* Main content padding */
-        }
-
-        h3, h4 {
-            margin-top: 20px;
-        }
-
-        /* Additional styles for list items */
-        ul {
-            list-style-type: none; /* Remove bullet points */
-            padding-left: 0; /* Remove padding */
-        }
-
-        li {
-            margin-bottom: 10px; /* Space between items */
-        }
-
-        a {
-            text-decoration: none; /* Remove underline from links */
-            color: #007bff; /* Bootstrap link color */
-        }
-
-        a:hover {
-            text-decoration: underline; /* Underline on hover */
-        }
-
-        span {
-            margin-left: 5px; /* Space before the discount text */
-        }
-    </style>
-</head>
-<body>
-
-    <div class="banner" id="promoBanner">
+    <!-- <div class="banner" id="promoBanner">
         <span>✨ Special Offer: 20% Off on All Items! ✨</span>
-    </div>
+    </div> -->
 
-    <nav class="navbar navbar-expand navbar-dark bg-dark fixed-top" aria-label="Second navbar example">
+    <!-- <nav class="navbar navbar-expand navbar-dark bg-dark fixed-top" aria-label="Second navbar example">
         <div class="container-fluid">
             <a class="navbar-brand fw-bold" href="#">MarketPlace</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarsExample02" aria-controls="navbarsExample02" aria-expanded="false" aria-label="Toggle navigation">
@@ -184,7 +22,7 @@ git
                         <a class="nav-link" href="#">Link</a>
                     </li>
                 </ul>
-                <form id="navbar-search-form" method="get" action="{% url 'item_list' %}" class="custom-search-form">
+                <form id="navbar-search-form" method="get" action="{% url 'marketplace:item_list' %}" class="custom-search-form">
                     <input class="form-control custom-search-input" type="input" name="q" placeholder="Search items..." aria-label="Search" value="{{ query|default:'' }}">
                     <button class="btn custom-search-btn" type="submit">Search</button>
                 </form>
@@ -194,11 +32,11 @@ git
                 </button>
             </div>
         </div>
-    </nav>
+    </nav> -->
 
     <main>
         <h3>Filter by Category</h3>
-        <form method="get" action="{% url 'item_list' %}">
+        <form method="get" action="{% url 'marketplace:item_list' %}">
             <select name="category" onchange="this.form.submit()">
                 <option value="all">All Items</option> 
                 {% for category in categories %}
@@ -215,7 +53,7 @@ git
             {% for search, item in search_items %}
                 {% if item %}
                     <li>
-                        <a href="{% url 'item_detail' item.id %}?q={{ search.query|urlencode }}">{{ search.query }}</a>
+                        <a href="{% url 'marketplace:item_detail' item.id %}?q={{ search.query|urlencode }}">{{ search.query }}</a>
                     </li>
                 {% else %}
                     <li>{{ search.query }} (No matching item)</li>
@@ -231,7 +69,7 @@ git
         <ul>
             {% for item in deal_items %}
                 <li>
-                    <a href="{% url 'item_detail' item.id %}">{{ item.title }}</a> 
+                    <a href="{% url 'marketplace:item_detail' item.id %}">{{ item.title }}</a> 
                     {% if item.is_deal %}
                         <span style="text-decoration: line-through;">${{ item.original_price }}</span>
                         <strong>Now: ${{ item.price }}</strong>
@@ -252,7 +90,7 @@ git
                     {% if items %}
                         {% for item in items %}
                             <li>
-                                <a href="{% url 'item_detail' item.id %}">{{ item.title }}</a>
+                                <a href="{% url 'marketplace:item_detail' item.id %}">{{ item.title }}</a>
                                 {% if item.sold %}
                                     <span>(Sold)</span>
                                 {% endif %}
@@ -297,7 +135,7 @@ git
             {% endfor %}
         {% endif %}
 
-        <a href="{% url 'add_item' %}" class="btn btn-primary mt-3">Add New Item</a>
+        <a href="{% url 'marketplace:add_item' %}" class="btn btn-primary mt-3">Add New Item</a>
     </main>
 
     <script>
@@ -350,6 +188,4 @@ git
             }
         });
     </script>
-
-</body>
-</html>
+{% endblock %}

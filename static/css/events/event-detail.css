@@ -1,0 +1,59 @@
+/* event-detail.css */
+.alert {
+    animation: slideIn 0.3s ease-out;
+}
+
+.bg-gradient-dark {
+    background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0) 100%);
+}
+
+.comment-card {
+    background: #fff;
+    border-radius: 8px;
+    padding: 1rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.reply-card {
+    background: #f8f9fa;
+    border-radius: 6px;
+    padding: 0.75rem;
+}
+
+.comment-section, 
+.reply-section {
+    transition: max-height 0.4s ease-in-out;
+    overflow: hidden;
+}
+
+.comment-section .comment-card, 
+.reply-section .reply-card {
+    border-bottom: 1px solid #e9ecef;
+    padding-bottom: 1rem;
+    margin-bottom: 1rem;
+}
+
+.reply-form {
+    margin-top: 1rem;
+}
+
+.fade-out {
+    opacity: 0;
+    transition: opacity 0.3s ease-out;
+}
+
+.like-button {
+    transition: all 0.2s ease-in-out;
+}
+
+.like-button:hover {
+    transform: scale(1.1);
+}
+
+.reply-card, 
+.comment-card {
+    transition: all 0.3s ease-in-out;
+}
+.reply-form {
+    display: none;
+}

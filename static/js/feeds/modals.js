@@ -1,4 +1,3 @@
-// Add new endpoints to API_ENDPOINTS in api.js first
 API_ENDPOINTS.REPORT_POST = (postId) => `/api/posts/${postId}/report/`;
 API_ENDPOINTS.REPORT_COMMENT = (commentId) => `/api/comments/${commentId}/report/`;
 
@@ -13,22 +12,19 @@ class EngagementModal {
         this.loadingState = this.modal.querySelector('.engagement-loading');
         this.errorState = this.modal.querySelector('.engagement-error');
         this.loadMoreBtn = this.modal.querySelector('.load-more-engagement');
-        
+
         this.currentPostId = null;
         this.currentType = null;
         this.currentPage = 1;
         this.hasNextPage = false;
-        
+
         this.init();
     }
 
     init() {
-        // Initialize reload button
         this.modal.querySelector('.reload-engagement').addEventListener('click', () => {
             this.loadEngagement(this.currentPostId, this.currentType);
         });
-
-        // Initialize load more button
         this.loadMoreBtn.querySelector('button').addEventListener('click', () => {
             this.loadEngagement(this.currentPostId, this.currentType, this.currentPage + 1);
         });
@@ -38,16 +34,12 @@ class EngagementModal {
         this.currentPostId = postId;
         this.currentType = type;
         this.currentPage = page;
-
-        // Update title based on type
         const titles = {
             likes: 'Likes',
             comments: 'Comments',
             views: 'Views'
         };
         this.title.textContent = `Post ${titles[type]}`;
-
-        // Show loading state for first page
         if (page === 1) {
             this.list.innerHTML = this.loadingState.outerHTML;
             this.loadMoreBtn.classList.add('d-none');
@@ -56,10 +48,8 @@ class EngagementModal {
 
         try {
             const data = await API.getEngagement(postId, type, page);
-            
-            // Create engagement items based on type
             const items = data.data.map(item => {
-                switch(type) {
+                switch (type) {
                     case 'likes':
                         return this.createLikeItem(item);
                     case 'comments':
@@ -68,15 +58,11 @@ class EngagementModal {
                         return this.createViewItem(item);
                 }
             }).join('');
-
-            // Update list content
             if (page === 1) {
                 this.list.innerHTML = items;
             } else {
                 this.list.insertAdjacentHTML('beforeend', items);
             }
-
-            // Update pagination
             this.hasNextPage = data.has_next;
             this.loadMoreBtn.classList.toggle('d-none', !this.hasNextPage);
 
@@ -152,13 +138,8 @@ class ReportModal {
     }
 
     init() {
-        // Initialize form validation
         this.form.addEventListener('submit', (e) => e.preventDefault());
-        
-        // Handle form submission
         this.submitButton.addEventListener('click', () => this.handleSubmit());
-        
-        // Reset form on modal close
         this.modal.addEventListener('hidden.mdb.modal', () => {
             this.form.reset();
             this.form.classList.remove('was-validated');
@@ -166,7 +147,6 @@ class ReportModal {
     }
 
     async handleSubmit() {
-        // Validate form
         if (!this.form.checkValidity()) {
             this.form.classList.add('was-validated');
             return;
@@ -178,8 +158,7 @@ class ReportModal {
         };
 
         try {
-            // Determine endpoint based on content type
-            const endpoint = this.contentTypeInput.value === 'post' 
+            const endpoint = this.contentTypeInput.value === 'post'
                 ? API_ENDPOINTS.REPORT_POST(this.contentIdInput.value)
                 : API_ENDPOINTS.REPORT_COMMENT(this.contentIdInput.value);
 
@@ -188,16 +167,12 @@ class ReportModal {
                 body: reportData
             });
 
-            showNotification('Report submitted successfully', 'success');
-            // Close modal using MDB
-            mdb.Modal.getInstance(this.modal).hide();
+            showNotification('Report submitted successfully', 'success'); mdb.Modal.getInstance(this.modal).hide();
 
         } catch (error) {
             showNotification('Failed to submit report', 'error');
         }
     }
-
-    // Public method to set up the modal for reporting
     setupReport(contentId, contentType) {
         this.contentIdInput.value = contentId;
         this.contentTypeInput.value = contentType;
@@ -212,16 +187,13 @@ class ShareModal {
         this.modal = document.getElementById('shareModal');
         this.linkInput = document.getElementById('shareLink');
         this.copyButton = document.getElementById('copyShareLink');
-        
+
         this.currentPostId = null;
         this.init();
     }
 
     init() {
-        // Initialize copy button
         this.copyButton.addEventListener('click', () => this.copyLink());
-        
-        // Initialize social share buttons
         const socialButtons = {
             'facebook-f': this.shareFacebook.bind(this),
             'twitter': this.shareTwitter.bind(this),
@@ -273,7 +245,6 @@ class ShareModal {
     }
 }
 
-// Initialize modals when document is ready
 document.addEventListener('DOMContentLoaded', () => {
     window.engagementModal = new EngagementModal();
     window.reportModal = new ReportModal();

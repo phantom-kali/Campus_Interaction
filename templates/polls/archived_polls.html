@@ -1,0 +1,652 @@
+{% extends 'base.html' %} {% block title %}Archived Polls{% endblock %} 
+{% block content %} {% load static %}
+<link rel="stylesheet" href="{% static '/css/polls/shared_polls.css' %}" />
+<!-- Navigation Bar -->
+
+<nav class="poll_navbar">
+  <div class="navbar-buttons">
+    <a href="{% url 'polls:archived_polls' %}" class="logo">All Archived</a>
+    <a href="{% url 'polls:add_polls' %}" class="create-poll-btn"
+      >+ Create New Poll</a
+    >
+  </div>
+  <a href="{% url 'polls:base_poll' %}" class="dashboard">All Polls</a>
+</nav>
+
+<div class="polls-container">
+  <div class="polls_items">
+    <form
+      method="GET"
+      action="{% url 'polls:archived_polls' %}"
+      class="search-form"
+    >
+      <input
+        type="text"
+        id="search"
+        name="query"
+        placeholder="Search Archived polls..."
+        aria-label="Search polls"
+        value="{{ query }}"
+        autocomplete="off"
+      />
+      <button type="submit" class="search">Search</button>
+    </form>
+    <!-- Display message when no polls are found after a search -->
+    {% if no_polls_message %}
+    <p
+      class="no-polls-message"
+      style="color: black; text-align: center; margin: 50px 0; font-size: 24px"
+    >
+      {{ no_polls_message }}
+    </p>
+    {% else %}
+    <div class="poll-type-buttons">
+      <button
+        class="poll-type-btn active"
+        data-type=""
+        onclick="filterPolls(this)"
+      >
+        All Archived
+      </button>
+      <button
+        class="poll-type-btn"
+        data-type="question"
+        onclick="filterPolls(this)"
+      >
+        Expired
+      </button>
+      <button
+        class="poll-type-btn"
+        data-type="opinion"
+        onclick="filterPolls(this)"
+      >
+        Results
+      </button>
+      <button
+        class="poll-type-btn"
+        data-type="others"
+        onclick="filterPolls(this)"
+      >
+        Others
+      </button>
+    </div>
+    {% endif %}
+    <style>
+      .highlight {
+        background-color: yellow;
+        transition: background-color 0.3s ease, color 0.3s ease;
+        color: black;
+      }
+    </style>
+
+<!-- Archived Polls List -->
+    <ul class="poll-list">
+      {% if archived_polls %} {% for poll in archived_polls %}
+      <li
+        class="poll-item"
+        data-poll-type="{{ poll.poll_type }}"
+        id="poll-{{ poll.id }}"
+      >
+        <div class="poll-content">
+          <div class="banner-container">
+            {% load static %} {% if poll.banner_image %}
+            <img
+              src="{{ poll.banner_image.url }}"
+              alt="{{ poll.title }} banner"
+              class="banner-image"
+            />
+            {% else %} {% if poll.poll_type == 'question' %}
+            <img
+              src="{% static 'images/default_poll_banner/questions.jpg' %}"
+              alt="Default Question Banner"
+              class="banner-image"
+            />
+            {% elif poll.poll_type == 'opinion' %}
+            <img
+              src="{% static 'images/default_poll_banner/opinions.jpg' %}"
+              alt="Default Opinion Banner"
+              class="banner-image"
+            />
+            {% else %}
+            <img
+              src="{% static 'images/default_poll_banner/question_image.jpeg' %}"
+              alt="Default General Banner"
+              class="banner-image"
+            />
+            {% endif %} {% endif %}
+          </div>
+
+          <style>
+            .arrow-bounce {
+              display: inline-block;
+              margin-right: 5px;
+              font-size: 24px;
+              animation: bounce 1s infinite;
+            }
+
+            @keyframes bounce {
+              0%,
+              20%,
+              50%,
+              80%,
+              100% {
+                transform: translateX(0);
+              }
+              40% {
+                transform: translateX(-10px); /* Move left */
+              }
+              60% {
+                transform: translateX(5px); /* Move right */
+              }
+            }
+          </style>
+
+          <h2 class="poll-title" style="margin-top: 4px">
+            <span class="arrow-bounce">&#8594;</span>
+            {{ poll.title }}
+          </h2>
+          {% if poll.description %}
+          <p class="poll-description">
+            Description - {{ poll.description|slice:":40" }}
+             {% if poll.description|length > 40 %}...{% endif %}
+          </p>
+          {% endif %}
+          <p class="poll-type">Type: {{ poll.get_poll_type_display }}</p>
+          {% if poll.is_public or poll.creator == request.user %}
+          <button
+            style="
+              border: none;
+              background: none;
+              color: #007bff;
+              text-decoration: none;
+              cursor: pointer;
+            "
+            onclick="window.location.href='{% url 'polls:poll_results' poll.id %}'"
+          >
+            See Results...
+          </button>
+          {% else %}
+          <p style="color: gray">
+            Results are accessible only to the creator or if public. Please wait
+            for the result link from the creator.
+          </p>
+
+          {% endif %}
+
+          <style>
+            .reaction_views_comment {
+              display: flex !important;
+              gap: 13px;
+            }
+            .reaction_views_comment small {
+              font-size: 16px;
+              transition: color 0.3s ease, transform 0.3s ease;
+            }
+            .reaction_views_comment small i {
+              transition: color 0.3s ease, transform 0.3s ease;
+            }
+
+            .reaction_views_comment small i:hover,
+            .reaction_views_comment small:hover {
+              color: #007bff;
+              transform: scale(1.1);
+              text-shadow: 0 2px 5px rgba(0, 91, 179, 0.5);
+            }
+          </style>
+
+          <div class="reaction_views_comment">
+            <small>
+              <i class="fa-regular fa-eye"></i> {{ poll.view_count }}
+            </small>
+            <small
+              style="display: inline-flex; align-items: center"
+              title="You cannot like archived polls"
+            >
+              <i
+                class="fa-regular fa-heart {% if poll.id in liked_polls_set %} liked {% else %} unliked {% endif %}"
+                style="color: {% if poll.id in liked_polls_set %} red {% else %} black {% endif %}; font-size: 1.2em;"
+              ></i>
+              <span class="like-count" style="margin-left: 4px"
+                >{{ poll.poll_likes.count }}</span
+              >
+            </small>
+            <small
+              onclick="toggleComments('{{ poll.id }}')"
+              id="comment-container-{{ poll.id }}"
+            >
+              <i class="fa-regular fa-comment"></i>
+              <span id="comment-count-{{ poll.id }}"
+                >{{ poll.comment_count }}</span
+              >
+            </small>
+          </div>
+
+          <div
+            class="comments-section"
+            id="comments-section-{{ poll.id }}"
+            style="display: none"
+          >
+            <h3>Comments</h3>
+            <div id="comments-{{ poll.id }}" class="comments-list">
+              <!-- Comments will be loaded here in batches -->
+            </div>
+            <button
+              id="load-more-{{ poll.id }}"
+              class="load-more-button"
+              onclick="loadMoreComments('{{ poll.id }}')"
+            >
+              Load more
+            </button>
+            <form
+              method="post"
+              action="{% url 'polls:add_comment' poll.id %}"
+              class="main-comment-form"
+              data-poll-id="{{ poll.id }}"
+            >
+              {% csrf_token %}
+              <textarea
+                name="comment"
+                class="comment-input"
+                placeholder="Add a comment..."
+                required
+              ></textarea>
+              <button type="submit" class="comment-button">Add Comment</button>
+            </form>
+          </div>
+        </div>
+      </li>
+
+      {% endfor %} {% else %}
+      <div
+        id="no-polls-message"
+        style="
+          text-align: center;
+          margin: 60px 0;
+          font-size: 24px;
+          color: black;
+        "
+      >
+        <i
+          class="fas fa-poll"
+          aria-hidden="true"
+          style="color: #007bff; font-size: 30px; margin-bottom: 10px"
+        ></i>
+        <b>No Archived Polls Available.</b>
+      </div>
+      {% endif %}
+    </ul>
+  </div>
+
+  <style>
+    .archived-polls a i {
+      margin-right: 8px;
+    }
+    .popular-polls a {
+      display: flex;
+      align-items: center;
+    }
+
+    .popular-polls a i {
+      margin-right: 8px;
+      color: #ffd700;
+    }
+
+    .view-count {
+      color: #6c757d;
+      font-size: 0.9rem;
+      margin-left: 5px;
+    }
+  </style>
+
+  <!-- Sidebar showing the About and Airchived Items -->
+  <div class="sidebar">
+    <h4><i class="fa-solid fa-star"></i> Popular Polls</h4>
+    <ul class="popular-polls">
+      {% if popular_polls %} {% for poll in popular_polls %}
+       {% if poll.is_active and not poll.is_expired %}
+      <li>
+        <a href="{% url 'polls:vote_poll' poll.id %}">
+          <i class="fas fa-star" aria-hidden="true"></i>
+          {{ poll.title }}
+          <span class="view-count">({{ poll.view_count }} views)</span>
+        </a>
+      </li>
+      {% endif %} {% endfor %} {% else %}
+      <li class="no-polls-populat" style="text-align: center">
+        <i
+          class="fas fa-poll"
+          aria-hidden="true"
+          style="color: #007bff; font-size: 23px; margin-right: 5px"
+        ></i>
+        No popular polls available.
+      </li>
+      {% endif %}
+    </ul>
+    <!-- Archieved Polls -->
+    <h4><i class="fa-solid fa-archive"></i> Archived Polls</h4>
+    <div class="archived-subsections">
+      {% if archived_polls %}
+      <div class="archived-section">
+        <h5>Expired Polls</h5>
+        <ul class="archived-polls popular-polls">
+          {% for poll in archived_polls %}
+          <li>
+            <a
+              href="{% url 'polls:archived_polls' %}#poll-{{ poll.id }}"
+              onclick="scrollToPoll('{{ poll.id }}');"
+            >
+              <i
+                class="fas fa-archive"
+                aria-hidden="true"
+                style="color: #6c757d"
+              ></i>
+              {{ poll.title|truncatechars:10 }}
+              <span style="color: red; margin-left: 3px">(Expired)</span>
+            </a>
+          </li>
+          {% endfor %}
+        </ul>
+      </div>
+      <!-- Archived Results -->
+      {% endif %} {% if archived_results %}
+      <div class="archived-section">
+        <h5>Archived Results</h5>
+        <ul class="archived-results popular-polls">
+          {% for result in archived_results %}
+          <li>
+            <a href="{% url 'polls:poll_results' result.poll.id %}">
+              {{ result.poll.title|truncatechars:10 }} -
+              <span>{{ result.vote_count }} votes</span>
+            </a>
+          </li>
+          {% endfor %}
+        </ul>
+      </div>
+    
+      {% endif %} {% if other_archived_polls %}
+      <!-- Archieved Polls with users preference -->
+      <div class="archived-section">
+        <h5>Other Archived Polls</h5>
+        <ul class="other-archived-polls popular-polls">
+          {% for poll in other_archived_polls %}
+          <li>
+            <a href="{% url 'polls:poll_results' poll.id %}">
+              {{ poll.title|truncatechars:10 }}
+              <span style="color: #6c757d">(Archived)</span>
+            </a>
+          </li>
+          {% endfor %}
+        </ul>
+      </div>
+      {% endif %} {% if no_polls_message %}
+      <p
+        class="no-polls-message"
+        style="color: black; text-align: center; font-size: 12px"
+      >
+        {{ no_polls_message }}
+      </p>
+      {% endif %}
+    </div>
+
+    <div style="margin-top: 13%">
+      <h3>About Archived Polls</h3>
+      <p>
+        Archived polls are a treasure trove of past conversations and insights.
+        They represent a snapshot of community opinions, capturing the
+        sentiments and trends of their time. By exploring these archived polls,
+        you can revisit topics that have sparked discussions, see how public
+        opinions have evolved, and analyze the outcomes of various debates.
+        Whether you’re looking to reflect on previous discussions or gain
+        inspiration for new ones, our archived polls offer valuable context and
+        a chance to learn from the past. Dive in, discover what has been said,
+        and contribute to ongoing dialogues that continue to shape our
+        understanding of key issues!
+      </p>
+    </div>
+  </div>
+
+  <script>
+    function scrollToPoll(pollId) {
+      const pollElement = document.getElementById("poll-" + pollId);
+      if (pollElement) {
+        // Scroll to the poll item
+        pollElement.scrollIntoView({ behavior: "smooth" });
+
+        // Highlight the title
+        const titleElement = pollElement.querySelector(".poll-title");
+        if (titleElement) {
+          titleElement.classList.add("highlight");
+
+          // Remove highlight after 3 seconds
+          setTimeout(() => {
+            titleElement.classList.remove("highlight");
+          }, 3000);
+        }
+      }
+    }
+  </script>
+
+  <script>
+    let currentCommentCount = 0;
+    const commentsToLoad = 5;
+    let currentlyOpenPollId = null;
+
+    function toggleComments(pollId) {
+      const commentsSection = document.getElementById(
+        `comments-section-${pollId}`
+      );
+      if (currentlyOpenPollId !== null && currentlyOpenPollId !== pollId) {
+        const currentlyOpenSection = document.getElementById(
+          `comments-section-${currentlyOpenPollId}`
+        );
+        currentlyOpenSection.style.display = "none";
+        currentCommentCount = 0;
+      }
+
+      if (
+        commentsSection.style.display === "none" ||
+        commentsSection.style.display === ""
+      ) {
+        commentsSection.style.display = "block";
+        currentlyOpenPollId = pollId;
+        currentCommentCount = 0;
+        loadMoreComments(pollId);
+      } else {
+        commentsSection.style.display = "none";
+        currentlyOpenPollId = null;
+        currentCommentCount = 0;
+      }
+    }
+    function loadMoreComments(pollId) {
+      const url = `{% url 'polls:load_comments' 0 %}`.replace("0", pollId);
+
+      fetch(`${url}?offset=${currentCommentCount}&limit=${commentsToLoad}`)
+        .then((response) => {
+          if (!response.ok) throw new Error("Network response was not ok");
+          return response.json();
+        })
+        .then((data) => {
+          const commentsList = document.getElementById(`comments-${pollId}`);
+
+          // If no comments are loaded, display a message
+          if (data.comments.length === 0 && currentCommentCount === 0) {
+            commentsList.innerHTML = `<p style="text-align: center; font-style: italic; color: gray;">
+                                      No comments available, be the first one!
+                                    </p>`;
+            document.getElementById(`load-more-${pollId}`).style.display =
+              "none";
+            return;
+          }
+
+          // Clear comments only on first load
+          if (currentCommentCount === 0) {
+            commentsList.innerHTML = "";
+          }
+
+          data.comments.forEach((comment) => {
+            const commentDiv = document.createElement("div");
+            commentDiv.classList.add("comment");
+
+            const createdAt = new Date(comment.created_at);
+            createdAt.setHours(createdAt.getHours() + 3);
+
+            const formattedDate = `${createdAt
+              .getHours()
+              .toString()
+              .padStart(2, "0")}:${createdAt
+              .getMinutes()
+              .toString()
+              .padStart(2, "0")} ${createdAt
+              .getDate()
+              .toString()
+              .padStart(2, "0")}/${(createdAt.getMonth() + 1)
+              .toString()
+              .padStart(2, "0")}/${createdAt.getFullYear()}`;
+
+            const likeForm = `
+            <form method="post" class="like-form" data-comment-id="${
+              comment.id
+            }">
+              <input type="hidden" name="csrfmiddlewaretoken" value="${getCsrfToken()}">
+              <button type="button" class="like-button" style="color: ${
+                comment.liked ? "red" : "black"
+              };" onclick="handleLikeClick(${comment.id}, this)">
+                <i class="fas fa-thumbs-up" style="color: ${
+                  comment.liked ? "red" : "black"
+                };"></i>
+              </button>
+              <span class="likes-count">${comment.total_likes}</span>
+            </form>
+          `;
+
+            commentDiv.innerHTML = `
+            <p class="comment-user">${comment.user.username}:</p>
+            <p class="comment-text">${comment.text}</p>
+            <small class="comment-date" style="margin-right: 5px;">${formattedDate}</small>
+            ${likeForm}
+          `;
+            commentsList.appendChild(commentDiv);
+          });
+
+          currentCommentCount += data.comments.length;
+
+          // Show or hide the "Load more" button based on availability of more comments
+          const loadMoreButton = document.getElementById(`load-more-${pollId}`);
+          if (data.comments.length < commentsToLoad) {
+            loadMoreButton.style.display = "none";
+          } else {
+            loadMoreButton.style.display = "block";
+          }
+        })
+        .catch((error) => console.error("Error loading comments:", error));
+    }
+
+    function getCsrfToken() {
+      const csrfTokenElement = document.querySelector(
+        "[name=csrfmiddlewaretoken]"
+      );
+      return csrfTokenElement ? csrfTokenElement.value : null;
+    }
+
+    function handleLikeClick(commentId, likeButton) {
+      const url = `/polls/comment/${commentId}/like/`;
+      const csrfToken = getCsrfToken();
+      const likesCountSpan = likeButton.nextElementSibling;
+
+      fetch(url, {
+        method: "POST",
+        headers: {
+          "X-CSRFToken": csrfToken,
+          "X-Requested-With": "XMLHttpRequest",
+          "Content-Type": "application/json",
+        },
+      })
+        .then((response) => {
+          if (!response.ok) {
+            console.error(`Error: ${response.status} - ${response.statusText}`);
+            throw new Error("Network response was not ok");
+          }
+          return response.json();
+        })
+        .then((data) => {
+          if (data.success) {
+            likesCountSpan.textContent = data.total_likes;
+            likeButton.style.color = data.liked ? "red" : "black";
+            const icon = likeButton.querySelector("i");
+            if (icon) {
+              icon.style.color = data.liked ? "red" : "black";
+            }
+          } else {
+            console.error("Failed to like comment:", data);
+          }
+        })
+        .catch((error) => console.error("Error:", error));
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+      const commentForm = document.querySelector(".main-comment-form");
+
+      commentForm.addEventListener("submit", function (event) {
+        event.preventDefault();
+
+        const pollId = commentForm.getAttribute("data-poll-id");
+        const url = `{% url 'polls:add_comment' 0 %}`.replace("0", pollId);
+        const commentInput = this.querySelector(".comment-input");
+        const commentText = commentInput.value;
+        const csrfToken = getCsrfToken();
+
+        fetch(url, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": csrfToken,
+          },
+          body: JSON.stringify({ comment: commentText }),
+        })
+          .then((response) => {
+            if (!response.ok) throw new Error("Network response was not ok");
+            return response.json();
+          })
+          .then((data) => {
+            if (data.success) {
+              commentInput.value = "";
+              currentCommentCount = 0;
+              loadMoreComments(pollId);
+
+              const commentCountElement = document.getElementById(
+                `comment-count-${pollId}`
+              );
+              const currentCount = parseInt(
+                commentCountElement.textContent.trim(),
+                10
+              );
+              commentCountElement.textContent = currentCount + 1;
+
+              // Ensure "Load more" button is visible after adding a comment
+              const loadMoreButton = document.getElementById(
+                `load-more-${pollId}`
+              );
+              if (loadMoreButton) {
+                loadMoreButton.style.display = "block";
+              }
+            } else {
+              console.error("Failed to add comment:", data);
+            }
+          })
+          .catch((error) => console.error("Error:", error));
+      });
+    });
+
+    document.addEventListener("keydown", function (event) {
+      if (event.key === "Escape" && currentlyOpenPollId !== null) {
+        const commentsSection = document.getElementById(
+          `comments-section-${currentlyOpenPollId}`
+        );
+        commentsSection.style.display = "none";
+        currentlyOpenPollId = null;
+        currentCommentCount = 0;
+      }
+    });
+  </script>
+  {% endblock %}
+</div>

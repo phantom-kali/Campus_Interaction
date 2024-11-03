@@ -2,6 +2,8 @@
 {% extends 'base.html' %}
 {% block title %}{{ event.title }} - Event Details{% endblock %}
 {% load event_filters %}
+{% load static %}
+
 
 {% block content %}
 <div class="container-fluid px-0">
@@ -9,9 +11,7 @@
     <div class="position-relative">
         {% if event.image %}
             <div class="event-hero" style="height: 50vh; overflow: hidden;">
-                <img src="{{ event.image.url }}" 
-                     alt="{{ event.title }}" 
-                     class="w-100 h-100 object-fit-cover">
+                <img src="{{ event.image.url }}" alt="{{ event.title }}" class="w-100 h-100 object-fit-cover">
                 <div class="position-absolute bottom-0 start-0 w-100 bg-gradient-dark p-4">
                     <div class="container">
                         <h1 class="text-white display-4 mb-2">{{ event.title }}</h1>
@@ -65,19 +65,17 @@
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-center mb-4">
                             <h3 class="card-title h4 mb-0">Comments</h3>
-                            <button class="btn btn-link" onclick="toggleComments()">
-                                <i class="fas fa-comments"></i> Toggle Comments
-                            </button>
-                        </div>
+                                <!-- Show/Hide Comments Button -->
+                                    <button id="toggleCommentsBtn" class="btn btn-link" onclick="toggleComments()">
+                                        Show Comments
+                                    </button>
+                            </div>
 
                         <!-- Comment Form -->
-                        <form method="POST" action="{% url 'events:add_comment' event.id %}" class="mb-4">
+                        <form method="POST" action="{% url 'events:add_comment' event.id %}" class="mb-4" id="commentForm">
                             {% csrf_token %}
                             <div class="form-floating mb-3">
-                                <textarea name="content" class="form-control" 
-                                          placeholder="Share your thoughts..." 
-                                          id="commentContent" 
-                                          style="height: 100px"></textarea>
+                                <textarea name="content" class="form-control" placeholder="Share your thoughts..." id="commentContent" style="height: 100px"></textarea>
                                 <label for="commentContent">Share your thoughts...</label>
                             </div>
                             <button type="submit" class="btn btn-primary">
@@ -88,77 +86,7 @@
                         <!-- Comments List -->
                         <div id="main-comments" class="comment-section">
                             {% for comment in comments %}
-                                <div class="comment-card mb-3">
-                                    <div class="d-flex align-items-start mb-2">
-                                        <div class="comment-avatar me-3">
-                                            <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center" 
-                                                 style="width: 40px; height: 40px;">
-                                                {{ comment.user.user.username|make_list|first|upper }}
-                                            </div>
-                                        </div>
-                                        <div class="flex-grow-1">
-                                            <div class="d-flex justify-content-between">
-                                                <h6 class="mb-1">{{ comment.user.user.username }}</h6>
-                                                <small class="text-muted">{{ comment.created_at|timesince }} ago</small>
-                                            </div>
-                                            <p class="mb-2">{{ comment.content }}</p>
-                                            <div class="d-flex align-items-center gap-3">
-                                                <button class="btn btn-sm {% if request.user.profile in comment.likes.all %}btn-danger{% else %}btn-outline-danger{% endif %}" 
-                                                        onclick="toggleLike({{ comment.id }})">
-                                                    <i class="fas fa-heart"></i>
-                                                    <span class="ms-1">{{ comment.likes.count }}</span>
-                                                </button>
-                                                <button class="btn btn-sm btn-outline-primary" 
-                                                        onclick="toggleReplyForm({{ comment.id }})">
-                                                    <i class="fas fa-reply"></i> Reply
-                                                </button>
-                                            </div>
-
-                                            <!-- Reply Form (Hidden by default) -->
-                                            <div id="reply-form-{{ comment.id }}" class="reply-form mt-3" style="display: none;">
-                                                <form method="POST" action="{% url 'events:add_comment' event.id %}">
-                                                    {% csrf_token %}
-                                                    <input type="hidden" name="parent_comment_id" value="{{ comment.id }}">
-                                                    <div class="form-floating mb-2">
-                                                        <textarea name="content" class="form-control" 
-                                                                  placeholder="Write your reply..." 
-                                                                  style="height: 80px"></textarea>
-                                                        <label>Write your reply...</label>
-                                                    </div>
-                                                    <button type="submit" class="btn btn-sm btn-primary">Post Reply</button>
-                                                </form>
-                                            </div>
-
-                                            <!-- Replies -->
-                                            {% if comment.replies.all %}
-                                                <div class="replies-section mt-3 ms-4">
-                                                    <a href="javascript:void(0);" 
-                                                       onclick="toggleReplies({{ comment.id }})" 
-                                                       class="text-primary mb-2 d-block">
-                                                        <i class="fas fa-chevron-down"></i>
-                                                        Show {{ comment.replies.count }} replies
-                                                    </a>
-                                                    <div id="replies-{{ comment.id }}" style="display: none;">
-                                                        {% for reply in comment.replies.all %}
-                                                            <div class="reply-card mb-2 border-start border-3 ps-3">
-                                                                <div class="d-flex justify-content-between">
-                                                                    <h6 class="mb-1">{{ reply.user.user.username }}</h6>
-                                                                    <small class="text-muted">{{ reply.created_at|timesince }} ago</small>
-                                                                </div>
-                                                                <p class="mb-2">{{ reply.content }}</p>
-                                                                <button class="btn btn-sm {% if request.user.profile in reply.likes.all %}btn-danger{% else %}btn-outline-danger{% endif %}" 
-                                                                        onclick="toggleLike({{ reply.id }})">
-                                                                    <i class="fas fa-heart"></i>
-                                                                    <span class="ms-1">{{ reply.likes.count }}</span>
-                                                                </button>
-                                                            </div>
-                                                        {% endfor %}
-                                                    </div>
-                                                </div>
-                                            {% endif %}
-                                        </div>
-                                    </div>
-                                </div>
+                                {% include 'events/partials/comment.html' %}
                             {% empty %}
                                 <div class="text-center text-muted py-4">
                                     <i class="fas fa-comments fa-3x mb-3"></i>
@@ -172,28 +100,23 @@
 
             <!-- Right Column - Event Actions and Info -->
             <div class="col-lg-4">
-                <!-- Event Actions -->
                 <div class="card shadow-sm mb-4">
                     <div class="card-body">
-                        {% if not event.is_public %}
-                            {% if not user_registered %}
-                                <form method="POST" class="mb-3">
-                                    {% csrf_token %}
-                                    <button type="submit" class="btn btn-success btn-lg w-100">
-                                        <i class="fas fa-user-plus"></i> Register for Event
-                                    </button>
-                                </form>
-                            {% else %}
-                                <div class="alert alert-success mb-3">
-                                    <i class="fas fa-check-circle"></i> You're registered!
-                                </div>
-                            {% endif %}
+                        {% if not event.is_public and not user_registered %}
+                            <form method="POST" class="mb-3">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-success btn-lg w-100">
+                                    <i class="fas fa-user-plus"></i> Register for Event
+                                </button>
+                            </form>
+                        {% elif user_registered %}
+                            <div class="alert alert-success mb-3">
+                                <i class="fas fa-check-circle"></i> You're registered!
+                            </div>
                         {% endif %}
 
                         {% if request.user == event.organizer.user %}
-                            <button type="button" 
-                                    class="btn btn-outline-danger w-100 delete-event-btn" 
-                                    data-event-id="{{ event.id }}">
+                            <button type="button" class="btn btn-outline-danger w-100 delete-event-btn" data-event-id="{{ event.id }}">
                                 <i class="fas fa-trash"></i> Delete Event
                             </button>
                         {% endif %}
@@ -227,95 +150,11 @@
     </div>
 </div>
 
-<!-- Custom Styles -->
 {% block extra_css %}
-<style>
-    .bg-gradient-dark {
-        background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0) 100%);
-    }
-    .comment-card {
-        background: #fff;
-        border-radius: 8px;
-        padding: 1rem;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-    }
-    .reply-card {
-        background: #f8f9fa;
-        border-radius: 6px;
-        padding: 0.75rem;
-    }
-</style>
+<link rel="stylesheet" href="{% static 'css/events/event-detail.css' %}">
 {% endblock %}
 
-<!-- JavaScript -->
 {% block extra_js %}
-<script>
-function toggleComments() {
-    const commentsSection = document.getElementById("main-comments");
-    commentsSection.style.display = commentsSection.style.display === "none" ? "block" : "none";
-}
-
-function toggleReplies(commentId) {
-    const repliesSection = document.getElementById(`replies-${commentId}`);
-    repliesSection.style.display = repliesSection.style.display === "none" ? "block" : "none";
-}
-
-function toggleReplyForm(commentId) {
-    const replyForm = document.getElementById(`reply-form-${commentId}`);
-    replyForm.style.display = replyForm.style.display === "none" ? "block" : "none";
-}
-
-async function toggleLike(commentId) {
-    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
-    try {
-        const response = await fetch(`/events/comment/${commentId}/like/`, {
-            method: 'POST',
-            headers: {
-                'X-CSRFToken': csrfToken,
-                'Content-Type': 'application/json',
-            }
-        });
-        if (response.ok) {
-            location.reload();
-        }
-    } catch (error) {
-        console.error("Error:", error);
-    }
-}
-
-// Delete Event Handler
-document.addEventListener('DOMContentLoaded', function() {
-    const deleteButton = document.querySelector('.delete-event-btn');
-    if (deleteButton) {
-        deleteButton.addEventListener('click', async function() {
-            const eventId = deleteButton.dataset.eventId;
-            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
-
-            if (confirm("Are you sure you want to delete this event? This action cannot be undone.")) {
-                try {
-                    const response = await fetch(`/events/${eventId}/delete/`, {
-                        method: 'DELETE',
-                        headers: {
-                            'X-CSRFToken': csrfToken,
-                            'Content-Type': 'application/json',
-                        }
-                    });
-
-                    if (response.ok) {
-                        window.location.href = '/events/';
-                    } else {
-                        const data = await response.json();
-                        alert(data.message || "Failed to delete event.");
-                    }
-                } catch (error) {
-                    console.error("Error:", error);
-                    alert("Error deleting event.");
-                }
-            }
-        });
-    }
-});
-</script>
+<script src="{% static 'js/events/event-detail.js' %}"></script>
 {% endblock %}
-
 {% endblock %}

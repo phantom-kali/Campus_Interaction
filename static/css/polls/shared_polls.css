@@ -1,0 +1,605 @@
+.poll_navbar {
+    padding: 10px 20px;
+  }
+  .navbar-buttons {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  @import url("https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap");
+  .poll_navbar .logo {
+    font-size: 30px;
+    color: #333;
+    text-decoration: none;
+    font-family: "Roboto", sans-serif;
+    font-weight: 900;
+    font-style: normal;
+  }
+
+  /* Button Styling */
+  .create-poll-btn {
+    background-color: blue; /* Green */
+    color: #fff;
+    padding: 10px 12px;
+    border: none;
+    border-radius: 5px;
+    font-size: 14px;
+    text-transform: uppercase;
+    font-weight: bold;
+    display: inline-flex;
+    align-items: center;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+
+  .create-poll-btn:hover {
+    background-color: #4a56e2;
+    color: #fff;
+  }
+
+  .toggle-filters-btn {
+    background-color: #4a56e2;
+    color: #fff;
+    padding: 8px 12px;
+    border: none;
+    border-radius: 5px;
+    font-size: 14px;
+    text-transform: uppercase;
+    font-weight: bold;
+    display: inline-flex;
+    align-items: center;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+
+  .toggle-filters-btn:hover {
+    background-color: #1c216d;
+  }
+
+  .navbar-buttons {
+    display: flex;
+    gap: 10px;
+  }
+  .poll-list {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    padding: 0;
+    margin-top: 10px;
+    margin: 20px 0;
+  }
+
+  /* Poll Item Card */
+  .poll-item {
+    position: relative;
+    border: 1px solid #ddd;
+    border-radius: 12px;
+    padding: 20px;
+    background-color: #ffffff;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    transition: transform 1s, box-shadow 1s;
+  }
+
+  .poll-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+  }
+
+  .poll-item a {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+  }
+
+  /* Poll Title */
+  .poll-title {
+    font-size: 1.25rem;
+    font-weight: bold;
+    color: #2c3e50;
+    text-decoration: none;
+    z-index: 2;
+    position: relative;
+  }
+  .poll-item:hover .poll-title {
+    color: #007bff; /* Color on hover */
+  }
+  .poll-title:hover {
+    color: #007bff;
+  }
+
+  /* Poll Description */
+  .poll-description {
+    font-size: 0.9rem;
+    color: #555;
+    z-index: 2;
+    position: relative;
+  }
+
+  /* Poll Type */
+  .poll-type {
+    font-size: 0.85rem;
+    font-style: italic;
+    color: #888;
+    z-index: 2;
+    position: relative;
+  }
+
+  /* Poll Status */
+  .poll-status .active {
+    color: #28a745;
+    font-weight: bold;
+  }
+
+  .poll-status .expired {
+    color: #dc3545;
+    font-weight: bold;
+  }
+
+  /* No Polls Message */
+  .no-polls {
+    display: none;
+    color: black;
+    text-align: center;
+    margin: 50px 0;
+    font-size: 24px;
+  }
+
+  .dashboard {
+    color: #555;
+    font-size: 14px;
+    padding: 8px 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    text-transform: uppercase;
+    font-weight: bold;
+    display: inline-flex;
+    align-items: center;
+    cursor: pointer;
+    margin-top: 5px;
+    text-decoration: none;
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+  .dashboard:hover {
+    background-color: #f0f0f0;
+    color: #333;
+  }
+  .polls-container {
+    display: flex; /* Use flexbox for layout */
+    margin: 0 auto;
+    max-width: 1200px; /* Adjust max-width as needed */
+  }
+
+  .polls_items {
+    margin: 0;
+    flex: 3; /* Take 3 parts of the available space */
+    padding: 20px; /* Add some padding */
+  }
+
+  .poll-list {
+    list-style: none; /* Remove default list styles */
+    padding: 0; /* Remove default padding */
+    margin-top: 10px;
+  }
+
+  .poll-item {
+    margin-bottom: 15px; /* Space between poll items */
+    border: 1px solid #ccc; /* Add border for separation */
+    padding: 15px; /* Inner padding for poll items */
+  }
+
+  .poll-status span {
+    font-weight: bold;
+  }
+
+  .sidebar {
+    flex: 1;
+    margin-top: 24px;
+    padding: 20px; /* Padding around the sidebar */
+    background-color: #f9f9f9; /* Light background color for the sidebar */
+    border-left: 1px solid #ccc; /* Border to separate from polls */
+  }
+
+  .sidebar h3 {
+    margin-top: 0; /* Remove margin on top of the heading */
+  }
+  @media (max-width: 768px) {
+    .polls-container {
+      flex-direction: column;
+    }
+
+    .polls_items {
+      flex: none; /* Reset flex property */
+      margin-bottom: 20px; /* Space between polls and sidebar */
+    }
+
+    .sidebar {
+      border-left: none; /* Remove left border on small screens */
+      border-top: 1px solid #ccc; /* Add top border for separation */
+    }
+    .poll_navbar .logo {
+      font-size: 23px;
+    }
+    .create-poll-btn {
+      font-size: 12px;
+    }
+  }
+
+  .search-form {
+    display: flex;
+    align-items: center;
+    border-radius: 5px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    background-color: #fff;
+    padding: 10px 20px;
+  }
+
+  input[type="text"] {
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 10px;
+    margin-right: 10px;
+    width: 100%;
+    transition: border-color 0.3s;
+  }
+
+  input[type="text"]:focus {
+    border-color: #007bff;
+    outline: none;
+  }
+
+  .search {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 10px 15px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+
+  .search:hover {
+    background-color: #0056b3;
+  }
+
+  #no-polls-message {
+    display: none; /* Initially hidden */
+    color: black;
+    text-align: center;
+    margin: 50px 0;
+    font-size: 24px;
+  }
+  .poll-type-buttons {
+    display: flex;
+    margin: 20px 0;
+    margin-bottom: 20px;
+  }
+  .poll-type-btn {
+    background-color: #f0f0f0;
+    border: none;
+    color: #000;
+    font-weight: 500;
+    border-radius: 50px;
+    padding: 10px 20px;
+    margin: 0 3px;
+    cursor: pointer;
+    font-family: "Roboto", sans-serif;
+    font-weight: 900;
+    font-style: normal;
+    font-size: 16px;
+    transition: background-color 0.3s;
+  }
+  .poll-type-btn:hover {
+    background-color: #e0e0e0;
+  }
+  .poll-type-btn.active {
+    background-color: rgba(0, 123, 255, 0.9); /* Active button color */
+    color: white; /* Text color for the active button */
+  }
+  .poll-type-btn.selected {
+    background-color: #007bff; /* Selected button color */
+    color: white; /* Text color for selected button */
+  }
+  .popular-polls {
+    list-style: none;
+    padding: 0;
+    margin: 20px 0;
+    background-color: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    transition: transform 0.3s ease;
+  }
+  @media (max-width: 768px) {
+    .poll-type-btn {
+      font-size: 12px;
+    }
+  }
+
+  .popular-polls,
+  .archived-polls {
+    list-style: none;
+    padding: 0;
+    margin: 20px 0;
+    background-color: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    transition: transform 0.3s ease;
+  }
+
+  h4 {
+    text-align: center;
+    color: #2c3e50;
+    padding: 20px;
+    font-family: "Roboto", sans-serif;
+    font-size: 1.5rem;
+    border-bottom: 2px solid #007bff;
+    margin-bottom: 15px;
+  }
+
+  .popular-polls li,
+  .archived-polls li {
+    padding: 15px 20px;
+    border-bottom: 1px solid #eaeaea;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+  }
+
+  .popular-polls li:last-child,
+  .archived-polls li:last-child {
+    border-bottom: none;
+  }
+
+  .popular-polls a,
+  .archived-polls a {
+    color: #333;
+    /* text-decoration: none; */
+    font-size: 1rem;
+    display: block;
+  }
+
+  .popular-polls a:hover,
+  .archived-polls a:hover {
+    color: #007bff;
+    transform: translateY(-2px);
+  }
+
+  .no-polls-populat {
+    text-align: center;
+    color: #dc3545;
+    font-weight: bold;
+    padding: 20px;
+    font-size: 13px;
+  }
+
+  .archived-polls li {
+    background-color: #f9f9f9;
+    color: #6c757d;
+    font-style: italic;
+  }
+
+  .archived-polls a:hover {
+    color: #6c757d;
+    text-decoration: none;
+  }
+  .archived-subsections {
+    margin: 20px 0;
+  }
+
+  .archived-section {
+    margin-bottom: 20px;
+    background-color: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    padding: 15px;
+  }
+
+  h5 {
+    color: #2c3e50;
+    font-family: "Roboto", sans-serif;
+    font-size: 1.25rem;
+    border-bottom: 2px solid #091624;
+    padding-bottom: 10px;
+    margin-bottom: 15px;
+    text-align: center;
+  }
+
+  .archived-polls li,
+  .archived-results li,
+  .other-archived-polls li {
+    padding: 10px 15px;
+    border-bottom: 1px solid #eaeaea;
+    transition: background-color 0.3s ease;
+  }
+
+  .archived-polls li:last-child,
+  .archived-results li:last-child,
+  .other-archived-polls li:last-child {
+    border-bottom: none;
+  }
+
+  .archived-polls a,
+  .archived-results a,
+  .other-archived-polls a {
+    color: #333;
+    text-decoration: none;
+    display: block;
+  }
+
+  .archived-polls a:hover,
+  .archived-results a:hover,
+  .other-archived-polls a:hover {
+    color: #007bff;
+  }
+
+  .no-polls {
+    text-align: center;
+    color: #dc3545;
+    font-weight: bold;
+    padding: 20px;
+    font-size: 1.2rem;
+  }
+
+  .banner-container img {
+    width: 100%;
+    height: 150px;
+    filter: brightness(0.7);
+    object-fit: cover;
+    border-radius: 10px;
+    border: 1px solid #000;
+    overflow: hidden;
+  }
+
+  .countdown {
+    font-size: 12px;
+    font-weight: bold;
+    color: #ff5722;
+    padding: 10px 15px;
+    display: inline-block;
+  }
+
+  .comments-section {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    margin-top: 20px;
+  }
+
+  .comments-section h3 {
+    margin-bottom: 20px;
+    color: #333;
+  }
+
+  /* Comment List */
+  .comments-list {
+    max-height: 400px;
+    overflow-y: auto;
+    margin-bottom: 20px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    background-color: #fdfdfd;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    scrollbar-width: thin;
+  }
+
+  .comments-list::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  .comments-list::-webkit-scrollbar-thumb {
+    background-color: #007bff;
+    border-radius: 10px;
+  }
+
+  .comments-list::-webkit-scrollbar-thumb:hover {
+    background-color: #0056b3;
+  }
+
+  .comment {
+    padding: 10px;
+    border-bottom: 1px solid #eee;
+    transition: background 0.3s ease;
+    position: relative;
+  }
+
+  .comment:hover {
+    background-color: #f9f9f9;
+  }
+
+  .comment-user {
+    font-weight: bold;
+    color: #007bff;
+  }
+
+  .comment-text {
+    margin: 5px 0;
+  }
+
+  .comment-date,
+  .comment-likes {
+    font-size: 0.9em;
+    color: #888;
+  }
+
+  .like-button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 5px 10px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+  }
+
+  .like-button:hover {
+    background-color: #0056b3;
+  }
+
+  .comment-input {
+    width: 100%;
+    padding: 10px;
+    border: none;
+    border-bottom: 2px solid #007bff;
+    border-radius: 0;
+    margin-top: 10px;
+    resize: none !important;
+  }
+
+  .comment-input:focus {
+    outline: none;
+    border-bottom-color: #0056b3;
+  }
+
+  .comment-button {
+    background-color: #28a745;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 8px 15px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+    margin-top: 10px;
+  }
+
+  .comment-button:hover {
+    background-color: #218838;
+  }
+
+  .load-more-button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 8px 15px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+    margin-top: 10px;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .load-more-button:hover {
+    background-color: #0056b3;
+  }
+
+  @media (max-width: 768px) {
+    .comments-section {
+      padding: 10px;
+    }
+
+    .comment-input {
+      font-size: 0.9em;
+    }
+
+    .like-button {
+      font-size: 0.9em;
+    }
+  }

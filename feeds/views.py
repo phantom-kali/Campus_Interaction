@@ -1,4 +1,6 @@
 import datetime
+from functools import wraps
+from time import sleep
 from django.http import JsonResponse
 from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.decorators import login_required
@@ -9,7 +11,8 @@ from django.core.files.storage import default_storage
 from django.utils import timezone
 from django.core.cache import cache
 from django.views.decorators.cache import cache_page
-from django.db import IntegrityError, transaction
+from django.db import IntegrityError, OperationalError, transaction
+
 from .models import Post, Comment, PostView, PostLike, Report
 from .forms import PostForm, CommentForm
 from profiles.models import Profile, UserFollow
@@ -104,6 +107,7 @@ def feed(request):
             "id": post.id,
             "content": post.content,
             "user": {"id": post.user.id, "username": post.user.username},
+            "is_owner": post.user == request.user,
             "created_at": post.created_at.isoformat(),
             "likes_count": post.likes_count,
             "comments_count": (
@@ -265,6 +269,9 @@ def add_comment(request, post_id):
     Returns:
         JsonResponse: New comment data or validation errors
     """
+    # Add debugging logs
+    logger.debug(f"Received POST data: {request.POST}")
+
     form = CommentForm(request.POST)
     if form.is_valid():
         try:
@@ -295,6 +302,8 @@ def add_comment(request, post_id):
                 {"status": "error", "message": "Server error"}, status=500
             )
 
+    # Add form errors to the log
+    logger.error(f"Form validation errors: {form.errors}")
     return JsonResponse({"status": "error", "errors": form.errors}, status=400)
 
 
@@ -344,8 +353,29 @@ def create_post(request):
     return render(request, "feeds/post_create.html", {"form": PostForm()})
 
 
+def retry_on_db_lock(func):
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        max_attempts = 3
+        attempt = 0
+        while attempt < max_attempts:
+            try:
+                return func(*args, **kwargs)
+            except OperationalError as e:
+                if "database is locked" in str(e):
+                    attempt += 1
+                    if attempt == max_attempts:
+                        raise
+                    sleep(0.1 * attempt)  # Exponential backoff
+                else:
+                    raise
+
+    return wrapper
+
+
 @login_required
 @require_POST
+@retry_on_db_lock
 def increment_view_count(request, post_id):
     """Track post views with rate limiting"""
     today = timezone.now().date()
@@ -354,8 +384,8 @@ def increment_view_count(request, post_id):
     if not cache.get(cache_key):
         try:
             with transaction.atomic():
-                # First, get the post
-                post = Post.objects.select_for_update().get(id=post_id)
+                # Use select_for_update(nowait=True) to fail fast if locked
+                post = Post.objects.select_for_update(nowait=True).get(id=post_id)
 
                 # Create PostView
                 PostView.objects.create(
@@ -367,21 +397,19 @@ def increment_view_count(request, post_id):
                     viewed_date=today,
                 )
 
-                # Update views_count directly in the database
-                Post.objects.filter(id=post_id).update(views_count=F("views_count") + 1)
+                # Update views_count
+                post.refresh_from_db()
+                post.views_count += 1
+                post.save(update_fields=["views_count"])
 
                 # Set cache
                 cache.set(cache_key, True, timeout=86400)  # 24 hours
-
-                # Refresh the post to get updated count
-                post.refresh_from_db()
 
                 return JsonResponse(
                     {"status": "success", "views_count": post.views_count}
                 )
 
         except IntegrityError:
-            # Handle case where view already exists for today
             return JsonResponse(
                 {"status": "success", "message": "View already counted"}
             )
@@ -435,9 +463,7 @@ def post_detail(request, post_id):
                 {"status": "error", "message": "Permission denied"}, status=403
             )
 
-        transaction.on_commit(
-            lambda: increment_view_count.delay(post.id, request.user.id)
-        )
+        Post.objects.filter(id=post_id).update(views_count=F("views_count") + 1)
 
         def serialize_comment(comment):
             return {

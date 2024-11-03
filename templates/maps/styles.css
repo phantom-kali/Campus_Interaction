@@ -1,0 +1,123 @@
+/* General Reset */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+/* Header Styling */
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    width: 100%;
+    background-color: #f3c136;
+    border: 3px solid white;
+    border-radius: 20px;
+    color: black;
+    font-size: calc(0.5rem + 1vw);
+    text-align: center;
+}
+
+/* Search Bar Styling */
+.search-bar {
+    width: 40%;
+    max-width: 500px;
+    margin-left: 65% auto;
+    display: flex;
+    border: 2px solid #f3c136;
+    border-radius: 20px;
+    overflow: hidden;
+}
+
+.search-bar input {
+    flex: 1;
+    padding: 10px;
+    border: none;
+    outline: none;
+    font-size: 1rem; /* Consistent font size */
+}
+
+.search-bar button {
+    background-color: #180235;
+    color: rgb(115, 245, 121);
+    padding: 10px;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.search-bar button:hover {
+    background-color: #240345;
+}
+
+/* Wide Map Container Styling */
+#container {
+    width: 100vw;            /* Full viewport width */
+    max-width: 100%;         /* Ensures it doesn’t exceed the viewport width */
+    height: 450px;           /* Fixed height */
+    margin: 10px auto;          /* Center horizontally */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #14b1d8;
+    padding: 1rem;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  
+}
+
+
+#container iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+    
+}
+
+
+/* Landmarks Section Styling */
+.landmarks-section {
+    text-align:right;
+    margin-top: 1.5rem;
+    padding: 10px;
+}
+
+#map-container {
+    margin-top: 1rem;
+    padding: 0px;
+    background-color: #16b7f7;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Soft shadow for a card-like look */
+}
+
+/* Button for Nearby Landmarks */
+.landmarks-section button {
+    background-color: #180235;
+    color: rgb(115, 245, 121);
+    border: none;
+    padding: 10px 20px;
+    border-radius: 20px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.landmarks-section button:hover {
+    background-color: #240345;
+}
+
+/* Responsive Map Container */
+iframe {
+    width: 100%;
+    max-width: 1000px;
+    border-radius: 10px;
+    border: 0;
+}
+
+/* Info Paragraph for Landmarks */
+#map-container p {
+    font-size: 0.7rem;
+    color: #333;
+    margin-top: 0.5rem;
+}

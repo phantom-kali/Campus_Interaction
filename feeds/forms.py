@@ -45,25 +45,6 @@ class PostForm(forms.ModelForm):
 
         return cleaned_data
 
-    # def clean_video(self):
-    #     video = self.cleaned_data.get('video')
-    #     if video:
-    #         # Check file size
-    #         if video.size > settings.MAX_UPLOAD_SIZE:
-    #             raise forms.ValidationError(
-    #                 f'Video size should not exceed {settings.MAX_UPLOAD_SIZE}MB'
-    #             )
-            
-    #         # Validate file extension
-    #         valid_extensions = ['mp4', 'mov', 'avi']
-    #         import os
-    #         ext = os.path.splitext(video.name)[1][1:].lower()
-    #         if ext not in valid_extensions:
-    #             raise forms.ValidationError(
-    #                 f'Unsupported file extension. Use {", ".join(valid_extensions)}'
-    #             )
-    #     return video
-
 
 class CommentForm(forms.ModelForm):
     parent_id = forms.IntegerField(required=False, widget=forms.HiddenInput())
@@ -87,6 +68,7 @@ class CommentForm(forms.ModelForm):
         if not content.strip():
             raise forms.ValidationError("Comment cannot be empty")
         return content
+
 
 class ReportForm(forms.ModelForm):
     class Meta:
