@@ -7,12 +7,17 @@ from datetime import timedelta
 
 
 class Like(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='marketplace_likes')
-    item = models.ForeignKey('Item', on_delete=models.CASCADE)
+    user = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="marketplace_likes"
+    )
+    item = models.ForeignKey("Item", on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        unique_together = ('user', 'item')  # Ensures that each user can only like an item once
+        unique_together = (
+            "user",
+            "item",
+        )  # Ensures that each user can only like an item once
 
     def __str__(self):
         return f"{self.user.username} liked {self.item.title}"
@@ -25,23 +30,34 @@ class Category(models.Model):
     def __str__(self):
         return self.name
 
+
 # Item model
 class Item(models.Model):
     seller = models.ForeignKey(User, on_delete=models.CASCADE)
     title = models.CharField(max_length=50)
     description = models.TextField()
-    specification = models.TextField(null=True, blank=True)  # Make specification optional
-    brand = models.CharField(max_length=50, null=True, blank=True)  # Make brand optional
+    specification = models.TextField(
+        null=True, blank=True
+    )  # Make specification optional
+    brand = models.CharField(
+        max_length=50, null=True, blank=True
+    )  # Make brand optional
     price = models.IntegerField()  # Price as integer (the current price)
-    original_price = models.IntegerField(null=True, blank=True)  # The original price when the item was first added
-    new_price = models.IntegerField(null=True, blank=True)  # The new price, can be updated by the seller
+    original_price = models.IntegerField(
+        null=True, blank=True
+    )  # The original price when the item was first added
+    new_price = models.IntegerField(
+        null=True, blank=True
+    )  # The new price, can be updated by the seller
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
-    image = models.ImageField(upload_to='item_images/')  # Main image
+    image = models.ImageField(upload_to="item_images/")  # Main image
     created_at = models.DateTimeField(auto_now_add=True)
     sold = models.BooleanField(default=False)
-    sold_date = models.DateTimeField(null=True, blank=True)  # Date when the item was sold
+    sold_date = models.DateTimeField(
+        null=True, blank=True
+    )  # Date when the item was sold
 
-    likes = models.ManyToManyField(User, through=Like, related_name='liked_items')
+    likes = models.ManyToManyField(User, through=Like, related_name="liked_items")
 
     def __str__(self):
         return self.title
@@ -59,9 +75,8 @@ class Item(models.Model):
 
     @property
     def average_rating(self):
-        avg = self.ratings.aggregate(Avg('stars'))['stars__avg']
+        avg = self.ratings.aggregate(Avg("stars"))["stars__avg"]
         return avg if avg is not None else 0.0
-    
 
     @property
     def effective_price(self):
@@ -83,8 +98,9 @@ class Item(models.Model):
     def total_likes(self):
         return self.likes.count()
 
+
 class Cart(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='cart')
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="cart")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -101,8 +117,9 @@ class Cart(models.Model):
         """Calculates the total price of all items in the cart."""
         return sum(item.total_price for item in self.items.all())
 
+
 class CartItem(models.Model):
-    cart = models.ForeignKey(Cart, on_delete=models.CASCADE, related_name='items')
+    cart = models.ForeignKey(Cart, on_delete=models.CASCADE, related_name="items")
     item = models.ForeignKey(Item, on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField(default=1)
     added_at = models.DateTimeField(auto_now_add=True)
@@ -117,25 +134,26 @@ class CartItem(models.Model):
 
 
 class ItemImage(models.Model):
-    item = models.ForeignKey('Item', on_delete=models.CASCADE, related_name='additional_images')
-    image = models.ImageField(upload_to='item_images/')
+    item = models.ForeignKey(
+        "Item", on_delete=models.CASCADE, related_name="additional_images"
+    )
+    image = models.ImageField(upload_to="item_images/")
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return f"Image for {self.item.title}"
-    
+
+
 class Notification(models.Model):
     recipient = models.ForeignKey(
-        User,
-        on_delete=models.CASCADE,
-        related_name='marketplace_notifications'
+        User, on_delete=models.CASCADE, related_name="marketplace_notifications"
     )
     message = models.TextField()
     is_read = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
-    
+
     # Adding a ForeignKey to Item if each notification is related to a specific item
-    item = models.ForeignKey('Item', on_delete=models.CASCADE, null=True, blank=True)
+    item = models.ForeignKey("Item", on_delete=models.CASCADE, null=True, blank=True)
 
     def __str__(self):
         return f"Notification for {self.recipient.username}"
@@ -144,6 +162,23 @@ class Notification(models.Model):
         # Returns True if the notification is older than 24 hours
         return timezone.now() > self.created_at + timedelta(hours=24)
 
+    def time_remaining(self):
+        now = timezone.now()
+        time_diff = (
+            now - self.created_at
+        )  # Time difference between now and notification creation
+
+        if time_diff.total_seconds() <= 0:
+            return "Just posted"
+
+        seconds = time_diff.total_seconds()
+        hours = seconds // 3600
+        minutes = (seconds % 3600) // 60
+
+        # Return the time in "X hrs X min ago" format
+        return f"Posted {int(hours)} hour{'s' if hours != 1 else ''} {int(minutes)} minute{'s' if minutes != 1 else ''} ago"
+
+
 class SearchHistory(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     query = models.CharField(max_length=200)
@@ -151,15 +186,15 @@ class SearchHistory(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f'Search by {self.user.username}: {self.query}'
+        return f"Search by {self.user.username}: {self.query}"
 
 
 class UserRating(models.Model):
-    item = models.ForeignKey(Item, related_name='ratings', on_delete=models.CASCADE)
+    item = models.ForeignKey(Item, related_name="ratings", on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     stars = models.PositiveIntegerField(choices=[(i, i) for i in range(1, 6)])
     comment = models.TextField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f'Rating by {self.user.username} for {self.item.title}'
+        return f"Rating by {self.user.username} for {self.item.title}"
