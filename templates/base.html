@@ -294,10 +294,10 @@
                 }
               </style>
               <li>
-                {% url 'polls:polls_list' as polls_url %} {% url
-                'polls:base_poll' as base_poll_url %} {% url 'polls:add_polls'
-                as add_polls_url %} {% url 'polls:user_dashboard' as
-                user_dashboard_url %}
+                {% url 'polls:polls_list' as polls_url %}
+                 {% url 'polls:base_poll' as base_poll_url %} 
+                 {% url 'polls:add_polls' as add_polls_url %} 
+                 {% url 'polls:user_dashboard' as user_dashboard_url %}
 
                 <a
                   class="dropdown-toggle {% if 'polls' in request.resolver_match.namespace %}active{% endif %}"
@@ -446,10 +446,10 @@
                 <!--=============== POLLS ===============-->
 
                 <li>
-                  {% url 'polls:polls_list' as polls_url %} {% url
-                  'polls:base_poll' as base_poll_url %} {% url 'polls:add_polls'
-                  as add_polls_url %} {% url 'polls:user_dashboard' as
-                  user_dashboard_url %}
+                  {% url 'polls:polls_list' as polls_url %}
+                   {% url 'polls:base_poll' as base_poll_url %} 
+                   {% url 'polls:add_polls' as add_polls_url %}
+                    {% url 'polls:user_dashboard' as user_dashboard_url %}
 
                   <!-- Polls Link: Apply the active class if the current page is under the 'polls' namespace -->
                   <a
