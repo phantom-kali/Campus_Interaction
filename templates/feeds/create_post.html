@@ -40,6 +40,9 @@
                                     </label>
                                     {{ form.image }}
                                 </div>
+                                <div id="imagePreview" class="mt-2 d-none">
+                                    <img src="" alt="Image preview" class="img-fluid rounded">
+                                </div>
                                 {% if form.image.errors %}
                                 <div class="invalid-feedback d-block">
                                     {{ form.image.errors }}
@@ -52,6 +55,12 @@
                                         <i class="fas fa-video"></i>
                                     </label>
                                     {{ form.video }}
+                                </div>
+                                <div id="videoPreview" class="mt-2 d-none">
+                                    <video controls class="w-100 rounded">
+                                        <source src="" type="video/mp4">
+                                        Your browser does not support the video tag.
+                                    </video>
                                 </div>
                                 {% if form.video.errors %}
                                 <div class="invalid-feedback d-block">
@@ -66,8 +75,11 @@
                             {{ form.status }}
                         </div>
 
-                        <div class="d-grid">
-                            <button type="submit" class="btn btn-primary">Create Post</button>
+                        <div class="mb-3">
+                            <a href="{% url 'feeds:feed_list' %}" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left"></i> Back to Feeds
+                            </a>
+                            <button type="submit" class="btn btn-primary float-end">Create Post</button>
                         </div>
                     </form>
                 </div>
@@ -75,4 +87,42 @@
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const imageInput = document.querySelector('input[type="file"][name="image"]');
+        const videoInput = document.querySelector('input[type="file"][name="video"]');
+        const imagePreview = document.getElementById('imagePreview');
+        const videoPreview = document.getElementById('videoPreview');
+
+        imageInput.addEventListener('change', function() {
+            if (this.files && this.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    imagePreview.querySelector('img').src = e.target.result;
+                    imagePreview.classList.remove('d-none');
+                    videoInput.value = ''; // Clear video input
+                    videoPreview.classList.add('d-none');
+                };
+                reader.readAsDataURL(this.files[0]);
+            }
+        });
+
+        videoInput.addEventListener('change', function() {
+            if (this.files && this.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    videoPreview.querySelector('source').src = e.target.result;
+                    videoPreview.querySelector('video').load();
+                    videoPreview.classList.remove('d-none');
+                    imageInput.value = ''; // Clear image input
+                    imagePreview.classList.add('d-none');
+                };
+                reader.readAsDataURL(this.files[0]);
+            }
+        });
+    });
+</script>
 {% endblock %} 

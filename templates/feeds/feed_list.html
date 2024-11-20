@@ -41,29 +41,40 @@
                 maxlength="500"
               ></textarea>
             </div>
+            <!-- Add preview containers -->
+            <div class="row mb-3">
+              <div class="col-md-6">
+                <div id="image-preview"></div>
+              </div>
+              <div class="col-md-6">
+                <div id="video-preview"></div>
+              </div>
+            </div>
             <div class="d-flex gap-2">
               <div class="input-group">
-                <label class="input-group-text" for="image"
-                  ><i class="fas fa-image"></i
-                ></label>
+                <label class="input-group-text" for="image">
+                  <i class="fas fa-image"></i>
+                </label>
                 <input
                   type="file"
                   class="form-control"
                   id="image"
                   name="image"
                   accept="image/*"
+                  onchange="previewMedia(this, 'image')"
                 />
               </div>
               <div class="input-group">
-                <label class="input-group-text" for="video"
-                  ><i class="fas fa-video"></i
-                ></label>
+                <label class="input-group-text" for="video">
+                  <i class="fas fa-video"></i>
+                </label>
                 <input
                   type="file"
                   class="form-control"
                   id="video"
                   name="video"
                   accept="video/mp4,video/mov,video/avi"
+                  onchange="previewMedia(this, 'video')"
                 />
               </div>
               <button type="submit" class="btn btn-primary">Post</button>
@@ -530,4 +541,70 @@
   // Observe initial videos
   document.addEventListener('DOMContentLoaded', observeVideos);
 </script>
+
+<!-- Floating Create Post Button -->
+<a href="{% url 'feeds:create_post' %}" 
+   class="btn btn-primary btn-floating btn-lg floating-create-btn shadow-4-strong"
+   data-mdb-ripple-init>
+    <i class="fas fa-plus"></i>
+</a>
+
+<script>
+  function previewMedia(input, type) {
+    const previewContainer = document.getElementById(`${type}-preview`);
+    previewContainer.innerHTML = ''; // Clear previous preview
+    
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        
+        reader.onload = function(e) {
+            const preview = document.createElement('div');
+            preview.className = 'position-relative mt-2';
+            
+            // Create remove button
+            const removeBtn = document.createElement('button');
+            removeBtn.className = 'btn btn-danger btn-floating btn-sm position-absolute top-0 end-0 m-1';
+            removeBtn.innerHTML = '<i class="fas fa-times"></i>';
+            removeBtn.onclick = function() {
+                input.value = '';
+                previewContainer.innerHTML = '';
+            };
+            
+            if (type === 'image') {
+                preview.innerHTML = `
+                    <img src="${e.target.result}" class="img-fluid rounded" alt="Preview">
+                `;
+            } else {
+                preview.innerHTML = `
+                    <video class="w-100 rounded" controls>
+                        <source src="${e.target.result}" type="${input.files[0].type}">
+                        Your browser does not support the video tag.
+                    </video>
+                `;
+            }
+            
+            preview.appendChild(removeBtn);
+            previewContainer.appendChild(preview);
+        };
+        
+        reader.readAsDataURL(input.files[0]);
+    }
+  }
+
+  // Clear previews when form is reset or submitted
+  document.getElementById('createPostForm').addEventListener('reset', function() {
+    document.getElementById('image-preview').innerHTML = '';
+    document.getElementById('video-preview').innerHTML = '';
+  });
+</script>
+{% endblock %}
+
+{% block extra_css %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'css/feeds/feed.css' %}">
+{% endblock %}
+
+{% block extra_js %}
+{{ block.super }}
+<script src="{% static 'js/feeds/feed.js' %}"></script>
 {% endblock %}
