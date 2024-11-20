@@ -32,7 +32,13 @@ class UserUpdateForm(forms.ModelForm):
 class ProfileUpdateForm(forms.ModelForm):
     date_of_birth = forms.DateField(
         required=False,
-        widget=forms.DateInput(attrs={'type': 'date'}),
+        input_formats=['%Y-%m-%d'],
+        widget=forms.DateInput(
+            attrs={
+                'class': 'form-control',
+                'placeholder': 'YYYY-MM-DD'
+            }
+        )
     )
     
     class Meta:
@@ -108,10 +114,9 @@ class ProfileUpdateForm(forms.ModelForm):
             bio = ' '.join(bio.split())
             
             # Check minimum length (optional)
-            if len(bio) < 10:
-                raise ValidationError("Bio must be at least 10 characters long.")
+            if len(bio) < 4:
+                raise ValidationError("Bio must be at least 4 characters long.")
                 
-            # Check maximum length (model field already handles this, but we can add a custom message)
             if len(bio) > 500:
                 raise ValidationError("Bio must not exceed 500 characters.")
                 
@@ -126,7 +131,7 @@ class ProfileUpdateForm(forms.ModelForm):
         # Add placeholders and classes
         self.fields['bio'].widget.attrs.update({
             'placeholder': 'Tell us about yourself...',
-            'rows': 4
+            'rows': 1
         })
         self.fields['student_id'].widget.attrs.update({
             'placeholder': 'Enter your student ID'
