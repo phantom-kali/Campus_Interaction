@@ -10,7 +10,7 @@ urlpatterns = [
         name="login",
     ),
     path("logout/", auth_views.LogoutView.as_view(), name="logout"),
-    path("dashboard/", views.dashboard, name="dashboard"),
+    path("profile/", views.profile, name="profile"),
     path("api/profile/update/", views.update_profile, name="api_update_profile"),
     path("api/profile/delete/", views.delete_account, name="api_delete_account"),
     # Email Verification URLs

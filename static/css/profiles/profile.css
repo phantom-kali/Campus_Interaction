@@ -1,0 +1,30 @@
+.error-message {
+    color: #dc3545;
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+    display: none;
+}
+
+.error-message.visible {
+    display: block;
+}
+
+.invalid-field {
+    border-color: #dc3545 !important;
+}
+
+.invalid-field .form-notch div {
+    border-color: #dc3545 !important;
+}
+
+#toast-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1050;
+}
+
+#toast-container .alert {
+    margin-bottom: 10px;
+    min-width: 250px;
+}

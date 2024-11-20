@@ -94,12 +94,16 @@ def password_reset_request(request):
 
 
 @login_required
-def dashboard(request):
-    """View for rendering the dashboard template"""
+def profile(request):
+    """View for rendering the profile template"""
     u_form = UserUpdateForm(instance=request.user)
     p_form = ProfileUpdateForm(instance=request.user.profile)
-    context = {"u_form": u_form, "p_form": p_form, "profile": request.user.profile}
-    return render(request, "profiles/dashboard.html", context)
+    context = {
+        "u_form": u_form, 
+        "p_form": p_form, 
+        "profile": request.user.profile
+    }
+    return render(request, "profiles/profile.html", context)
 
 
 @login_required

@@ -85,7 +85,9 @@
       });
     </script>
 
-    {% block extra_css %}{% endblock %}
+    {% block extra_css %}
+    <link rel="stylesheet" href="{% static 'vendor/slicknav/slicknav.min.css' %}">
+    {% endblock %}
   </head>
 
   <body>
@@ -331,8 +333,8 @@
                 <a href="{{ item_list_url }}" class="nav__link {% if request.path|slice:":8" == item_list_url|slice:":8" %}active{% endif %}">Marketplace</a>
               </li>
               <li>
-                {% url 'dashboard' as dashboard_url %}
-                <a href="{{ dashboard_url }}" class="nav__link {% if request.path == dashboard_url %}active{% endif %}">Profile</a>
+                {% url 'profile' as profile_url %}
+                <a href="{{ profile_url }}" class="nav__link {% if request.path == profile_url %}active{% endif %}">Profile</a>
             </li>
             </ul>
           </div>
@@ -452,8 +454,8 @@
                
                 <!--=============== PROFILE ===============-->
                 <li>
-                  {% url 'dashboard' as dashboard_url %}
-                  <a href="{{ dashboard_url }}" class="nav__link {% if request.path == dashboard_url %}active{% endif %}">Profile</a>
+                  {% url 'profile' as profile_url %}
+                  <a href="{{ profile_url }}" class="nav__link {% if request.path == profile_url %}active{% endif %}">Profile</a>
               </li>
               </ul>
             </nav>
@@ -674,6 +676,9 @@
     <!-- Add before closing </body> tag -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
 
-    {% block extra_js %}{% endblock %}
+    {% block extra_js %}
+    <script src="{% static 'vendor/jquery/jquery-3.3.1.min.js' %}"></script>
+    <script src="{% static 'vendor/slicknav/jquery.slicknav.min.js' %}"></script>
+    {% endblock %}
   </body>
 </html>

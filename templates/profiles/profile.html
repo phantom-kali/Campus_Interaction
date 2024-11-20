@@ -1,0 +1,263 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block extra_css %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'css/profiles/profile.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <!-- Mode Toggle Button -->
+    <div class="text-end mb-4">
+        <button id="toggleMode" class="btn btn-primary">
+            <i class="fas fa-edit me-2"></i><span>Edit Profile</span>
+        </button>
+    </div>
+
+    <!-- Profile Information -->
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <!-- Profile Header Card -->
+            <div class="card mb-4">
+                <div class="card-body text-center">
+                    <div class="mb-4 position-relative">
+                        <img src="{{ profile.get_avatar_url }}" class="rounded-circle profile-avatar" 
+                             alt="Profile Picture" style="width: 150px; height: 150px; object-fit: cover;">
+                        <div class="position-absolute bottom-0 end-0 me-5 edit-only" style="display: none;">
+                            <label for="profile_pic" class="mb-0">
+                                <i class="fas fa-camera btn btn-light btn-floating"></i>
+                                <input type="file" id="profile_pic" class="d-none" accept="image/*">
+                            </label>
+                        </div>
+                    </div>
+                    <h4 class="mb-2">{{ user.username }}</h4>
+                    <p class="text-muted view-mode">{{ profile.bio|default:"No bio added yet" }}</p>
+                    <div class="form-outline edit-only" style="display: none;">
+                        <textarea id="bio" name="bio" class="form-control" rows="3">{{ profile.bio }}</textarea>
+                        <label class="form-label" for="bio">Bio</label>
+                        <div class="error-message" id="bio-error"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Profile Details Card -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Profile Information</h5>
+                </div>
+                <div class="card-body">
+                    <form id="profileForm">
+                        {% csrf_token %}
+                        
+                        <!-- Academic Information -->
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <div class="form-outline">
+                                    <input type="text" id="student_id" name="student_id" class="form-control" 
+                                           value="{{ profile.student_id }}" disabled>
+                                    <label class="form-label" for="student_id">Student ID</label>
+                                    <div class="error-message" id="student_id-error"></div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-outline">
+                                    <input type="text" id="course" name="course" class="form-control" 
+                                           value="{{ profile.course }}" disabled>
+                                    <label class="form-label" for="course">Course</label>
+                                    <div class="error-message" id="course-error"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Personal Information -->
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <select class="form-select" id="gender" name="gender" disabled>
+                                    <option value="">Select Gender</option>
+                                    {% for code, label in profile.GENDER_CHOICES %}
+                                        <option value="{{ code }}" {% if profile.gender == code %}selected{% endif %}>
+                                            {{ label }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                                <div class="error-message" id="gender-error"></div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-outline">
+                                    <input type="date" id="date_of_birth" name="date_of_birth" class="form-control" 
+                                           value="{{ profile.date_of_birth|date:'Y-m-d' }}" disabled>
+                                    <label class="form-label" for="date_of_birth">Date of Birth</label>
+                                    <div class="error-message" id="date_of_birth-error"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="d-flex justify-content-between edit-only" style="display: none;">
+                            <button type="submit" class="btn btn-primary">Save Changes</button>
+                            <button type="button" class="btn btn-danger" data-mdb-toggle="modal" 
+                                    data-mdb-target="#deleteAccountModal">Delete Account</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+{{ block.super }}
+<script>
+$(document).ready(function() {
+    // Initialize MDB inputs
+    document.querySelectorAll('.form-outline').forEach((formOutline) => {
+        new mdb.Input(formOutline).init();
+    });
+
+    let isEditMode = false;
+    const toggleButton = $('#toggleMode');
+    const form = $('#profileForm');
+    
+    function toggleMode() {
+        isEditMode = !isEditMode;
+        
+        // Toggle form controls
+        form.find('input, select, textarea').prop('disabled', !isEditMode);
+        
+        // Toggle edit-only elements
+        $('.edit-only').toggle(isEditMode);
+        $('.view-mode').toggle(!isEditMode);
+        
+        // Update button text and icon
+        toggleButton.find('span').text(isEditMode ? 'View Profile' : 'Edit Profile');
+        toggleButton.find('i').toggleClass('fa-edit fa-eye');
+    }
+
+    // Handle mode toggle
+    toggleButton.click(function(e) {
+        e.preventDefault();
+        toggleMode();
+    });
+
+    // Handle profile picture change
+    $('#profile_pic').change(function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            const formData = new FormData();
+            formData.append('profile_pic', file);
+            
+            $.ajax({
+                url: '{% url "api_update_profile" %}',
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function(response) {
+                    $('.profile-avatar').attr('src', response.data.profile_pic_url);
+                    showToast('Profile picture updated successfully');
+                },
+                error: function() {
+                    showToast('Error updating profile picture', true);
+                }
+            });
+        }
+    });
+
+    // Add this to the existing script in profile.html after the toggleMode function
+    $('#profileForm').on('submit', function(e) {
+        e.preventDefault();
+        
+        // Clear previous errors
+        $('.error-message').removeClass('visible').text('');
+        $('.form-outline').removeClass('invalid-field');
+        
+        const formData = new FormData();
+        const profileData = {
+            student_id: $('#student_id').val(),
+            course: $('#course').val(),
+            bio: $('#bio').val(),
+            gender: $('#gender').val(),
+            date_of_birth: $('#date_of_birth').val()
+        };
+
+        // Remove undefined or empty values
+        Object.keys(profileData).forEach(key => {
+            if (profileData[key] === undefined || profileData[key] === '') {
+                delete profileData[key];
+            }
+        });
+
+        formData.append('data', JSON.stringify(profileData));
+        
+        // Append CSRF token
+        formData.append('csrfmiddlewaretoken', $('input[name=csrfmiddlewaretoken]').val());
+        
+        $.ajax({
+            url: '{% url "api_update_profile" %}',
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function(response) {
+                if (response.status === 'success') {
+                    showToast('Profile updated successfully');
+                    // Update view mode content
+                    $('.view-mode.bio').text(response.data.bio || 'No bio added yet');
+                    toggleMode();
+                }
+            },
+            error: function(xhr) {
+                const response = xhr.responseJSON;
+                if (response && response.errors) {
+                    Object.keys(response.errors).forEach(field => {
+                        const errorMsg = response.errors[field].join(', ');
+                        const errorElement = $(`#${field}-error`);
+                        if (errorElement.length) {
+                            errorElement.text(errorMsg).addClass('visible');
+                            $(`#${field}`).closest('.form-outline').addClass('invalid-field');
+                        }
+                    });
+                }
+                showToast('Error updating profile', true);
+            }
+        });
+    });
+
+    // Add function to clear errors when user starts typing
+    $('input, textarea, select').on('input', function() {
+        const field = $(this);
+        field.closest('.form-outline').removeClass('invalid-field');
+        $(`#${field.attr('id')}-error`).removeClass('visible').text('');
+    });
+
+    // Add this function at the start of your script block
+    function showToast(message, isError = false) {
+        const toastContainer = document.getElementById('toast-container') || createToastContainer();
+        const toast = document.createElement('div');
+        toast.className = `alert alert-${isError ? 'danger' : 'success'} alert-dismissible fade show`;
+        toast.innerHTML = `
+            ${message}
+            <button type="button" class="btn-close" data-mdb-dismiss="alert" aria-label="Close"></button>
+        `;
+        toastContainer.appendChild(toast);
+        
+        // Auto dismiss after 3 seconds
+        setTimeout(() => {
+            toast.classList.remove('show');
+            setTimeout(() => toast.remove(), 150);
+        }, 3000);
+    }
+
+    function createToastContainer() {
+        const container = document.createElement('div');
+        container.id = 'toast-container';
+        container.style.cssText = 'position: fixed; top: 20px; right: 20px; z-index: 1050;';
+        document.body.appendChild(container);
+        return container;
+    }
+});
+</script>
+{% endblock %} 
