@@ -41,10 +41,13 @@
       href="{% static '/css/marketplace/add_items.css' %}"
     />
     <!-- Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Host+Grotesk:ital,wght@0,300..800;1,300..800&family=Mansalva&family=Oleo+Script:wght@400;700&family=Pacifico&display=swap" rel="stylesheet">
-        <!-- feed interaction dependencies -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Host+Grotesk:ital,wght@0,300..800;1,300..800&family=Mansalva&family=Oleo+Script:wght@400;700&family=Pacifico&display=swap"
+      rel="stylesheet"
+    />
+    <!-- feed interaction dependencies -->
     <link
       href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bootstrap-4/bootstrap-4.css"
       rel="stylesheet"
@@ -147,50 +150,48 @@
         border-bottom: 2px solid red;
         max-width: fit-content;
       }
-    .sidebar1 ul {
-      list-style-type: none;
-      padding: 0;
-      margin: 0;
-    }
+      .sidebar1 ul {
+        list-style-type: none;
+        padding: 0;
+        margin: 0;
+      }
 
-    .sidebar1 li a {
-      display: block;
-      color: #333;
-      padding: 8px 16px;
-      text-decoration: none;
-      font-family: "Host Grotesk", sans-serif;
-      font-optical-sizing: auto;
-      font-weight: 1000;
-      font-style: normal;
-    }
-    .offcanvas__auth1 {
-      display: flex;
-      align-items: center;
-      gap: 15px;
-    }
+      .sidebar1 li a {
+        display: block;
+        color: #333;
+        padding: 8px 16px;
+        text-decoration: none;
+        font-family: "Host Grotesk", sans-serif;
+        font-optical-sizing: auto;
+        font-weight: 1000;
+        font-style: normal;
+      }
+      .offcanvas__auth1 {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+      }
 
-
-    .offcanvas__auth1 a{
-      font-size: 16px;
-      border: 1px solid #ccc;
-      padding: 5px 10px;
-      border-radius: 5px;
-      color: #333;
-      background-color: #f0f0f0;  
-      transition: 0.3s linear;
-      font-weight: 800;
-
-    }
-    .offcanvas__auth1 a:hover{
-      background-color: #2d5796;
-      color: #fff;
-    }
-    .sidebar1 li a:hover{
-      color: #2d5796;
-    }
-    .sidebar1 li a.active{
-    color: #2d5796;
-    }
+      .offcanvas__auth1 a {
+        font-size: 16px;
+        border: 1px solid #ccc;
+        padding: 5px 10px;
+        border-radius: 5px;
+        color: #333;
+        background-color: #f0f0f0;
+        transition: 0.3s linear;
+        font-weight: 800;
+      }
+      .offcanvas__auth1 a:hover {
+        background-color: #2d5796;
+        color: #fff;
+      }
+      .sidebar1 li a:hover {
+        color: #2d5796;
+      }
+      .sidebar1 li a.active {
+        color: #2d5796;
+      }
     </style>
     <!-- Offcanvas Menu Begin -->
     <div class="offcanvas-menu-overlay">
@@ -198,31 +199,36 @@
         <div class="offcanvas__close">+</div>
         {% if user.profile.profile_pic %}
         <ul class="offcanvas__widget">
-          <li><span class="icon_search search-switch"><i class="fa-solid fa-magnifying-glass"></i></span></li>
+          <li>
+            <span class="icon_search search-switch"
+              ><i class="fa-solid fa-magnifying-glass"></i
+            ></span>
+          </li>
           <li>
             <form method="post" action="{% url 'logout' %}" class="logout-form">
               {% csrf_token %}
               <button type="submit" class="logout-btn">
-                  <i class="fas fa-sign-out-alt" title="LogOut"></i>
+                <i class="fas fa-sign-out-alt" title="LogOut"></i>
               </button>
-          </form>                
+            </form>
           </li>
           <li>
             <a href="{{ dashboard_url }}">
-              <span class="icon_heart_alt" >
-                
+              <span class="icon_heart_alt">
                 {% if user.profile.profile_pic %}
-                  <span>
-                  <img src="{{ user.profile.profile_pic.url }}" alt="User Profile Picture" class="profile-pic">
+                <span>
+                  <img
+                    src="{{ user.profile.profile_pic.url }}"
+                    alt="User Profile Picture"
+                    class="profile-pic"
+                  />
                 </span>
-                {% else %}
-                {% endif %}
+                {% else %} {% endif %}
               </span>
             </a>
           </li>
         </ul>
-        {% else %}
-        {%endif %}
+        {% else %} {%endif %}
         <div class="header__logo">
           <a href="/">
             <img
@@ -230,7 +236,7 @@
               alt="Logo"
               class="logo-icon"
             />
-            <span class="logo-text" style="color: #000;">CampHub</span>
+            <span class="logo-text" style="color: #000">CampHub</span>
           </a>
         </div>
         <div id="mobile-menu-wrap">
@@ -265,9 +271,8 @@
                 .dropdown-toggle {
                   cursor: pointer;
                 }
-              
+
                 .dropdown-toggle.active::after {
-                  
                   margin-left: 5px;
                 }
                 .dropdown-menu-list {
@@ -275,21 +280,24 @@
                   list-style-type: none;
                   padding: 0;
                   margin-top: 5px;
-                  margin: 5px 0 0 10px; 
+                  margin: 5px 0 0 10px;
                   position: relative;
                 }
-              
+
                 .dropdown-menu-list.show {
                   display: block;
                 }
               </style>
               <li>
-                {% url 'polls:base_poll' as base_poll_url %} 
-                  {% url 'polls:add_polls' as add_polls_url %} 
-                  {% url 'polls:user_dashboard' as user_dashboard_url %}
+                {% url 'polls:polls_list' as polls_url %} 
+                {% url 'polls:base_poll' as base_poll_url %}
+                {% url 'polls:add_polls' as add_polls_url %} 
+                {% url 'polls:user_dashboard' as user_dashboard_url %}
 
-                  {% with is_poll_active=request.path|slice:"0:7" %}
-                <a  class="dropdown-toggle "{% if request.path == base_poll_url or request.path == add_polls_url or request.path == user_dashboard_url or is_poll_active == '/polls/' %}active{% endif %}"">Polls</a>
+                <a
+                  class="dropdown-toggle {% if 'polls' in request.resolver_match.namespace %}active{% endif %}"
+                  >Polls</a
+                >
                 <ul class="dropdown-menu-list">
                   <li>
                     <a
@@ -313,46 +321,71 @@
                     >
                   </li>
                 </ul>
-                {% endwith %}
               </li>
-            <script>
-              document.querySelectorAll('.dropdown-toggle').forEach(toggle => {
-                toggle.addEventListener('click', () => {
-                  toggle.classList.toggle('active');
-                  toggle.nextElementSibling.classList.toggle('show');
-                });
-              });
-            </script>
-              
+              <script>
+                document
+                  .querySelectorAll(".dropdown-toggle")
+                  .forEach((toggle) => {
+                    toggle.addEventListener("click", () => {
+                      toggle.classList.toggle("active");
+                      toggle.nextElementSibling.classList.toggle("show");
+                    });
+                  });
+              </script>
+
               <li>
                 {% url 'marketplace:item_list' as item_list_url %}
-                <a href="{{ item_list_url }}" class="nav__link {% if request.path|slice:":8" == item_list_url|slice:":8" %}active{% endif %}">Marketplace</a>
+                <a
+                  href="{{ item_list_url }}"
+                  class="nav__link {% if 'marketplace' in request.resolver_match.namespace %}active{% endif %}"
+                  >Marketplace</a
+                >
               </li>
               <li>
                 {% url 'dashboard' as dashboard_url %}
-                <a href="{{ dashboard_url }}" class="nav__link {% if request.path == dashboard_url %}active{% endif %}">Profile</a>
-            </li>
+                <a
+                  href="{{ dashboard_url }}"
+                  class="nav__link {% if request.path == dashboard_url %}active{% endif %}"
+                  >Profile</a
+                >
+              </li>
             </ul>
           </div>
-          <br>
-          {% else %}
-          {% endif %}
+          <br />
+          {% else %} {% endif %}
         </div>
         {% if user.is_authenticated %}
         <div class="offcanvas__auth1">
           <!--=============== FORUM ===============-->
           <a href="#">Forum</a>
           <!--=============== MESSAGING ===============-->
-          <a href="{% url 'inbox' %}" 
-                  class="{% if request.path == '/inbox/' or '/chat/' in request.path %} active {% endif %}">
-                  Messaging
-                </a>
+          <a
+            href="{% url 'inbox' %}"
+            class="{% if request.path == '/inbox/' or '/chat/' in request.path %} active {% endif %}"
+          >
+            Messaging
+          </a>
         </div>
         {% else %}
         <div class="offcanvas__auth">
-          
-          <a href="{% url 'login' %}" style="font-size: 16px; font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;">Login</a>
-          <a href="{% url 'register' %}" style="font-size: 16px; font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;">Get Started</a>
+          <a
+            href="{% url 'login' %}"
+            style="
+              font-size: 16px;
+              font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS',
+                sans-serif;
+            "
+            >Login</a
+          >
+          <a
+            href="{% url 'register' %}"
+            style="
+              font-size: 16px;
+              font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS',
+                sans-serif;
+            "
+            >Get Started</a
+          >
         </div>
         {% endif %}
       </div>
@@ -378,7 +411,6 @@
           {% if user.is_authenticated %}
           <div class="col-xl-6 col-lg-7">
             <nav class="header__menu">
-              
               <ul>
                 <!--=============== FEEDS ===============-->
                 <li>
@@ -407,126 +439,150 @@
                   >
                 </li>
                 <!--=============== POLLS ===============-->
-                <li>
-                  {% url 'polls:base_poll' as base_poll_url %} 
-                  {% url 'polls:add_polls' as add_polls_url %} 
-                  {% url 'polls:user_dashboard' as user_dashboard_url %}
 
-                  <!-- Open the 'with' block -->
-                  {% with is_poll_active=request.path|slice:"0:7" %}
-                  <a  class="dropdown-toggle "{% if request.path == base_poll_url or request.path == add_polls_url or request.path == user_dashboard_url or is_poll_active == '/polls/' %}active{% endif %}"">Polls</a>
+                <li>
+                  {% url 'polls:polls_list' as polls_url %} 
+                {% url 'polls:base_poll' as base_poll_url %}
+                {% url 'polls:add_polls' as add_polls_url %} 
+                {% url 'polls:user_dashboard' as user_dashboard_url %}
+
+                  <!-- Polls Link: Apply the active class if the current page is under the 'polls' namespace -->
+                  <a
+                    class="dropdown-toggle dropdown__link {% if 'polls' in request.resolver_match.namespace %}active{% endif %}"
+                  >
+                    Polls
+                  </a>
                   <ul class="dropdown">
                     <li>
                       <a
                         href="{{ base_poll_url }}"
                         class="dropdown__link {% if request.path == base_poll_url %}active{% endif %}"
-                        >View Polls</a
                       >
+                        View Polls
+                      </a>
                     </li>
                     <li>
                       <a
                         href="{{ add_polls_url }}"
                         class="dropdown__link {% if request.path == add_polls_url %}active{% endif %}"
-                        >Create Polls</a
                       >
+                        Create Polls
+                      </a>
                     </li>
                     <li>
                       <a
                         href="{{ user_dashboard_url }}"
                         class="dropdown__link {% if request.path == user_dashboard_url %}active{% endif %}"
-                        >Your Polls</a
                       >
+                        Your Polls
+                      </a>
                     </li>
                   </ul>
-                  <!-- Close the 'with' block correctly -->
-                  {% endwith %}
                 </li>
 
                 <!--=============== MARKETPLACE ===============-->
                 <li>
                   {% url 'marketplace:item_list' as item_list_url %}
-                  <a href="{{ item_list_url }}" class="nav__link {% if request.path|slice:":8" == item_list_url|slice:":8" %}active{% endif %}">Marketplace</a>
+                  <a
+                    href="{{ item_list_url }}"
+                    class="nav__link {% if 'marketplace' in request.resolver_match.namespace %}active{% endif %}"
+                    >Marketplace</a
+                  >
                 </li>
-               
+
                 <!--=============== PROFILE ===============-->
                 <li>
                   {% url 'dashboard' as dashboard_url %}
-                  <a href="{{ dashboard_url }}" class="nav__link {% if request.path == dashboard_url %}active{% endif %}">Profile</a>
-              </li>
+                  <a
+                    href="{{ dashboard_url }}"
+                    class="nav__link {% if request.path == dashboard_url %}active{% endif %}"
+                    >Profile</a
+                  >
+                </li>
               </ul>
             </nav>
           </div>
-
 
           <div class="col-lg-3">
             <div class="header__right">
               <div class="header__right__auth">
                 <!--=============== FORUM ===============-->
 
-                <a href="#" style="font-size: 13px;">Forum</a>
+                <a href="#" style="font-size: 13px">Forum</a>
 
                 <!--=============== MESSAGING ===============-->
-                <a href="{% url 'inbox' %}" style="font-size: 13px;" 
-                  class="{% if request.path == '/inbox/' or '/chat/' in request.path %} active {% endif %}">
+                <a
+                  href="{% url 'inbox' %}"
+                  style="font-size: 13px"
+                  class="{% if request.path == '/inbox/' or '/chat/' in request.path %} active {% endif %}"
+                >
                   Messaging
                 </a>
-
-
               </div>
               <ul class="header__right__widget">
-                
-                <li><span class="icon_search search-switch"><i class="fa-solid fa-magnifying-glass" style="color: #fff;"></i></span></li>
+                <li>
+                  <span class="icon_search search-switch"
+                    ><i
+                      class="fa-solid fa-magnifying-glass"
+                      style="color: #fff"
+                    ></i
+                  ></span>
+                </li>
                 <style>
                   .profile-pic {
-                    width: 30px; 
+                    width: 30px;
                     height: 30px;
-                    border-radius: 50%; 
-                    object-fit: cover; 
+                    border-radius: 50%;
+                    object-fit: cover;
                     background-color: #f0f0f0;
                     margin-top: -5px;
                   }
 
                   .icon_heart_alt i {
-                    font-size: 20px; 
+                    font-size: 20px;
                     color: #e74c3c;
                   }
                 </style>
-                
-                
+
                 <!--=============== LOGOUT ===============-->
                 <style>
-                  .logout-form{
+                  .logout-form {
                     background-color: transparent;
-
                   }
-                  .logout-btn{
+                  .logout-btn {
                     background-color: transparent;
                     outline: none;
                     border: none;
                   }
-                  .logout-btn i{
+                  .logout-btn i {
                     color: red;
                   }
                 </style>
                 <li>
-                  <form method="post" action="{% url 'logout' %}" class="logout-form">
+                  <form
+                    method="post"
+                    action="{% url 'logout' %}"
+                    class="logout-form"
+                  >
                     {% csrf_token %}
                     <button type="submit" class="logout-btn">
-                        <i class="fas fa-sign-out-alt" title="LogOut"></i>
+                      <i class="fas fa-sign-out-alt" title="LogOut"></i>
                     </button>
-                </form>                
+                  </form>
                 </li>
                 <!--=============== Profile ===============-->
                 <li>
                   <a href="{{ dashboard_url }}">
-                    <span class="icon_heart_alt" >
-                      
+                    <span class="icon_heart_alt">
                       {% if user.profile.profile_pic %}
-                        <span>
-                        <img src="{{ user.profile.profile_pic.url }}" alt="User Profile Picture" class="profile-pic">
+                      <span>
+                        <img
+                          src="{{ user.profile.profile_pic.url }}"
+                          alt="User Profile Picture"
+                          class="profile-pic"
+                        />
                       </span>
-                      {% else %}
-                      {% endif %}
+                      {% else %} {% endif %}
                     </span>
                   </a>
                 </li>
@@ -536,10 +592,25 @@
           {% else %}
           <div class="col-lg-3">
             <div class="header__right">
-
               <div class="header__right__auth">
-                <a href="{% url 'login' %}"  style="font-size: 16px; font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;">Login</a>
-                <a href="{% url 'register' %}" style="font-size: 16px; font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;">Get Started</a>
+                <a
+                  href="{% url 'login' %}"
+                  style="
+                    font-size: 16px;
+                    font-family: 'Gill Sans', 'Gill Sans MT', Calibri,
+                      'Trebuchet MS', sans-serif;
+                  "
+                  >Login</a
+                >
+                <a
+                  href="{% url 'register' %}"
+                  style="
+                    font-size: 16px;
+                    font-family: 'Gill Sans', 'Gill Sans MT', Calibri,
+                      'Trebuchet MS', sans-serif;
+                  "
+                  >Get Started</a
+                >
               </div>
             </div>
           </div>
@@ -553,341 +624,357 @@
     <!-- Header Section End -->
 
     <style>
-    .search-model {
-      display: none;
-      position: fixed;
-      width: 100%;
-      height: 100%;
-      left: 0;
-      top: 0;
-      background: #ffffff;
-      z-index: 99999;
-      padding: 20px; 
-      transition: all 0.3s ease;
-    }
-
-    /* Optional: To improve scrolling experience on mobile devices */
-    .search-model {
-      -webkit-overflow-scrolling: touch;
-    }
-
-    .search-model-form {
-      padding: 0 15px;
-      position: relative;
-      margin-top: -20%;
-    }
-
-    .search-model-form input {
-      width: 500px;
-      font-size: 40px;
-      border: none;
-      
-      border-bottom: 2px solid #dddddd;
-      background: 0 0;
-      color: #999;
-    }
-
-    .suggestions-container {
-      position: absolute;
-      left: 0;
-      width: 100%;
-      background-color: #fff;
-      border: 1px solid #ddd;
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-      max-height: 0;
-      overflow: hidden;
-      transition: max-height 0.3s ease-out;
-      z-index: 100;
-    }
-
-    .suggestions-container.show {
-      max-height: 64vh; 
-      overflow-y: auto;
-      margin-bottom: 5%;
-    }
-    /* Large devices (laptops/desktops) */
-    @media screen and (min-width: 1024px) {
-      .suggestions-container.show {
-        max-height: 70vh;
+      .search-model {
+        display: none;
+        position: fixed;
+        width: 100%;
+        height: 100%;
+        left: 0;
+        top: 0;
+        background: #ffffff;
+        z-index: 99999;
+        padding: 20px;
+        transition: all 0.3s ease;
       }
+
+      /* Optional: To improve scrolling experience on mobile devices */
+      .search-model {
+        -webkit-overflow-scrolling: touch;
+      }
+
       .search-model-form {
-        margin-top: -25%;
+        padding: 0 15px;
+        position: relative;
+        margin-top: -20%;
       }
-    }
 
-    /* Medium devices (tablets) */
-    @media screen and (max-width: 1023px) and (min-width: 768px) {
+      .search-model-form input {
+        width: 500px;
+        font-size: 40px;
+        border: none;
+
+        border-bottom: 2px solid #dddddd;
+        background: 0 0;
+        color: #999;
+      }
+
+      .suggestions-container {
+        position: absolute;
+        left: 0;
+        width: 100%;
+        background-color: #fff;
+        border: 1px solid #ddd;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.3s ease-out;
+        z-index: 100;
+      }
+
       .suggestions-container.show {
         max-height: 64vh;
+        overflow-y: auto;
+        margin-bottom: 5%;
       }
-      .search-model-form {
-        margin-top: -30%;
+      /* Large devices (laptops/desktops) */
+      @media screen and (min-width: 1024px) {
+        .suggestions-container.show {
+          max-height: 70vh;
+        }
+        .search-model-form {
+          margin-top: -25%;
+        }
       }
-    }
 
-    /* Small devices (landscape phones) */
-    @media screen and (max-width: 767px) and (min-width: 576px) {
-      .suggestions-container.show {
-        max-height: 72vh;
+      /* Medium devices (tablets) */
+      @media screen and (max-width: 1023px) and (min-width: 768px) {
+        .suggestions-container.show {
+          max-height: 64vh;
+        }
+        .search-model-form {
+          margin-top: -30%;
+        }
       }
-      .search-model-form {
-        margin-top: -50%;
+
+      /* Small devices (landscape phones) */
+      @media screen and (max-width: 767px) and (min-width: 576px) {
+        .suggestions-container.show {
+          max-height: 72vh;
+        }
+        .search-model-form {
+          margin-top: -50%;
+        }
       }
-    }
 
-    /* Extra small devices (portrait phones) */
-    @media screen and (max-width: 575px) {
-      .suggestions-container.show {
-        max-height: 72vh;
+      /* Extra small devices (portrait phones) */
+      @media screen and (max-width: 575px) {
+        .suggestions-container.show {
+          max-height: 72vh;
+        }
+        .search-model-form {
+          margin-top: -85%;
+        }
+
+        /* Make the search input smaller on mobile */
+        .search-model-form input {
+          font-size: 24px;
+        }
       }
-      .search-model-form {
-        margin-top: -85%;
+
+      /* For very small devices */
+      @media screen and (max-width: 320px) {
+        .suggestions-container.show {
+          max-height: 70vh;
+        }
+        .search-model-form {
+          margin-top: -80%;
+        }
       }
-      
-      /* Make the search input smaller on mobile */
-      .search-model-form input {
-        font-size: 24px; 
+
+      /* For devices in landscape mode */
+      @media screen and (orientation: landscape) and (max-height: 500px) {
+        .suggestions-container.show {
+          max-height: 70vh;
+        }
+        .search-model-form {
+          margin-top: -10%;
+        }
       }
-    }
-
-    /* For very small devices */
-    @media screen and (max-width: 320px) {
-      .suggestions-container.show {
-        max-height: 70vh;
+      .suggestion-category {
+        padding: 15px;
+        border-radius: 8px;
+        box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+        background-color: #ffffff;
+        margin-bottom: 1px;
+        transition: transform 0.2s ease;
+        margin-bottom: 3px;
       }
-      .search-model-form {
-        margin-top: -80%;
+
+      .suggestion-category > strong {
+        display: block;
+        font-size: 0.9rem;
+        color: #333;
+        margin-bottom: 5px;
+        font-weight: 600;
+        text-transform: capitalize;
+        padding: 0 15px;
+        border-bottom: 1px solid #eee;
+        padding-bottom: 8px;
       }
-    }
-
-    /* For devices in landscape mode */
-    @media screen and (orientation: landscape) and (max-height: 500px) {
-      .suggestions-container.show {
-        max-height: 70vh;
+      .suggestion-category ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
       }
-      .search-model-form {
-        margin-top: -10%;
+
+      .suggestion-category ul li {
+        margin-bottom: 6px;
       }
-    }
-    .suggestion-category {
-      padding: 15px;
-      border-radius: 8px;
-      box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
-      background-color: #ffffff;
-      margin-bottom: 1px;
-      transition: transform 0.2s ease;
-      margin-bottom: 3px;
-    }
 
-    .suggestion-category > strong {
-      display: block;
-      font-size: 0.9rem;
-      color: #333;
-      margin-bottom: 5px;
-      font-weight: 600;
-      text-transform: capitalize; 
-      padding: 0 15px; 
-      border-bottom: 1px solid #eee;
-      padding-bottom: 8px;
-    }
-    .suggestion-category ul {
-      list-style: none;
-      padding: 0;
-      margin: 0;
-    }
+      .suggestion-links {
+        color: #e74c3c;
+        text-decoration: none;
+        font-size: 0.875rem;
+        transition: color 0.2s ease, margin-left 0.3s ease;
+        font-family: "DM Sans", sans-serif;
+        font-optical-sizing: auto;
+        font-weight: 600;
+        font-style: normal;
+        margin-left: 15px;
+      }
 
-    .suggestion-category ul li {
-      margin-bottom: 6px;
-    }
+      .suggestion-description {
+        font-size: 0.8rem;
+        color: #555;
+        margin-top: 4px;
+        display: block;
+        margin-left: 15px;
+        font-style: italic;
+        transition: color 0.2s ease, margin-left 0.3s ease;
+      }
 
-    .suggestion-links {
-      color: #e74c3c;
-      text-decoration: none;
-      font-size: 0.875rem;
-      transition: color 0.2s ease, margin-left 0.3s ease;
-      font-family: "DM Sans", sans-serif;
-      font-optical-sizing: auto;
-      font-weight: 600;
-      font-style: normal;
-      margin-left: 15px;
-    }
+      /* When hovering over the link, style both the link and its description */
+      .suggestion-links:hover,
+      .suggestion-links:hover .suggestion-description {
+        color: #005bb5;
+        margin-left: 25px;
+      }
 
-    .suggestion-description {
-      font-size: 0.8rem;
-      color: #555;
-      margin-top: 4px;
-      display: block;
-      margin-left: 15px;
-      font-style: italic;
-      transition: color 0.2s ease, margin-left 0.3s ease;
-    }
+      /* When hovering over the description, style both the parent link and the description */
+      .suggestion-links:hover,
+      .suggestion-links:hover .suggestion-description {
+        color: #005bb5;
+        margin-left: 25px;
+      }
+      .suggestion-description {
+        color: #333;
+      }
 
-    /* When hovering over the link, style both the link and its description */
-    .suggestion-links:hover,
-    .suggestion-links:hover .suggestion-description {
-      color: #005bb5;
-      margin-left: 25px;
-    }
-
-    /* When hovering over the description, style both the parent link and the description */
-    .suggestion-links:hover,
-    .suggestion-links:hover .suggestion-description {
-      color: #005bb5;
-      margin-left: 25px;
-    }
-    .suggestion-description {
-      color: #333;
-    }
-
-    .no-results {
-      padding: 15px;
-      text-align: center;
-      color: #737373;
-      font-style: italic;
-    }
-    .search-close-switch {
-      position: absolute;
-      width: 50px;
-      height: 50px;
-      background: #333;
-      color: #fff;
-      text-align: center;
-      border-radius: 50%;
-      font-size: 28px;
-      line-height: 28px;
-      top: 30px;
-      cursor: pointer;
-      -webkit-transform: rotate(45deg);
-      -ms-transform: rotate(45deg);
-      transform: rotate(45deg);
-      display: -webkit-box;
-      display: -ms-flexbox;
-      display: flex;
-      -webkit-box-align: center;
-      -ms-flex-align: center;
-      align-items: center;
-      -webkit-box-pack: center;
-      -ms-flex-pack: center;
-      justify-content: center;
-    }
+      .no-results {
+        padding: 15px;
+        text-align: center;
+        color: #737373;
+        font-style: italic;
+      }
+      .search-close-switch {
+        position: absolute;
+        width: 50px;
+        height: 50px;
+        background: #333;
+        color: #fff;
+        text-align: center;
+        border-radius: 50%;
+        font-size: 28px;
+        line-height: 28px;
+        top: 30px;
+        cursor: pointer;
+        -webkit-transform: rotate(45deg);
+        -ms-transform: rotate(45deg);
+        transform: rotate(45deg);
+        display: -webkit-box;
+        display: -ms-flexbox;
+        display: flex;
+        -webkit-box-align: center;
+        -ms-flex-align: center;
+        align-items: center;
+        -webkit-box-pack: center;
+        -ms-flex-pack: center;
+        justify-content: center;
+      }
     </style>
-    
-  <!-- Search Begin -->
-  <div class="search-model">
-    <div class="h-100 d-flex align-items-center justify-content-center">
-      <div class="search-close-switch">+</div>
-      <form class="search-model-form" action="{% url 'search' %}" method="get" id="search-form">
-        <input type="text" id="search-input" name="q" placeholder="Search here..." autocomplete="off">
-        <!-- Suggestions container -->
-        <div id="suggestions" class="suggestions-container"></div>
-      </form>
+
+    <!-- Search Begin -->
+    <div class="search-model">
+      <div class="h-100 d-flex align-items-center justify-content-center">
+        <div class="search-close-switch">+</div>
+        <form
+          class="search-model-form"
+          action="{% url 'search' %}"
+          method="get"
+          id="search-form"
+        >
+          <input
+            type="text"
+            id="search-input"
+            name="q"
+            placeholder="Search here..."
+            autocomplete="off"
+          />
+          <!-- Suggestions container -->
+          <div id="suggestions" class="suggestions-container"></div>
+        </form>
+      </div>
     </div>
-  </div>
     <!-- Search AJAX API -->
-  <script>
-    $(".search-switch").on("click", function () {
-      $(".search-model").fadeIn(400, function() {
-        // Focus on the search input field as soon as the search model is shown
-        $("#search-input").focus();
-      });
-    });
-
-    $(".search-close-switch").on("click", function () {
-      $(".search-model").fadeOut(400, function () {
-        $("#search-input").val("");  // Clear the input when closing
-      });
-    });
-
-    $(document).on("keydown", function (e) {
-      if (e.key === "Escape") {
-        $(".search-model").fadeOut(400, function () {
-          $("#search-input").val("");  // Clear the input when closing
+    <script>
+      $(".search-switch").on("click", function () {
+        $(".search-model").fadeIn(400, function () {
+          $("#search-input").focus(); // Focus on input when opening search model
         });
-      }
-    });
-
-    document.getElementById("search-input").addEventListener("keyup", function () {
-      const query = this.value.trim();
-      const suggestionsContainer = document.getElementById("suggestions");
-
-      if (query.length > 2) {
-        fetchSuggestions(query, suggestionsContainer);
-      } else {
-        suggestionsContainer.classList.remove('show');
-        suggestionsContainer.innerHTML = '';
-      }
-    });
-
-    function fetchSuggestions(query, container) {
-      fetch(`/search/?q=${query}`, {
-        headers: { "X-Requested-With": "XMLHttpRequest" }
-      })
-        .then(response => response.json())
-        .then(data => {
-          let suggestionsHTML = '';
-
-          if (data.no_results) {
-            suggestionsHTML = `<div class="no-results">${data.no_results}</div>`;
-          } else {
-            for (const [category, items] of Object.entries(data)) {
-              suggestionsHTML += `<div class="suggestion-category"><strong>Section: ${category}</strong><ul>`;
-              items.forEach(item => {
-                const name = item.title || item.name;
-                const description = item.description || '';
-                let url = '';
-
-                if (category === 'polls') {
-                  url = `/polls/polls/${item.id}/vote/`;
-                }
-                else if (category === 'posts'){
-                  url = `/feeds/post/${item.id}/`;
-                }
-                else if (category === 'items'){
-                  url = `/marketplace/item/${item.id}/`
-                }
-                else {
-                  url = `/${category}/${item.id}/`;
-                }
-
-                suggestionsHTML += `
+      });
+    
+      $(".search-close-switch").on("click", function () {
+        $(".search-model").fadeOut(400, function () {
+          $("#search-input").val(""); // Clear input when closing
+        });
+      });
+    
+      $(document).on("keydown", function (e) {
+        if (e.key === "Escape") {
+          $(".search-model").fadeOut(400, function () {
+            $("#search-input").val(""); // Clear input when closing
+          });
+        }
+      });
+    
+      document.getElementById("search-input").addEventListener("keyup", function () {
+        const query = this.value.trim();
+        const suggestionsContainer = document.getElementById("suggestions");
+    
+        if (query.length > 2) {
+          fetchSuggestions(query, suggestionsContainer);
+        } else {
+          suggestionsContainer.classList.remove("show");
+          suggestionsContainer.innerHTML = "";
+        }
+      });
+    
+      function fetchSuggestions(query, container) {
+        fetch(`/search/?q=${query}`, {
+          headers: { "X-Requested-With": "XMLHttpRequest" },
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            let suggestionsHTML = "";
+    
+            if (data.no_results) {
+              suggestionsHTML = `<div class="no-results">${data.no_results}</div>`;
+            } else {
+              for (const [category, items] of Object.entries(data)) {
+                suggestionsHTML += `<div class="suggestion-category"><strong>Section: ${category}</strong><ul>`;
+                items.forEach((item) => {
+                  const name = highlightQuery(item.title || item.name, query);
+                  const description = highlightQuery(item.description || "", query);
+                  let url = "";
+    
+                  if (category === "polls") {
+                    url = `/polls/polls/${item.id}/vote/`;
+                  } else if (category === "posts") {
+                    url = `/feeds/post/${item.id}/`;
+                  } else if (category === "items") {
+                    url = `/marketplace/item/${item.id}/`;
+                  } else {
+                    url = `/${category}/${item.id}/`;
+                  }
+    
+                  suggestionsHTML += `
                   <li>
                     <a href="${url}" class="suggestion-links">
                       <strong>${name}</strong>
                       <p class="suggestion-description">${description}</p>
                     </a>
                   </li>`;
-              });
-              suggestionsHTML += '</ul></div>';
+                });
+                suggestionsHTML += "</ul></div>";
+              }
             }
-          }
-
-          container.innerHTML = suggestionsHTML;
-          container.classList.add('show');
-        })
-        .catch(error => console.error('Error fetching search suggestions:', error));
-    }
-
-    document.getElementById("search-input").addEventListener("keydown", function (e) {
-      if (e.key === 'Enter') {
-        e.preventDefault();
+    
+            container.innerHTML = suggestionsHTML;
+            container.classList.add("show");
+          })
+          .catch((error) =>
+            console.error("Error fetching search suggestions:", error)
+          );
       }
-    });
-
-    document.addEventListener("click", function (e) {
-      const searchInput = document.getElementById("search-input");
-      const suggestionsContainer = document.getElementById("suggestions");
-
-      if (!e.target.closest("#search-input")) {
-        suggestionsContainer.classList.remove('show');
-      } else {
-        const query = searchInput.value.trim();
-        if (query.length > 2 && suggestionsContainer.innerHTML) {
-          suggestionsContainer.classList.add('show');
+    
+      function highlightQuery(text, query) {
+        if (!query) return text;
+        const regex = new RegExp(`(${query})`, "gi");
+        return text.replace(regex, `<mark>$1</mark>`);
+      }
+    
+      document.getElementById("search-input").addEventListener("keydown", function (e) {
+        if (e.key === "Enter") {
+          e.preventDefault(); // Prevent form submission on Enter
         }
-      }
-    });
-  </script>
-   <!-- Search End -->
+      });
+    
+      document.addEventListener("click", function (e) {
+        const searchInput = document.getElementById("search-input");
+        const suggestionsContainer = document.getElementById("suggestions");
+    
+        if (!e.target.closest("#search-input")) {
+          suggestionsContainer.classList.remove("show");
+        } else {
+          const query = searchInput.value.trim();
+          if (query.length > 2 && suggestionsContainer.innerHTML) {
+            suggestionsContainer.classList.add("show");
+          }
+        }
+      });
+    </script>
+    
+    <!-- Search End -->
     <!-- Main Content -->
     <div class="container1">
       {% if messages %} {% for message in messages %}
@@ -934,16 +1021,19 @@
 
         //Canvas Menu
         $(".canvas__open").on("click", function () {
-        $(".offcanvas-menu-wrapper").addClass("active");
-        $(".offcanvas-menu-overlay").addClass("active");
+          $(".offcanvas-menu-wrapper").addClass("active");
+          $(".offcanvas-menu-overlay").addClass("active");
         });
-        $(".offcanvas-menu-overlay, .offcanvas__close").on("click", function (e) {
-        e.stopPropagation(); // Stop the event from bubbling up
-        $(".offcanvas-menu-wrapper").removeClass("active");
-        $(".offcanvas-menu-overlay").removeClass("active");
-        });
+        $(".offcanvas-menu-overlay, .offcanvas__close").on(
+          "click",
+          function (e) {
+            e.stopPropagation(); // Stop the event from bubbling up
+            $(".offcanvas-menu-wrapper").removeClass("active");
+            $(".offcanvas-menu-overlay").removeClass("active");
+          }
+        );
         $(".offcanvas-menu-wrapper").on("click", function (e) {
-        e.stopPropagation(); // Stop the event from bubbling up
+          e.stopPropagation(); // Stop the event from bubbling up
         });
 
         /*------------------
