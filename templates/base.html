@@ -218,7 +218,8 @@
             </form>
           </li>
           <li>
-            <a href="{{ dashboard_url }}">
+            {% url 'profile' as profile_url %}
+            <a href="{{ profile_url }}">
               <span class="icon_heart_alt">
                 {% if user.profile.profile_pic %}
                 <span>
@@ -577,7 +578,8 @@
                 </li>
                 <!--=============== Profile ===============-->
                 <li>
-                  <a href="{{ dashboard_url }}">
+                  {% url 'profile' as profile_url %}
+                  <a href="{{ profile_url }}">
                     <span class="icon_heart_alt">
                       {% if user.profile.profile_pic %}
                       <span>
