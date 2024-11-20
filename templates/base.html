@@ -88,7 +88,12 @@
       });
     </script>
 
-    {% block extra_css %}{% endblock %}
+    {% block extra_css %}
+    <link
+      rel="stylesheet"
+      href="{% static 'vendor/slicknav/slicknav.min.css' %}"
+    />
+    {% endblock %}
   </head>
 
   <body>
@@ -289,10 +294,10 @@
                 }
               </style>
               <li>
-                {% url 'polls:polls_list' as polls_url %} 
-                {% url 'polls:base_poll' as base_poll_url %}
-                {% url 'polls:add_polls' as add_polls_url %} 
-                {% url 'polls:user_dashboard' as user_dashboard_url %}
+                {% url 'polls:polls_list' as polls_url %} {% url
+                'polls:base_poll' as base_poll_url %} {% url 'polls:add_polls'
+                as add_polls_url %} {% url 'polls:user_dashboard' as
+                user_dashboard_url %}
 
                 <a
                   class="dropdown-toggle {% if 'polls' in request.resolver_match.namespace %}active{% endif %}"
@@ -342,10 +347,10 @@
                 >
               </li>
               <li>
-                {% url 'dashboard' as dashboard_url %}
+                {% url 'profile' as profile_url %}
                 <a
-                  href="{{ dashboard_url }}"
-                  class="nav__link {% if request.path == dashboard_url %}active{% endif %}"
+                  href="{{ profile_url }}"
+                  class="nav__link {% if request.path == profile_url %}active{% endif %}"
                   >Profile</a
                 >
               </li>
@@ -441,10 +446,10 @@
                 <!--=============== POLLS ===============-->
 
                 <li>
-                  {% url 'polls:polls_list' as polls_url %} 
-                {% url 'polls:base_poll' as base_poll_url %}
-                {% url 'polls:add_polls' as add_polls_url %} 
-                {% url 'polls:user_dashboard' as user_dashboard_url %}
+                  {% url 'polls:polls_list' as polls_url %} {% url
+                  'polls:base_poll' as base_poll_url %} {% url 'polls:add_polls'
+                  as add_polls_url %} {% url 'polls:user_dashboard' as
+                  user_dashboard_url %}
 
                   <!-- Polls Link: Apply the active class if the current page is under the 'polls' namespace -->
                   <a
@@ -492,10 +497,10 @@
 
                 <!--=============== PROFILE ===============-->
                 <li>
-                  {% url 'dashboard' as dashboard_url %}
+                  {% url 'profile' as profile_url %}
                   <a
-                    href="{{ dashboard_url }}"
-                    class="nav__link {% if request.path == dashboard_url %}active{% endif %}"
+                    href="{{ profile_url }}"
+                    class="nav__link {% if request.path == profile_url %}active{% endif %}"
                     >Profile</a
                   >
                 </li>
@@ -872,13 +877,13 @@
           $("#search-input").focus(); // Focus on input when opening search model
         });
       });
-    
+
       $(".search-close-switch").on("click", function () {
         $(".search-model").fadeOut(400, function () {
           $("#search-input").val(""); // Clear input when closing
         });
       });
-    
+
       $(document).on("keydown", function (e) {
         if (e.key === "Escape") {
           $(".search-model").fadeOut(400, function () {
@@ -886,19 +891,21 @@
           });
         }
       });
-    
-      document.getElementById("search-input").addEventListener("keyup", function () {
-        const query = this.value.trim();
-        const suggestionsContainer = document.getElementById("suggestions");
-    
-        if (query.length > 2) {
-          fetchSuggestions(query, suggestionsContainer);
-        } else {
-          suggestionsContainer.classList.remove("show");
-          suggestionsContainer.innerHTML = "";
-        }
-      });
-    
+
+      document
+        .getElementById("search-input")
+        .addEventListener("keyup", function () {
+          const query = this.value.trim();
+          const suggestionsContainer = document.getElementById("suggestions");
+
+          if (query.length > 2) {
+            fetchSuggestions(query, suggestionsContainer);
+          } else {
+            suggestionsContainer.classList.remove("show");
+            suggestionsContainer.innerHTML = "";
+          }
+        });
+
       function fetchSuggestions(query, container) {
         fetch(`/search/?q=${query}`, {
           headers: { "X-Requested-With": "XMLHttpRequest" },
@@ -906,7 +913,7 @@
           .then((response) => response.json())
           .then((data) => {
             let suggestionsHTML = "";
-    
+
             if (data.no_results) {
               suggestionsHTML = `<div class="no-results">${data.no_results}</div>`;
             } else {
@@ -914,9 +921,12 @@
                 suggestionsHTML += `<div class="suggestion-category"><strong>Section: ${category}</strong><ul>`;
                 items.forEach((item) => {
                   const name = highlightQuery(item.title || item.name, query);
-                  const description = highlightQuery(item.description || "", query);
+                  const description = highlightQuery(
+                    item.description || "",
+                    query
+                  );
                   let url = "";
-    
+
                   if (category === "polls") {
                     url = `/polls/polls/${item.id}/vote/`;
                   } else if (category === "posts") {
@@ -926,7 +936,7 @@
                   } else {
                     url = `/${category}/${item.id}/`;
                   }
-    
+
                   suggestionsHTML += `
                   <li>
                     <a href="${url}" class="suggestion-links">
@@ -938,7 +948,7 @@
                 suggestionsHTML += "</ul></div>";
               }
             }
-    
+
             container.innerHTML = suggestionsHTML;
             container.classList.add("show");
           })
@@ -946,23 +956,25 @@
             console.error("Error fetching search suggestions:", error)
           );
       }
-    
+
       function highlightQuery(text, query) {
         if (!query) return text;
         const regex = new RegExp(`(${query})`, "gi");
         return text.replace(regex, `<mark>$1</mark>`);
       }
-    
-      document.getElementById("search-input").addEventListener("keydown", function (e) {
-        if (e.key === "Enter") {
-          e.preventDefault(); // Prevent form submission on Enter
-        }
-      });
-    
+
+      document
+        .getElementById("search-input")
+        .addEventListener("keydown", function (e) {
+          if (e.key === "Enter") {
+            e.preventDefault(); // Prevent form submission on Enter
+          }
+        });
+
       document.addEventListener("click", function (e) {
         const searchInput = document.getElementById("search-input");
         const suggestionsContainer = document.getElementById("suggestions");
-    
+
         if (!e.target.closest("#search-input")) {
           suggestionsContainer.classList.remove("show");
         } else {
@@ -973,7 +985,7 @@
         }
       });
     </script>
-    
+
     <!-- Search End -->
     <!-- Main Content -->
     <div class="container1">
@@ -1076,6 +1088,9 @@
     <!-- Add before closing </body> tag -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
 
-    {% block extra_js %}{% endblock %}
+    {% block extra_js %}
+    <script src="{% static 'vendor/jquery/jquery-3.3.1.min.js' %}"></script>
+    <script src="{% static 'vendor/slicknav/jquery.slicknav.min.js' %}"></script>
+    {% endblock %}
   </body>
 </html>
