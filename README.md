@@ -88,12 +88,12 @@ Use this list to track progress. Mark tasks as completed by adding a ✅ at the 
 
 - [ ] **Forums & Communities** - Frontend (Victor)
 - [ ] **Forums & Communities** - Backend (Fidel)
-- [ ] **News Updates** - Full Stack (Mato)
+- [❌] **News Updates** - Full Stack (Mato)
 - [ ] **Maps** - Full Stack (Peter)
 
 - [✅] **Resource Sharing** - Full Stack (Samtech)
 
-- [ ] **Marketplace** - Full Stack (Victor)
+- [✅] **Marketplace** - Full Stack (Victor)
 
 - [✅] **Student Profiles** - Full Stack (Fidel)
 
