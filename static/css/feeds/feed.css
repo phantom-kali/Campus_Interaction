@@ -1,0 +1,39 @@
+.floating-create-btn {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    z-index: 1030;
+    transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
+}
+
+.floating-create-btn.hidden {
+    transform: translateY(100px);
+    opacity: 0;
+}
+
+@media (max-width: 768px) {
+    .floating-create-btn {
+        bottom: 1rem;
+        right: 1rem;
+    }
+}
+
+#image-preview, #video-preview {
+    min-height: 50px;
+}
+
+#image-preview img, #video-preview video {
+    max-height: 300px;
+    object-fit: contain;
+}
+
+.preview-container {
+    position: relative;
+}
+
+.preview-remove-btn {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    z-index: 1;
+} 

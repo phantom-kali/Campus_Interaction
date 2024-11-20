@@ -1,0 +1,63 @@
+<!-- Create Post Modal -->
+<div class="modal fade" id="createPostModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Create Post</h5>
+                <button type="button" class="btn-close" data-mdb-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="quickPostForm" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    
+                    <!-- Content -->
+                    <div class="form-outline mb-4">
+                        <textarea id="quick_content" name="content" class="form-control" rows="4"></textarea>
+                        <label class="form-label" for="quick_content">What's on your mind?</label>
+                        <div class="error-message" id="content-error"></div>
+                        <small class="text-muted character-counter"></small>
+                    </div>
+
+                    <!-- Media Upload -->
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="input-group">
+                                <label class="input-group-text" for="quick_image">
+                                    <i class="fas fa-image"></i>
+                                </label>
+                                <input type="file" class="form-control" id="quick_image" name="image" 
+                                       accept="image/*">
+                            </div>
+                            <div id="image-preview" class="mt-2 preview-container"></div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="input-group">
+                                <label class="input-group-text" for="quick_video">
+                                    <i class="fas fa-video"></i>
+                                </label>
+                                <input type="file" class="form-control" id="quick_video" name="video" 
+                                       accept="video/mp4,video/mov,video/avi">
+                            </div>
+                            <div id="video-preview" class="mt-2 preview-container"></div>
+                        </div>
+                    </div>
+
+                    <!-- Status -->
+                    <div class="mb-4">
+                        <select class="form-select" id="quick_status" name="status">
+                            <option value="public">Public</option>
+                            <option value="friends">Friends Only</option>
+                            <option value="private">Private</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-mdb-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="submitQuickPost">
+                    <i class="fas fa-paper-plane me-2"></i>Post
+                </button>
+            </div>
+        </div>
+    </div>
+</div> 
