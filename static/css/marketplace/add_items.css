@@ -731,14 +731,6 @@ ol {
 	margin-bottom: 20px;
 }
 
-.services__item i {
-	font-size: 36px;
-	color: #ca1515;
-	position: absolute;
-	left: 0;
-	top: 4px;
-}
-
 .services__item h6 {
 	color: #111111;
 	font-weight: 600;
@@ -3645,7 +3637,8 @@ ol {
 		width: 100%;
 	}
 	.search-model-form input {
-		width: 100%;
+		width: 90%;
+		margin: 0 auto;
 		font-size: 24px;
 	}
 }
