@@ -115,7 +115,7 @@ MarketPlace{% endblock %}{% block content %} {% load static %}
     transition: opacity 0.3s ease;
   }
 </style>
-<section class="product-details spad">
+<section class="product-details spad" style="margin-top: -30px;">
   <div class="container">
     <div class="row">
       <div class="col-lg-6">
@@ -401,100 +401,95 @@ MarketPlace{% endblock %}{% block content %} {% load static %}
             {% endif %}
             <script>
               document.addEventListener("DOMContentLoaded", function () {
-                document.querySelectorAll(".cart-btn").forEach((button) => {
-                  button.addEventListener("click", function (event) {
-                    event.preventDefault();
+              document.querySelectorAll(".cart-btn").forEach((button) => {
+                button.addEventListener("click", function (event) {
+                  event.preventDefault();
 
-                    const itemId = this.getAttribute("data-item-id");
+                  const itemId = this.getAttribute("data-item-id");
 
-                    // Send AJAX request to add item to cart
-                    fetch(`/marketplace/items/${itemId}/add_to_cart/`, {
-                      method: "POST",
-                      headers: {
-                        "Content-Type": "application/json",
-                        "X-CSRFToken": document.querySelector(
-                          "[name=csrfmiddlewaretoken]"
-                        ).value,
-                      },
+                  // Send AJAX request to add item to cart
+                  fetch(`/marketplace/items/${itemId}/add_to_cart/`, {
+                    method: "POST",
+                    headers: {
+                      "Content-Type": "application/json",
+                      "X-CSRFToken": document.querySelector("[name=csrfmiddlewaretoken]").value,
+                    },
+                  })
+                    .then((response) => {
+                      if (!response.ok) {
+                        // Check if the response is an error (like 400)
+                        return response.json().then((data) => {
+                          showNotification(data.message || "An error occurred.");
+                          throw new Error(data.message || "An error occurred.");
+                        });
+                      }
+                      return response.json();
                     })
-                      .then((response) => response.json())
-                      .then((data) => {
-                        if (data.status === "success") {
-                          showNotification("Item added to cart");
+                    .then((data) => {
+                      if (data.status === "success") {
+                        showNotification("Item added to cart");
 
-                          // Update the button to "View Cart"
-                          updateCartButton(itemId, true);
+                        // Update the button to "View Cart"
+                        updateCartButton(itemId, true);
 
-                          // Attach new event listener to the updated button
-                          const viewCartButton = document.getElementById(
-                            `view-cart-${itemId}`
-                          );
-                          if (viewCartButton) {
-                            viewCartButton.addEventListener(
-                              "click",
-                              function (event) {
-                                // Allow navigation to cart page
-                                window.location.href =
-                                  this.getAttribute("href");
-                              }
-                            );
-                          }
-                        } else if (data.status === "exists") {
-                          showNotification("Item already in cart");
-                        } else {
-                          showNotification(
-                            "An error occurred. Please try again."
-                          );
+                        // Attach new event listener to the updated button
+                        const viewCartButton = document.getElementById(`view-cart-${itemId}`);
+                        if (viewCartButton) {
+                          viewCartButton.addEventListener("click", function (event) {
+                            window.location.href = this.getAttribute("href");
+                          });
                         }
-                      })
-                      .catch((error) => console.error("Error:", error));
-                  });
+                      } else if (data.status === "exists") {
+                        showNotification("Item already in cart");
+                      }
+                    })
+                    .catch((error) => console.error("Error:", error));
                 });
               });
+            });
 
-              function showNotification(message) {
-                const notification = document.createElement("div");
-                notification.className = "notification";
-                notification.textContent = message;
+            function showNotification(message) {
+              const notification = document.createElement("div");
+              notification.className = "notification";
+              notification.textContent = message;
 
-                document.body.appendChild(notification);
+              document.body.appendChild(notification);
 
+              setTimeout(() => {
+                notification.classList.add("show");
+              }, 10);
+
+              setTimeout(() => {
+                notification.classList.remove("show");
                 setTimeout(() => {
-                  notification.classList.add("show");
-                }, 10);
+                  notification.remove();
+                }, 300);
+              }, 3000);
+            }
 
-                setTimeout(() => {
-                  notification.classList.remove("show");
-                  setTimeout(() => {
-                    notification.remove();
-                  }, 300);
-                }, 3000);
-              }
+            function updateCartButton(itemId, isInCart) {
+              const cartButton = document.getElementById(`add-to-cart-${itemId}`);
 
-              function updateCartButton(itemId, isInCart) {
-                const cartButton = document.getElementById(
-                  `add-to-cart-${itemId}`
-                );
-
-                if (isInCart) {
-                  if (cartButton) {
-                    cartButton.innerHTML = `<span class="icon_bag_alt"></span> View Cart`;
-                    cartButton.href = "{% url 'marketplace:cart_page' %}";
-                    cartButton.classList.add("view-cart");
-                    cartButton.classList.remove("cart-btn");
-                    cartButton.id = `view-cart-${itemId}`;
-                  }
-                } else {
-                  if (cartButton) {
-                    cartButton.innerHTML = `<span class="icon_bag_alt"></span> Add to Cart`;
-                    cartButton.href = "#";
-                    cartButton.classList.add("cart-btn");
-                    cartButton.classList.remove("view-cart");
-                    cartButton.id = `add-to-cart-${itemId}`;
-                  }
+              if (isInCart) {
+                if (cartButton) {
+                  cartButton.innerHTML = `<span class="icon_bag_alt"></span> View Cart`;
+                  cartButton.href = "{% url 'marketplace:cart_page' %}";
+                  cartButton.classList.add("view-cart");
+                  cartButton.classList.remove("cart-btn");
+                  cartButton.id = `view-cart-${itemId}`;
+                }
+              } else {
+                if (cartButton) {
+                  cartButton.innerHTML = `<span class="icon_bag_alt"></span> Add to Cart`;
+                  cartButton.href = "#";
+                  cartButton.classList.add("cart-btn");
+                  cartButton.classList.remove("view-cart");
+                  cartButton.id = `add-to-cart-${itemId}`;
                 }
               }
+            }
             </script>
+            
             <ul>
               <!-- Like button -->
               <style>

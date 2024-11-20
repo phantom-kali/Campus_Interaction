@@ -404,9 +404,12 @@
           <hr style="border-top: 2px solid #007bff" />
           {% if unread_notifications %}
           <div id="notifications-container">
+            <p>Clearing after 24Hrs</p>
             {% for notification in unread_notifications %}
             <div class="alert alert-info" role="alert">
               <strong>New Alert!</strong> {{ notification.message }}
+              Direct message them by going to the <a href="{% url 'inbox' %}" style="color: #4caf50;">Messaging</a> tab and searching for their username to start selling your product.
+              <p><strong>Time remaining:</strong> {{ notification.time_remaining }}</p>
             </div>
             {% endfor %}
           </div>

@@ -1,6 +1,5 @@
 {% extends 'base.html' %} {% load static %} {% block title %}CampHub |
 MarketPlace{% endblock %}{% block content %}
-<!-- <link rel="stylesheet" href="{% static '/css/marketplace/add_items.css' %}" /> -->
 <link
   rel="stylesheet"
   href="https://cdnjs.cloudflare.com/ajax/libs/material-design-iconic-font/2.2.0/css/material-design-iconic-font.min.css"
@@ -11,7 +10,7 @@ MarketPlace{% endblock %}{% block content %}
     background: url("{% static 'images/default_marketplace/market.jpg' %}")
       no-repeat center center;
     background-size: cover;
-    margin-top: -6.2%;
+    margin-top: -5.3%;
     position: relative;
   }
 
@@ -772,6 +771,47 @@ MarketPlace{% endblock %}{% block content %}
     .panel-search .size-113 i {
       margin-right: 8px;
     }
+    @media (max-width: 767px) {
+      /* Adjust search, filter, and cart buttons positioning */
+    .flex-w.flex-c-m.m-tb-10 {
+      display: flex;
+      margin-top: 20px;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      border-top: 1px solid #555;
+    }
+
+    /* Fix the button size for small screens */
+    .size-104,
+    .size-105 {
+      width: 100%; 
+      height: 40px;
+      margin-bottom: 8px; 
+      margin-top: 2%;
+    }
+
+    .js-show-search,
+    .js-show-filter {
+      width: 29%;
+      margin-right: 0;
+    }
+    .your-cart{
+      padding: 2px 17px;
+
+    }
+    .category-button{
+      font-size: 14px !important;
+      gap: 5px !important;
+    }
+    .headline {
+      text-transform: uppercase;
+      color: #000;
+      font-size: 24px;
+      font-weight: 800;
+    }
+
+    }
   </style>
   <section class="bg0 p-t-23 p-b-140" style="margin-top: 40px" id="shopSection">
     <div class="container">
@@ -845,7 +885,7 @@ MarketPlace{% endblock %}{% block content %}
           <!-- Cart Button -->
           <a href="{% url 'marketplace:cart_page' %}">
             <div
-              class="flex-c-m stext-106 cl6 size-104 bor4 pointer hov-btn3 trans-04 m-tb-4 js-show-cart"
+              class="flex-c-m stext-106 cl6 size-104 bor4 pointer hov-btn3 trans-04 m-tb-4 your-cart"
             >
               <i
                 class="icon-cart fas fa-shopping-cart cl2 m-r-6 fs-15 trans-04"

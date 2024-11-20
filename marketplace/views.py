@@ -38,6 +38,7 @@ import os
 
 logger = logging.getLogger(__name__)
 
+
 # All Items
 def item_list(request):
     query = request.GET.get("q")
@@ -96,7 +97,7 @@ def item_list(request):
 
     # Hot trend items - Items with at least 2 likes, not sold.
     hot_trend_items = Item.objects.annotate(num_likes=Count("likes")).filter(
-        num_likes__gte=2, sold=False
+        num_likes__gte=5, sold=False
     )[:3]
 
     best_seller_sellers = (
@@ -110,7 +111,7 @@ def item_list(request):
     best_seller_items = Item.objects.filter(seller__in=best_seller_sellers, sold=False)[
         :3
     ]
-    success_message = request.session.pop('success_message', None)
+    success_message = request.session.pop("success_message", None)
 
     return render(
         request,
@@ -164,7 +165,7 @@ def item_detail(request, item_id):
     liked_items = set(
         Like.objects.filter(user=request.user).values_list("item_id", flat=True)
     )
-    
+
     is_in_cart = CartItem.objects.filter(cart__user=request.user, item=item).exists()
 
     if request.user.is_authenticated:
@@ -209,7 +210,9 @@ def add_item(request):
             item = form.save(commit=False)
             item.seller = request.user
             item.save()
-            request.session['success_message'] = "Your item has been successfully listed!"      
+            request.session["success_message"] = (
+                "Your item has been successfully listed!"
+            )
             return redirect("marketplace:item_list")
         else:
             # If the form has other validation errors, we can add a general error message
@@ -253,10 +256,8 @@ def seller_dashboard(request):
             total_sales.append(data["total_sales"])
 
         Notification.objects.filter(
-        recipient=request.user,
-        created_at__lt=timezone.now() - timedelta(hours=24)
+            recipient=request.user, created_at__lt=timezone.now() - timedelta(hours=24)
         ).delete()
-
 
         # Fetch unread notifications for the seller without marking as read
         unread_notifications = Notification.objects.filter(
@@ -276,7 +277,7 @@ def seller_dashboard(request):
             if item.new_price and item.new_price < item.price:
                 popular_items.remove(item)
 
-        success_message = request.session.pop('success_message', None)
+        success_message = request.session.pop("success_message", None)
 
         return render(
             request,
@@ -300,7 +301,7 @@ def mark_as_sold(request, item_id):
         item.sold = True
         item_name = item.title
         item.save()
-        request.session['success_message'] = f'"{item_name}" has been market as sold.'
+        request.session["success_message"] = f'"{item_name}" has been market as sold.'
         return redirect("marketplace:seller_dashboard")
     return redirect("marketplace:item_detail", item_id=item.id)
 
@@ -309,20 +310,23 @@ def delete_item(request, item_id):
     item = get_object_or_404(Item, id=item_id)
     if request.method == "POST" and request.user == item.seller:
         item_name = item.title
-        
+
         if item.image:
             try:
                 if os.path.isfile(item.image.path):
                     os.remove(item.image.path)
             except (AttributeError, ObjectDoesNotExist, FileNotFoundError):
                 pass
-        
+
         item.delete()
 
-        request.session['success_message'] = f'"{item_name}" has been successfully deleted from your listings.'
+        request.session["success_message"] = (
+            f'"{item_name}" has been successfully deleted from your listings.'
+        )
         return redirect("marketplace:seller_dashboard")
-    
+
     return redirect("marketplace:item_detail", item_id=item.id)
+
 
 @require_POST
 def like_item(request, item_id):
@@ -426,11 +430,11 @@ def rate_item(request, item_id):
     except json.JSONDecodeError:
         logger.error("Failed to decode JSON data")  # Log the error
         return JsonResponse({"error": "Invalid JSON data"}, status=400)
-    
+
     except ValueError as e:
         logger.error(f"ValueError: {str(e)}")  # Log the error
         return JsonResponse({"error": "Invalid value provided"}, status=400)
-    
+
     except Exception as e:
         logger.error(f"Unexpected error: {str(e)}")  # Log the error
         return JsonResponse({"error": "An internal error occurred"}, status=500)
@@ -443,6 +447,26 @@ def add_to_cart(request, item_id):
         item = get_object_or_404(Item, id=item_id)
         cart, created = Cart.objects.get_or_create(user=request.user)
 
+        # Check if the user owns the item
+        if item.seller == request.user:
+            return JsonResponse(
+                {
+                    "status": "error",
+                    "message": "You cannot add your own item to the cart.",
+                },
+                status=400  # Use 400 status for client-side errors
+            )
+
+        # Check if the item is sold
+        if item.sold:  # Assuming there is a BooleanField 'sold' in the Item model
+            return JsonResponse(
+                {
+                    "status": "error",
+                    "message": "This item is sold and cannot be added to the cart.",
+                },
+                status=400
+            )
+
         # Check if the item is already in the cart
         if CartItem.objects.filter(cart=cart, item=item).exists():
             return JsonResponse(
@@ -452,7 +476,7 @@ def add_to_cart(request, item_id):
                 }
             )
 
-        # If item is not in the cart, add it
+        # If item is not in the cart and not owned by the user, add it
         CartItem.objects.create(cart=cart, item=item, quantity=1)
         return JsonResponse(
             {
@@ -464,6 +488,7 @@ def add_to_cart(request, item_id):
     return JsonResponse(
         {"status": "error", "message": "Authentication required"}, status=403
     )
+
 
 
 def cart_page(request):
@@ -491,7 +516,7 @@ def cart_page(request):
         "cart_items": cart_items,
         "total_price": total_price,
         "cart_count": cart_count,
-        "deal_items" : deal_items,
+        "deal_items": deal_items,
     }
     return render(request, "marketplace/cart_page.html", context)
 

@@ -1,7 +1,7 @@
 import requests
 
 def is_malicious_url(url):
-    # api_key = 'AIzaSyCk2nnIeH4fiwfJ6ZoXtep4v1ci4XAF0S8'
+    # api_key = ''
     api_key = 'hello'
     safe_browsing_url = 'https://safebrowsing.googleapis.com/v4/threatMatches:find'
     

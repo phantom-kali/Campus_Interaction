@@ -241,7 +241,7 @@
     padding: 10px 20px;
   }
 
-  input[type="text"] {
+  #search  {
     border: 1px solid #ddd;
     border-radius: 4px;
     padding: 10px;
@@ -250,11 +250,11 @@
     transition: border-color 0.3s;
   }
 
-  input[type="text"]:focus {
+  #search:focus {
     border-color: #007bff;
     outline: none;
   }
-
+ 
   .search {
     background-color: #007bff;
     color: white;
