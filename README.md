@@ -67,7 +67,7 @@ Use this list to track progress. Mark tasks as completed by adding a ✅ at the 
 
 ### Live Communications
 
-- [ ] **Live Chats & Messaging** - Frontend (Jean)
+- [✅] **Live Chats & Messaging** - Frontend (Jean)
 
 - [✅] **Live Chats & Messaging** - Backend (Fidel)
 
