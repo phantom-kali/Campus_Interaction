@@ -1,0 +1,57 @@
+<!--=============== FEEDS ===============-->
+<li>
+  {% url 'feeds:feed_list' as feed %}
+  <a href="{{ feed }}" class="{% if 'feeds' in request.resolver_match.namespace %}active{% endif %}">Feeds</a>
+</li>
+
+<!--=============== EVENTS ===============-->
+<li>
+  {% url 'events:event_list' as events_url %}
+  <a href="{{ events_url }}" class="nav__link {% if 'events' in request.resolver_match.namespace %}active{% endif %}">Events</a>
+</li>
+
+<!--=============== RESOURCES  ===============-->
+<li>
+  <a href="{% url 'resources' %}" class="nav__link {% if request.path == resources_url %}active{% endif %}">Resources</a>
+</li>
+
+<!--=============== POLLS ===============-->
+<li>
+  {% url 'polls:polls_list' as polls_url %}
+  {% url 'polls:base_poll' as base_poll_url %}
+  {% url 'polls:add_polls' as add_polls_url %}
+  {% url 'polls:user_dashboard' as user_dashboard_url %}
+
+  <a class="dropdown-toggle dropdown__link {% if 'polls' in request.resolver_match.namespace %}active{% endif %}">
+    Polls
+  </a>
+  <ul class="dropdown dropdown-menu-list">
+    <li>
+      <a href="{{ base_poll_url }}" class="dropdown__link {% if request.path == base_poll_url %}active{% endif %}">
+        View Polls
+      </a>
+    </li>
+    <li>
+      <a href="{{ add_polls_url }}" class="dropdown__link {% if request.path == add_polls_url %}active{% endif %}">
+        Create Polls
+      </a>
+    </li>
+    <li>
+      <a href="{{ user_dashboard_url }}" class="dropdown__link {% if request.path == user_dashboard_url %}active{% endif %}">
+        Your Polls
+      </a>
+    </li>
+  </ul>
+</li>
+
+<!--=============== MARKETPLACE ===============-->
+<li>
+  {% url 'marketplace:item_list' as item_list_url %}
+  <a href="{{ item_list_url }}" class="nav__link {% if 'marketplace' in request.resolver_match.namespace %}active{% endif %}">Marketplace</a>
+</li>
+
+<!--=============== PROFILE ===============-->
+<li>
+  {% url 'profile' as profile_url %}
+  <a href="{{ profile_url }}" class="nav__link {% if request.path == profile_url %}active{% endif %}">Profile</a>
+</li> 
