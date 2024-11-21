@@ -1,0 +1,38 @@
+<div class="header__right">
+  <div class="header__right__auth">
+    <!--=============== FORUM ===============-->
+    <a href="#" style="font-size: 13px">Forum</a>
+
+    <!--=============== MESSAGING ===============-->
+    <a href="{% url 'inbox' %}" style="font-size: 13px" 
+       class="{% if request.path == '/inbox/' or '/chat/' in request.path %} active {% endif %}">
+      Messaging
+    </a>
+  </div>
+  <ul class="header__right__widget">
+    <li>
+      <span class="icon_search search-switch">
+        <i class="fa-solid fa-magnifying-glass" style="color: #fff"></i>
+      </span>
+    </li>
+    <li>
+      <form method="post" action="{% url 'logout' %}" class="logout-form">
+        {% csrf_token %}
+        <button type="submit" class="logout-btn">
+          <i class="fas fa-sign-out-alt" title="LogOut"></i>
+        </button>
+      </form>
+    </li>
+    <li>
+      <a href="{{ dashboard_url }}">
+        <span class="icon_heart_alt">
+          {% if user.profile.profile_pic %}
+          <span>
+            <img src="{{ user.profile.profile_pic.url }}" alt="User Profile Picture" class="profile-pic" />
+          </span>
+          {% endif %}
+        </span>
+      </a>
+    </li>
+  </ul>
+</div> 

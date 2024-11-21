@@ -1,0 +1,69 @@
+{% load static %}
+
+<!-- Offcanvas Menu Begin -->
+<div class="offcanvas-menu-overlay">
+  <div class="offcanvas-menu-wrapper">
+    <div class="offcanvas__close">+</div>
+    {% if user.profile.profile_pic %}
+    <ul class="offcanvas__widget">
+      <li>
+        <span class="icon_search search-switch">
+          <i class="fa-solid fa-magnifying-glass"></i>
+        </span>
+      </li>
+      <li>
+        <form method="post" action="{% url 'logout' %}" class="logout-form">
+          {% csrf_token %}
+          <button type="submit" class="logout-btn">
+            <i class="fas fa-sign-out-alt" title="LogOut"></i>
+          </button>
+        </form>
+      </li>
+      <li>
+        <a href="{{ dashboard_url }}">
+          <span class="icon_heart_alt">
+            {% if user.profile.profile_pic %}
+            <span>
+              <img src="{{ user.profile.profile_pic.url }}" alt="User Profile Picture" class="profile-pic" />
+            </span>
+            {% endif %}
+          </span>
+        </a>
+      </li>
+    </ul>
+    {% endif %}
+
+    <div class="header__logo">
+      <a href="/">
+        <img src="{% static 'images/logo.svg' %}" alt="Logo" class="logo-icon" />
+        <span class="logo-text" style="color: #000">CampHub</span>
+      </a>
+    </div>
+
+    {% if user.is_authenticated %}
+    <div class="sidebar1">
+      <ul>
+        {% include 'partials/_nav_items.html' %}
+      </ul>
+    </div>
+    <br />
+    {% endif %}
+
+    {% if user.is_authenticated %}
+    <div class="offcanvas__auth1">
+      <!--=============== FORUM ===============-->
+      <a href="#">Forum</a>
+      <!--=============== MESSAGING ===============-->
+      <a href="{% url 'inbox' %}" class="{% if request.path == '/inbox/' or '/chat/' in request.path %} active {% endif %}">
+        Messaging
+      </a>
+    </div>
+    {% else %}
+    <div class="offcanvas__auth">
+      <a href="{% url 'login' %}">Login</a>
+      <a href="{% url 'register' %}">Get Started</a>
+    </div>
+    {% endif %}
+  </div>
+</div>
+<!-- Offcanvas Menu End --> 
