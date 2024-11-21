@@ -3,8 +3,8 @@ __pycache__/
 *.py[cod]
 **/__pycache__/
 *.pyo
-/lib
-/bin
+lib/
+bin/
 pyvenv.cfg
 # Virtual environment
 venv/
@@ -12,6 +12,8 @@ env/
 .env/
 .venv/
 ENV/
+lib/
+bin/
 
 # Django-specific
 *.sqlite3

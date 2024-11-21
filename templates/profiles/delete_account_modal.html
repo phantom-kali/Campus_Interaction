@@ -1,0 +1,45 @@
+<!-- Delete Account Modal -->
+<div class="modal fade" id="deleteAccountModal" tabindex="-1" aria-labelledby="deleteAccountModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteAccountModalLabel">Delete Account</h5>
+                <button type="button" class="btn-close" data-mdb-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-danger">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    Warning: This action cannot be undone. All your data will be permanently deleted.
+                </div>
+                
+                <form id="deleteAccountForm">
+                    {% csrf_token %}
+                    
+                    <!-- Password Confirmation -->
+                    <div class="form-outline mb-4">
+                        <input type="password" id="confirm_password" name="confirm_password" 
+                               class="form-control" required>
+                        <label class="form-label" for="confirm_password">Enter your password to confirm</label>
+                        <div class="error-message" id="confirm_password-error"></div>
+                    </div>
+
+                    <!-- Confirmation Checkbox -->
+                    <div class="form-check mb-4">
+                        <input class="form-check-input" type="checkbox" id="deleteConfirm" required>
+                        <label class="form-check-label" for="deleteConfirm">
+                            I understand that this action is permanent and cannot be undone
+                        </label>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="d-flex justify-content-end gap-2">
+                        <button type="button" class="btn btn-secondary" data-mdb-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-danger">
+                            <i class="fas fa-trash-alt me-2"></i>Delete Account
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div> 

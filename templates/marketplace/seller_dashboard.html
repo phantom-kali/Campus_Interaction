@@ -1,53 +1,605 @@
-{% extends "base.html" %}
+{% extends "base.html" %} {% block title %}MarketPlace | Seller Dashboard{% endblock %}
+ {% block content %} {% load static %}
+<link rel="stylesheet" href="{% static '/css/marketplace/add_items.css' %}" />
+<style>
+  .notification-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1000;
+    width: 530px;
+  }
 
-{% block content %}
+  .notification {
+    display: flex;
+    align-items: center;
+    background-color: #4caf50;
+    color: white;
+    padding: 16px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+    animation: slideIn 0.5s ease, slideOut 0.5s ease 4s forwards;
+    position: relative;
+    overflow: hidden;
+  }
+  .icon {
+    display: flex;
+    align-items: center;
+    padding-right: 12px; /* Space between icon and border */
+    margin-right: 12px; /* Space between border and message */
+    border-right: 2px solid #ccc; /* Visible border */
+  }
 
-<h1>Your Dashboard</h1>
-<!-- Include this block at the top of your HTML file -->
-{% if messages %}
-    <ul class="messages">
-        {% for message in messages %}
-            <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
-        {% endfor %}
-    </ul>
+  .icon i {
+    font-size: 1.5em;
+    color: white; /* Icon color */
+  }
+  .notification .icon {
+    font-size: 1.5em;
+    margin-right: 10px;
+  }
+
+  .notification .message {
+    flex-grow: 1;
+    font-size: 1em;
+  }
+
+  /* Close Button */
+  .close-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px;
+    font-size: 1.5em;
+    color: white;
+    cursor: pointer;
+    margin-left: 12px;
+    transition: color 0.3s ease;
+  }
+
+  .close-button i {
+    color: white;
+  }
+
+  .close-button:hover i {
+    color: #ff6666;
+  }
+
+  .notification .progress-bar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 4px;
+    background-color: rgba(255, 255, 255, 0.8);
+    width: 100%;
+  }
+
+  @keyframes slideIn {
+    0% {
+      opacity: 0;
+      transform: translateX(100%);
+    }
+    100% {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  @keyframes slideOut {
+    0% {
+      opacity: 1;
+      transform: translateX(0);
+    }
+    100% {
+      opacity: 0;
+      transform: translateX(100%);
+    }
+  }
+
+  @keyframes progress {
+    from {
+      width: 100%;
+    }
+    to {
+      width: 0;
+    }
+  }
+
+  @media (max-width: 767px) {
+    .notification-container {
+      top: 10px;
+      right: 10px;
+      width: 90%;
+    }
+
+    .notification {
+      padding: 12px;
+    }
+
+    .notification .icon {
+      font-size: 1.3em;
+    }
+
+    .notification .close-button {
+      font-size: 1em;
+      margin-left: 8px;
+    }
+  }
+</style>
+
+{% if success_message %}
+<div class="notification-container">
+  <div class="notification">
+    <div class="icon"><i class="fa-solid fa-circle-check"></i></div>
+    <div class="message">{{ success_message }}</div>
+    <div
+      class="close-button"
+      onclick="this.parentElement.style.display='none';"
+    >
+      <i class="fa-solid fa-circle-xmark"></i>
+    </div>
+    <div class="progress-bar"></div>
+  </div>
+</div>
 {% endif %}
 
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const notification = document.querySelector(".notification");
+    const progressBar = document.querySelector(".progress-bar");
 
-<a href="{% url 'marketplace:add_item' %}">Add New Item</a>
+    // Auto-fade out after 4 seconds
+    setTimeout(() => {
+      notification.classList.add("fade-out");
+    }, 4000);
 
-<h3>Your Items</h3>
-<ul>
-    <ul>
-        {% for item in user_items %}
-            <li>
-                <a href="{% url 'marketplace:item_detail' item.id %}">{{ item.title }}</a> - ${{ item.price }}
-                {% if item.sold %}
-                    <span>(Sold)</span>
-                    <!-- Allow deletion only if the item is sold -->
-                    <form action="{% url 'marketplace:delete_item' item.id %}" method="post" style="display: inline;">
-                        {% csrf_token %}
-                        <button type="submit">Delete</button>
-                    </form>
-                {% else %}
-                    <form action="{% url 'marketplace:mark_as_sold' item.id %}" method="post" style="display: inline;">
-                        {% csrf_token %}
-                        <button type="submit">Mark as Sold</button>
-                    </form>
-    
-                    <form action="" method="post" style="display: inline;">  <!-- No specific URL, it submits to itself -->
-                        {% csrf_token %}
-                        <input type="hidden" name="item_id" value="{{ item.id }}">
-                        <input type="number" name="new_price" step="0.01" placeholder="New Price" required>
-                        <button type="submit">Update Price</button>
-                    </form>
-                {% endif %}
-                <span>Rating: {{ item.average_rating|floatformat:1 }}</span> <!-- Show average rating with 1 decimal place -->
-            </li>
-        {% empty %}
-            <li>No items found.</li>
-        {% endfor %}
-    </ul>
-    
-</ul>
+    // Shrink progress bar over time
+    progressBar.style.animation = "progress 4s linear forwards";
 
+    // Remove the notification from DOM after fade out
+    notification.addEventListener("animationend", () => {
+      if (notification.classList.contains("fade-out")) {
+        notification.remove();
+      }
+    });
+  });
+</script>
+
+<div class="breadcrumb-option">
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-12">
+        <div class="breadcrumb__links">
+          <a href="{% url 'marketplace:item_list' %}"
+            ><i class="fa fa-shopping-bag" aria-hidden="true"></i> All Items</a
+          >
+          <span>Seller Dashboard</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<section class="shop-cart spad">
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-12">
+        <div class="shop__cart__table">
+          <table>
+            <thead>
+              <tr>
+                <th>Product</th>
+                <th>Price</th>
+                <th>Update</th>
+                <th>Sold</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for item in user_items %}
+              <tr
+                class="cart-item"
+                data-price="{{ item.price }}"
+                data-sold="{{ item.sold }}"
+                data-new-price="{{ item.new_price }}"
+              >
+                <td class="cart__product__item">
+                  <img
+                    src="{{ item.image.url }}"
+                    alt="product-image"
+                    style="
+                      width: 80px;
+                      height: 80px;
+                      border-radius: 10px;
+                      object-fit: cover;
+                    "
+                  />
+                  <div class="cart__product__item__title">
+                    <h6>{{ item.title }}</h6>
+                    <style>
+                      .unrated {
+                        color: #dcdcdc;
+                      }
+                      .rated {
+                        color: #ffc107;
+                      }
+                    </style>
+                    <div class="rating">
+                      {% if item.average_rating %} {% for i in "12345" %}
+                      <i
+                        class="fa fa-star {% if item.average_rating >= i|add:0 %}rated{% else %}unrated{% endif %}"
+                      ></i>
+                      {% endfor %} {% else %}
+                      <i class="fa fa-star unrated"></i>
+                      <i class="fa fa-star unrated"></i>
+                      <i class="fa fa-star unrated"></i>
+                      <i class="fa fa-star unrated"></i>
+                      <i class="fa fa-star unrated"></i>
+                      {% endif %}
+                    </div>
+                  </div>
+                </td>
+                <td class="cart__price">
+                  {% if item.new_price %} Ksh {{ item.new_price }} {% else %}
+                  Ksh {{ item.price }} {% endif %}
+                </td>
+                <td class="cart__quantity">
+                  <style>
+                    .update-button {
+                      font-size: 14px;
+                      color: #111111;
+                      font-weight: 600;
+                      text-transform: uppercase;
+                      display: inline-block;
+                      border: none;
+                      padding: 14px 30px;
+                      background: #f5f5f5;
+                    }
+
+                    .sold-message {
+                      font-size: 14px;
+                      color: #999;
+                      font-weight: 600;
+                      text-transform: uppercase;
+                      display: inline-block;
+                      background: none;
+                    }
+
+                    .pro-qty {
+                      display: flex;
+                      align-items: center;
+                      justify-content: center;
+                    }
+                  </style>
+                  <div class="pro-qty">
+                    {% if item.sold %}
+                    <span class="sold-message">Item Sold</span>
+                    {% else %}
+                    <a
+                      href="{% url 'marketplace:update_item' item.id %}"
+                      class="update-button"
+                      >Update</a
+                    >
+                    {% endif %}
+                  </div>
+                </td>
+
+                <td class="cart__total">
+                  <form
+                    action="{% url 'marketplace:mark_as_sold' item.id %}"
+                    method="post"
+                    style="display: inline"
+                  >
+                    {% csrf_token %} {% if item.sold %}
+                    <i
+                      class="fa fa-check"
+                      title="Sold"
+                      style="
+                        color: green;
+                        height: 45px;
+                        width: 45px;
+                        background: #f2f2f2;
+                        border-radius: 50%;
+                        font-size: 18px;
+                        line-height: 44px;
+                        text-align: center;
+                        display: inline-block;
+                        font-weight: 600;
+                        cursor: pointer;
+                      "
+                    >
+                    </i>
+                    {% else %}
+                    <button
+                      type="submit"
+                      class="mark-as-sold-btn"
+                      style="
+                        outline: none;
+                        border: none;
+                        background-color: transparent;
+                      "
+                    >
+                      <i
+                        class="fa fa-cart-plus"
+                        title="Mark as Sold"
+                        style="
+                          color: #000;
+                          height: 45px;
+                          width: 45px;
+                          background: #f2f2f2;
+                          border-radius: 50%;
+                          font-size: 18px;
+                          line-height: 44px;
+                          text-align: center;
+                          display: inline-block;
+                          font-weight: 600;
+                          cursor: pointer;
+                        "
+                      >
+                      </i>
+                    </button>
+                    {% endif %}
+                  </form>
+                </td>
+                <td class="cart__close">
+                  <form
+                    action="{% url 'marketplace:delete_item' item.id %}"
+                    method="post"
+                    style="display: inline"
+                  >
+                    {% csrf_token %}
+                    <button
+                      class="delete"
+                      title="Delete Item"
+                      style="
+                        outline: none;
+                        border: none;
+                        background-color: transparent;
+                      "
+                    >
+                      <span class="icon_close"
+                        ><i
+                          class="fa-solid fa-circle-xmark"
+                          aria-hidden="true"
+                        ></i
+                      ></span>
+                    </button>
+                  </form>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-lg-6 col-md-6 col-sm-6">
+        <div class="cart__btn">
+          <a href="{% url 'marketplace:add_item' %}">Add New Item</a>
+        </div>
+      </div>
+      <div class="col-lg-6 col-md-6 col-sm-6">
+        <div class="cart__btn update__btn">
+          <a href="{% url 'marketplace:seller_dashboard' %}"
+            ><span class="icon_loading"
+              ><i class="fa fa-spinner" aria-hidden="true"></i
+            ></span>
+            Refresh Dashboard</a
+          >
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-lg-6">
+        <div class="interest__content">
+          <h6>Product Interest Alerts</h6>
+          <p>
+            Stay updated with the latest notifications regarding the products
+            you are selling.
+          </p>
+
+          <!-- Section: New Product Interest Notifications -->
+          <h6>New Product Interest Notifications</h6>
+          <hr style="border-top: 2px solid #007bff" />
+          {% if unread_notifications %}
+          <div id="notifications-container">
+            <p>Clearing after 24Hrs</p>
+            {% for notification in unread_notifications %}
+            <div class="alert alert-info" role="alert">
+              <strong>New Alert!</strong> {{ notification.message }}
+              Direct message them by going to the <a href="{% url 'inbox' %}" style="color: #4caf50;">Messaging</a> tab and searching for their username to start selling your product.
+              <p><strong>Time remaining:</strong> {{ notification.time_remaining }}</p>
+            </div>
+            {% endfor %}
+          </div>
+          {% else %}
+          <p>No new notifications.</p>
+          {% endif %}
+
+          <!-- Section Divider -->
+          <hr
+            style="
+              border-top: 2px solid #007bff;
+              margin-top: 20px;
+              margin-bottom: 20px;
+            "
+          />
+
+          <!-- Section: Product Popularity Reminder -->
+
+          <h6>Popularity Reminder</h6>
+          <hr style="border-top: 2px solid #ffc107" />
+          {% if popular_items %} {% for item in popular_items %}
+          <div class="alert alert-warning" role="alert">
+            <strong>Reminder:</strong> Product
+            <strong>{{ item.title }}</strong> is getting popular. Consider
+            updating the price.
+          </div>
+          {% endfor %} {% else %}
+          <!-- Message when no popular items -->
+          <p>No products are currently gaining popularity.</p>
+          {% endif %}
+          <!-- Section Divider -->
+          <hr
+            style="
+              border-top: 2px solid #ffc107;
+              margin-top: 20px;
+              margin-bottom: 20px;
+            "
+          />
+        </div>
+      </div>
+      <style>
+        .show_graph:hover {
+          color: #fff;
+        }
+      </style>
+      <div class="col-lg-4 offset-lg-2">
+        <div class="cart__total__procced">
+          <h6>Product total</h6>
+          <ul>
+            <li>Subtotal <span id="subtotal">Ksh 0.0</span></li>
+            <li>Total <span id="total">Ksh 0.0</span></li>
+          </ul>
+          <a href="#" id="showGraphBtn" class="primary-btn show_graph"
+            >Show Sales Graph</a
+          >
+        </div>
+      </div>
+    </div>
+    <style>
+      @media (max-width: 768px) {
+        #salesGraph {
+          height: 450px;
+        }
+      }
+
+      @media (min-width: 768px) {
+        #salesGraph {
+          height: 300px;
+        }
+      }
+    </style>
+    <div class="container mt-4" id="salesGraphContainer" style="display: none">
+      <div class="row">
+        <div class="col-lg-8 offset-lg-2 col-md-10 offset-md-1">
+          <div class="card shadow-lg border-primary">
+            <div class="card-header bg-primary text-white text-center">
+              <h5>Sales Overview</h5>
+            </div>
+            <div class="card-body">
+              <canvas
+                id="salesGraph"
+                style="width: 100%; height: 300px"
+              ></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script>
+      function updateGraphHeight() {
+        let graphCanvas = document.getElementById("salesGraph");
+        if (window.innerWidth <= 768) {
+          graphCanvas.style.height = "200px";
+        } else {
+          graphCanvas.style.height = "300px";
+        }
+      }
+
+      // Run the updateGraphHeight function on page load
+      document.addEventListener("DOMContentLoaded", updateGraphHeight);
+
+      // Update the graph height on window resize
+      window.addEventListener("resize", updateGraphHeight);
+    </script>
+  </div>
+</section>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    let subtotal = 0;
+    let total = 0;
+
+    // Loop through each cart item
+    document.querySelectorAll('.cart-item').forEach(item => {
+        // Get price and new price data attributes
+        let price = parseFloat(item.getAttribute('data-price'));
+        let newPrice = parseFloat(item.getAttribute('data-new-price')) || price;  // Use new_price if exists, otherwise use price
+        let sold = item.getAttribute('data-sold') === 'True';
+
+        // If item is not sold, calculate with the appropriate price
+        if (!sold) {
+            subtotal += newPrice;
+        }
+    });
+
+    // Update the subtotal and total on the page
+    document.getElementById('subtotal').textContent = `Ksh ${subtotal.toFixed(2)}`;
+    document.getElementById('total').textContent = `Ksh ${subtotal.toFixed(2)}`;
+
+    // Fetch months and total_sales data from Django template context
+    let months = {{ months|safe }};
+    let totalSales = {{ total_sales|safe }};
+
+    // Set up the graph when button is clicked
+    document.getElementById('showGraphBtn').addEventListener('click', function(e) {
+        e.preventDefault();
+        let graphCanvas = document.getElementById('salesGraph');
+        let graphContainer = document.getElementById('salesGraphContainer');
+
+        // Toggle the graph visibility
+        graphContainer.style.display = graphContainer.style.display === 'none' ? 'block' : 'none';
+
+        // If graph is shown, render the chart
+        if (graphContainer.style.display === 'block') {
+            new Chart(graphCanvas, {
+                type: 'line',
+                data: {
+                    labels: months,
+                    datasets: [{
+                        label: 'Total Sales per Month (Ksh)',
+                        data: totalSales,
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                        fill: true,
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) { return 'Ksh ' + value.toFixed(2); }
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Month'
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(tooltipItem) {
+                                    return 'Ksh ' + tooltipItem.raw.toFixed(2);
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+    });
+});
+
+</script>
 {% endblock %}

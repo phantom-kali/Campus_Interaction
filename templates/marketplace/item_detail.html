@@ -1,72 +1,1671 @@
-<h1>{{ item.title }} {% if item.sold %}
-    <span>(Sold)</span>
-{% endif %}</h1>
-<img src="{{ item.image.url }}" alt="{{ item.title }}">
-<p>{{ item.description }}</p>
-<p>Price: ${{ item.price }}</p>
-<p>Seller: {{ item.seller.username }}</p>
-
-<h3>Average Rating: {{ item.average_rating|floatformat:1 }} / 5</h3>
-
-<h3>Ratings:</h3>
-<ul>
-    {% for rating in item.ratings.all %}
-        <li>
-            <span>
-                {% for i in "12345" %}
-                    <span class="{% if rating.stars >= i|add:0 %}rated{% else %}unrated{% endif %}">★</span>
-                {% endfor %}
-            </span>
-            
-            <span>{{ rating.user.username }}</span>
-            {% if rating.comment %}
-                - Comment: {{ rating.comment }}
-            {% endif %}
-        </li>
-    {% empty %}
-        <li>No ratings yet. Be the First.</li>
-    {% endfor %}
-</ul>
-
-{% if request.user != item.seller %}
-    <h3>Rate this item</h3>
-    <form method="post" id="rating-form">
-        {% csrf_token %}
-        <div class="stars">
-            <input type="hidden" name="stars" id="rating-value" value="0">
-            {% for i in "12345" %}
-                <span class="star" data-value="{{ i }}">★</span>
-            {% endfor %}
+{% extends "base.html" %} {% block title %} {{ item.title}} details |
+MarketPlace{% endblock %}{% block content %} {% load static %}
+<link rel="stylesheet" href="{% static '/css/marketplace/add_items.css' %}" />
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.carousel.min.css"
+/>
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.theme.default.min.css"
+/>
+<!-- Breadcrumb Begin -->
+<div class="breadcrumb-option">
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-12">
+        <div class="breadcrumb__links">
+          <a href="{% url 'marketplace:item_list' %}"
+            ><i class="fa fa-home"></i> All Items</a
+          >
+          <span>{{ item.title }}</span>
         </div>
-        <textarea name="comment" placeholder="Leave a comment..."></textarea>
-        <button type="submit">Submit Rating</button>
-    </form>
-{% else %}
-    <p>You cannot rate your ow n item.</p>
-{% endif %}
-
-<script>
-    document.querySelectorAll('.star').forEach(star => {
-        star.addEventListener('click', function() {
-            const ratingValue = this.getAttribute('data-value');
-            document.getElementById('rating-value').value = ratingValue;
-            document.querySelectorAll('.star').forEach(s => {
-                s.classList.remove('rated');
-                if (s.getAttribute('data-value') <= ratingValue) {
-                    s.classList.add('rated');
-                }
-            });
-        });
-    });
-</script>
-
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Breadcrumb End -->
 <style>
-.rated {
-    color: gold; 
-}
+  .product__details__pic__left {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-height: 500px;
+    overflow-y: auto;
+  }
 
-.unrated {
-    color: rgb(110, 19, 19); 
-    opacity: 0.5; 
-}
+  .product__thumb {
+    display: block;
+    border: 2px solid transparent;
+    cursor: pointer;
+  }
+
+  .product__thumb img {
+    width: 100%;
+    height: 100px;
+    object-fit: cover;
+    border-radius: 5px;
+  }
+
+  .product__thumb.active {
+    border: 3px solid #0d8bd9;
+    border-radius: 3px;
+  }
+
+  .product__details__slider__content {
+    flex: 1;
+  }
+
+  .product__big__img {
+    width: 100%;
+    height: 500px;
+    border-radius: 10px;
+    object-fit: cover;
+  }
+
+  .owl-nav {
+    position: absolute;
+    top: 50%;
+    width: 100%;
+    transform: translateY(-50%);
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .owl-prev,
+  .owl-next {
+    width: 40px;
+    height: 40px;
+    background: #0d8bd9 !important;
+    border-radius: 50%;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    color: #fff !important;
+    pointer-events: auto;
+    opacity: 1;
+    transition: opacity 0.3s ease;
+  }
+
+  .owl-prev.disabled,
+  .owl-next.disabled {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  /* Custom scrollbar for thumbnails */
+  .nice-scroll {
+    scrollbar-width: thin;
+    scrollbar-color: #888 #f1f1f1;
+  }
+
+  .nice-scroll::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .nice-scroll::-webkit-scrollbar-track {
+    background: #f1f1f1;
+  }
+
+  .nice-scroll::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 3px;
+  }
+  .owl-nav button {
+    transition: opacity 0.3s ease;
+  }
 </style>
+<section class="product-details spad" style="margin-top: -30px;">
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-6">
+        <div class="product__details__pic">
+          <div class="product__details__pic__left nice-scroll">
+            <a class="product__thumb active" data-slide="0" href="#product-1">
+              <img src="{{ item.image.url }}" alt="{{ item.title }}" />
+            </a>
+            {% for image in item.additional_images.all %}
+            <a
+              class="product__thumb"
+              data-slide="{{ forloop.counter }}"
+              href="#product-{{ forloop.counter|add:'1' }}"
+            >
+              <img
+                src="{{ image.image.url }}"
+                alt="Additional image for {{ item.title }}"
+              />
+            </a>
+            {% endfor %}
+          </div>
+
+          <div class="product__details__slider__content">
+            <div class="product__details__pic__slider owl-carousel">
+              <!-- <div class="item"> -->
+              <img
+                class="product__big__img"
+                src="{{ item.image.url }}"
+                alt="{{ item.title }}"
+              />
+              <!-- </div> -->
+              {% for image in item.additional_images.all %}
+              <!-- <div class="item"> -->
+              <img
+                class="product__big__img"
+                src="{{ image.image.url }}"
+                alt="Additional image for {{ item.title }}"
+              />
+              <!-- </div> -->
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-6">
+        <div class="product__details__text">
+          <h3>
+            {{ item.title }}
+            <span
+              >{% if item.brand %} Brand: {{ item.brand }} {% else %} {% endif %}
+            </span>
+          </h3>
+          <style>
+            .unrated {
+              color: #dcdcdc;
+            }
+            .rated {
+              color: #ffc107;
+            }
+          </style>
+          <div class="rating">
+            {% if item.average_rating %} {% for i in "12345" %}
+            <i
+              class="fa fa-star {% if item.average_rating >= i|add:0 %}rated{% else %}unrated{% endif %}"
+            ></i>
+
+            {% endfor %}<span>( {{ review_count }} reviews )</span>
+            {% else %}
+
+            <i class="fa fa-star unrated"></i>
+            <i class="fa fa-star unrated"></i>
+            <i class="fa fa-star unrated"></i>
+            <i class="fa fa-star unrated"></i>
+            <i class="fa fa-star unrated"></i>
+            <span>( {{ review_count }} reviews )</span>
+            {% endif %}
+          </div>
+          <div class="product__details__price">
+            {% if item.new_price %} Ksh {{ item.new_price }}
+            <span class="new-price">Ksh {{ item.price }}</span>
+            {% else %} Ksh {{ item.price }} {% endif %}
+          </div>
+          <style>
+            .seller-info {
+              padding: 20px;
+              background-color: #ffffff;
+              border: 1px solid #eff3f4;
+              border-radius: 16px;
+              margin-bottom: 20px;
+              box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+              transition: all 0.2s ease;
+            }
+
+            .seller-info:hover {
+              box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+              transform: translateY(-2px);
+            }
+
+            .seller-header {
+              display: flex;
+              align-items: center;
+              gap: 15px;
+              margin-bottom: 15px;
+            }
+
+            .seller-avatar {
+              width: 60px;
+              height: 60px;
+              border-radius: 50%;
+              overflow: hidden;
+              background: linear-gradient(45deg, #1da1f2, #0d8bd9);
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              box-shadow: 0 2px 8px rgba(29, 161, 242, 0.2);
+            }
+
+            .seller-avatar img {
+              width: 100%;
+              height: 100%;
+              object-fit: cover;
+            }
+
+            .seller-avatar i {
+              color: white;
+              font-size: 28px;
+              text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+            }
+
+            .seller-title {
+              flex: 1;
+            }
+
+            .seller-title h6 {
+              font-size: 18px;
+              font-weight: 600;
+              color: #0f1419;
+              margin: 0 0 4px 0;
+            }
+
+            .seller-info p {
+              font-size: 15px;
+              color: #536471;
+              line-height: 1.6;
+              margin: 0;
+              white-space: pre-wrap;
+              word-wrap: break-word;
+            }
+
+            /* Add status indicator for online/offline */
+            .seller-status {
+              width: 12px;
+              height: 12px;
+              border-radius: 50%;
+              border: 2px solid #fff;
+              position: absolute;
+              bottom: 2px;
+              right: 2px;
+            }
+
+            .status-online {
+              background-color: #31a24c;
+            }
+
+            .status-offline {
+              background-color: #8e8e8e;
+            }
+
+            .seller-avatar-container {
+              position: relative;
+            }
+
+            /* Responsive adjustments */
+            @media (max-width: 480px) {
+              .seller-info {
+                padding: 15px;
+              }
+
+              .seller-avatar {
+                width: 50px;
+                height: 50px;
+              }
+
+              .seller-avatar i {
+                font-size: 24px;
+              }
+
+              .seller-title h6 {
+                font-size: 16px;
+              }
+
+              .seller-info p {
+                font-size: 14px;
+              }
+            }
+          </style>
+          <div class="seller-info">
+            <div class="seller-header">
+              <div class="seller-avatar-container">
+                <div class="seller-avatar">
+                  {% if item.seller.profile.profile_pic %}
+                  <img
+                    src="{{ item.seller.profile.profile_pic.url }}"
+                    alt="{{ item.seller.username }}"
+                  />
+                  {% else %}
+                  <i class="fas fa-user"></i>
+                  {% endif %}
+                </div>
+                <!-- Optional: Add online/offline status indicator -->
+                <div
+                  class="seller-status {% if item.seller.profile.is_online %}status-online{% else %}status-offline{% endif %}"
+                ></div>
+              </div>
+              <div class="seller-title">
+                <h6>Seller Information</h6>
+                <p style="white-space: pre-wrap">{{ item.seller }}</p>
+                <!-- Optional: Add more seller information -->
+                {% if item.seller.profile.course %}
+                <p class="seller-detail">{{ item.seller.profile.course }}</p>
+                {% endif %} {% if item.seller.profile.campus %}
+                <p class="seller-detail">{{ item.seller.profile.campus }}</p>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+          <div class="product__details__button">
+            <style>
+              .notification {
+                position: fixed;
+                bottom: 20px;
+                left: 50%;
+                transform: translateX(-50%);
+                background-color: #333;
+                color: #fff;
+                padding: 12px 24px;
+                border-radius: 8px;
+                font-size: 16px;
+                z-index: 1000; /* Ensures it appears above other elements */
+                opacity: 0;
+                transition: opacity 0.3s ease;
+              }
+
+              .notification.show {
+                opacity: 1;
+              }
+              .view-cart {
+                display: inline-block;
+                font-size: 14px;
+                color: #ffffff;
+                background: #ca1515;
+                font-weight: 600;
+                text-transform: uppercase;
+                padding: 14px 30px 15px;
+                border-radius: 50px;
+                float: left;
+                margin-right: 10px;
+                margin-bottom: 10px;
+              }
+              .view-cart:hover {
+                color: #fff;
+              }
+            </style>
+            {% if is_in_cart %}
+            <!-- View Cart Button -->
+            <a
+              href="{% url 'marketplace:cart_page' %}"
+              class="view-cart"
+              id="view-cart-{{ item.id }}"
+            >
+              <span class="icon_bag_alt"></span> View Cart
+            </a>
+            {% else %}
+            <!-- Add to Cart Button -->
+            <a
+              href="#"
+              class="cart-btn"
+              data-item-id="{{ item.id }}"
+              id="add-to-cart-{{ item.id }}"
+            >
+              <span class="icon_bag_alt"></span> Add to Cart
+            </a>
+            {% endif %}
+            <script>
+              document.addEventListener("DOMContentLoaded", function () {
+              document.querySelectorAll(".cart-btn").forEach((button) => {
+                button.addEventListener("click", function (event) {
+                  event.preventDefault();
+
+                  const itemId = this.getAttribute("data-item-id");
+
+                  // Send AJAX request to add item to cart
+                  fetch(`/marketplace/items/${itemId}/add_to_cart/`, {
+                    method: "POST",
+                    headers: {
+                      "Content-Type": "application/json",
+                      "X-CSRFToken": document.querySelector("[name=csrfmiddlewaretoken]").value,
+                    },
+                  })
+                    .then((response) => {
+                      if (!response.ok) {
+                        // Check if the response is an error (like 400)
+                        return response.json().then((data) => {
+                          showNotification(data.message || "An error occurred.");
+                          throw new Error(data.message || "An error occurred.");
+                        });
+                      }
+                      return response.json();
+                    })
+                    .then((data) => {
+                      if (data.status === "success") {
+                        showNotification("Item added to cart");
+
+                        // Update the button to "View Cart"
+                        updateCartButton(itemId, true);
+
+                        // Attach new event listener to the updated button
+                        const viewCartButton = document.getElementById(`view-cart-${itemId}`);
+                        if (viewCartButton) {
+                          viewCartButton.addEventListener("click", function (event) {
+                            window.location.href = this.getAttribute("href");
+                          });
+                        }
+                      } else if (data.status === "exists") {
+                        showNotification("Item already in cart");
+                      }
+                    })
+                    .catch((error) => console.error("Error:", error));
+                });
+              });
+            });
+
+            function showNotification(message) {
+              const notification = document.createElement("div");
+              notification.className = "notification";
+              notification.textContent = message;
+
+              document.body.appendChild(notification);
+
+              setTimeout(() => {
+                notification.classList.add("show");
+              }, 10);
+
+              setTimeout(() => {
+                notification.classList.remove("show");
+                setTimeout(() => {
+                  notification.remove();
+                }, 300);
+              }, 3000);
+            }
+
+            function updateCartButton(itemId, isInCart) {
+              const cartButton = document.getElementById(`add-to-cart-${itemId}`);
+
+              if (isInCart) {
+                if (cartButton) {
+                  cartButton.innerHTML = `<span class="icon_bag_alt"></span> View Cart`;
+                  cartButton.href = "{% url 'marketplace:cart_page' %}";
+                  cartButton.classList.add("view-cart");
+                  cartButton.classList.remove("cart-btn");
+                  cartButton.id = `view-cart-${itemId}`;
+                }
+              } else {
+                if (cartButton) {
+                  cartButton.innerHTML = `<span class="icon_bag_alt"></span> Add to Cart`;
+                  cartButton.href = "#";
+                  cartButton.classList.add("cart-btn");
+                  cartButton.classList.remove("view-cart");
+                  cartButton.id = `add-to-cart-${itemId}`;
+                }
+              }
+            }
+            </script>
+            
+            <ul>
+              <!-- Like button -->
+              <style>
+                .heart-icon.liked .fa-heart {
+                  color: red;
+                }
+
+                .heart-icon .fa-heart-o {
+                  color: #ccc;
+                }
+
+                .heart-icon .fa-heart {
+                  color: red;
+                }
+              </style>
+              <li>
+                <a
+                  href="#"
+                  title="Like"
+                  class="heart-icon"
+                  data-item-id="{{ item.id }}"
+                  id="like-btn-{{ item.id }}"
+                >
+                  <span class="icon-heart">
+                    {% if item.id in liked_items %}
+                    <i class="fa fa-heart" aria-hidden="true"></i>
+                    {% else %}
+                    <i class="fa fa-heart-o" aria-hidden="true"></i>
+
+                    {% endif %}
+                  </span>
+                </a>
+                <span id="like-count-{{ item.id }}"
+                  >{{ item.like_set.count }}</span
+                >
+              </li>
+              <script>
+                document.addEventListener("DOMContentLoaded", function () {
+                  document.querySelectorAll(".heart-icon").forEach((button) => {
+                    button.addEventListener("click", function (event) {
+                      event.preventDefault(); // Prevents the default link behavior (no jumping to the top of the page)
+
+                      const itemId = this.getAttribute("data-item-id");
+                      const likeCountElement = document.getElementById(
+                        `like-count-${itemId}`
+                      );
+
+                      // Send AJAX request to like/unlike the product
+                      fetch(`/marketplace/items/${itemId}/like/`, {
+                        method: "POST",
+                        headers: {
+                          "Content-Type": "application/json",
+                          "X-CSRFToken": document.querySelector(
+                            "[name=csrfmiddlewaretoken]"
+                          ).value,
+                        },
+                      })
+                        .then((response) => response.json())
+                        .then((data) => {
+                          // Update the like count based on response
+                          likeCountElement.textContent = data.total_likes;
+
+                          // Get the like button and icon
+                          const likeButton = document.getElementById(
+                            `like-btn-${itemId}`
+                          );
+                          const likeIcon = likeButton.querySelector("i");
+
+                          // Toggle the filled heart icon and red color
+                          if (data.liked) {
+                            likeIcon.classList.remove("fa-heart-o");
+                            likeIcon.classList.add("fa-heart");
+                            likeButton.classList.add("liked");
+                          } else {
+                            likeIcon.classList.remove("fa-heart");
+                            likeIcon.classList.add("fa-heart-o");
+                            likeButton.classList.remove("liked");
+                          }
+                        })
+                        .catch((error) => console.error("Error:", error));
+                    });
+                  });
+                });
+              </script>
+              <style>
+                .rating-form-container {
+                  margin-top: 1rem;
+                  padding: 1rem;
+                  border: 1px solid #ddd;
+                  border-radius: 4px;
+                  background: white;
+                  width: 100%;
+                }
+
+                .star-rating {
+                  margin-bottom: 1rem;
+                }
+
+                .stars {
+                  display: flex;
+                  gap: 0.25rem;
+                  font-size: 1.5rem;
+                }
+
+                .star {
+                  cursor: pointer;
+                  transition: transform 0.2s ease, color 0.2s ease;
+                }
+
+                .star i {
+                  color: #ddd;
+                  transition: color 0.2s ease;
+                }
+
+                .star.active i {
+                  color: #ffd700;
+                }
+
+                .star.hover i {
+                  color: #ffed4a;
+                }
+
+                /* Animation for star selection */
+                .star.selected {
+                  animation: starPop 0.3s ease forwards;
+                }
+
+                @keyframes starPop {
+                  0% {
+                    transform: scale(1);
+                  }
+                  50% {
+                    transform: scale(1.2);
+                  }
+                  100% {
+                    transform: scale(1);
+                  }
+                }
+
+                .rating-form .form-group {
+                  margin-bottom: 1rem;
+                }
+
+                .rating-message {
+                  margin-top: 1rem;
+                  padding: 0.5rem;
+                  border-radius: 4px;
+                  opacity: 0;
+                  transition: opacity 0.3s ease;
+                }
+
+                .rating-message.show {
+                  opacity: 1;
+                }
+
+                .rating-message.success {
+                  background-color: #d4edda;
+                  color: #155724;
+                }
+
+                .rating-message.error {
+                  background-color: #f8d7da;
+                  color: #721c24;
+                }
+
+                /* Current rating display animation */
+                @keyframes ratingUpdate {
+                  0% {
+                    transform: scale(1);
+                    opacity: 1;
+                  }
+                  50% {
+                    transform: scale(1.1);
+                    opacity: 0.7;
+                  }
+                  100% {
+                    transform: scale(1);
+                    opacity: 1;
+                  }
+                }
+
+                .rating-updated {
+                  animation: ratingUpdate 0.5s ease;
+                }
+                .form-control {
+                  border: 1px solid #ccc;
+                  outline: none !important;
+                  box-shadow: none !important;
+                }
+              </style>
+              <!-- Rate  -->
+              <li>
+                <a
+                  href="#"
+                  title="Rate"
+                  class="rate-icon"
+                  id="rate-btn-{{ item.id }}"
+                  data-item-id="{{ item.id }}"
+                >
+                  <span class="icon-star">
+                    <i class="fa fa-star" aria-hidden="true"></i>
+                  </span>
+                </a>
+              </li>
+              <!-- Edit -->
+              <li>
+                {% if item.seller == user %}
+                <a
+                  href="{% url 'marketplace:update_item' item.id %}"
+                  title="Edit"
+                >
+                  <span class="icon-star">
+                    <i class="fa fa-pencil" aria-hidden="true"></i>
+                  </span>
+                </a>
+                {% endif %}
+              </li>
+            </ul>
+          </div>
+          <!-- Rating form -->
+          <div
+            id="rating-form-container-{{ item.id }}"
+            class="rating-form-container"
+            style="display: none"
+          >
+            <form id="rating-form-{{ item.id }}" class="rating-form">
+              {% csrf_token %}
+              <div class="star-rating">
+                <div class="stars" id="stars-container-{{ item.id }}">
+                  {% for i in "12345" %}
+                  <span class="star" data-rating="{{ forloop.counter }}">
+                    <i class="fa fa-star" aria-hidden="true"></i>
+                  </span>
+                  {% endfor %}
+                </div>
+                <input
+                  type="hidden"
+                  name="stars"
+                  id="stars-input-{{ item.id }}"
+                  required
+                />
+              </div>
+              <div class="form-group">
+                <textarea
+                  name="comment"
+                  id="comment-{{ item.id }}"
+                  class="form-control"
+                  placeholder="Leave a comment..."
+                  rows="3"
+                ></textarea>
+              </div>
+              <button type="submit" class="btn btn-primary">
+                Submit Rating
+              </button>
+            </form>
+            <div id="rating-message-{{ item.id }}" class="rating-message"></div>
+          </div>
+          <script>
+            document.addEventListener("DOMContentLoaded", function () {
+              // Show/hide rating form
+              document.querySelectorAll(".rate-icon").forEach((button) => {
+                button.addEventListener("click", function (event) {
+                  event.preventDefault();
+                  const itemId = this.dataset.itemId;
+                  const container = document.getElementById(
+                    `rating-form-container-${itemId}`
+                  );
+                  container.style.display =
+                    container.style.display === "none" ? "block" : "none";
+                });
+              });
+
+              // Handle star rating interaction
+              document.querySelectorAll(".stars").forEach((starsContainer) => {
+                const itemId = starsContainer.id.split("-")[2];
+                const stars = starsContainer.querySelectorAll(".star");
+                const inputField = document.getElementById(
+                  `stars-input-${itemId}`
+                );
+                let userRating = 0;
+
+                function updateStars(rating, isHover = false) {
+                  stars.forEach((star, index) => {
+                    if (index < rating) {
+                      star.classList.add(isHover ? "hover" : "active");
+                    } else {
+                      star.classList.remove("hover", "active");
+                    }
+                  });
+                }
+
+                // Handle hover effects
+                stars.forEach((star) => {
+                  star.addEventListener("mouseenter", () => {
+                    const rating = parseInt(star.dataset.rating);
+                    updateStars(rating, true);
+                  });
+
+                  star.addEventListener("mouseleave", () => {
+                    updateStars(userRating);
+                  });
+
+                  // Handle click
+                  star.addEventListener("click", () => {
+                    userRating = parseInt(star.dataset.rating);
+                    inputField.value = userRating;
+
+                    // Remove existing selected class
+                    stars.forEach((s) => s.classList.remove("selected"));
+
+                    // Add selected class to clicked star and previous stars
+                    stars.forEach((s, index) => {
+                      if (index < userRating) {
+                        s.classList.add("selected");
+                      }
+                    });
+
+                    updateStars(userRating);
+                  });
+                });
+
+                starsContainer.addEventListener("mouseleave", () => {
+                  updateStars(userRating);
+                });
+              });
+
+              // Handle form submission
+              document.querySelectorAll(".rating-form").forEach((form) => {
+                form.addEventListener("submit", async function (event) {
+                  event.preventDefault();
+
+                  const itemId = this.id.split("-")[2];
+                  const messageDiv = document.getElementById(
+                    `rating-message-${itemId}`
+                  );
+                  const formContainer = document.getElementById(
+                    `rating-form-container-${itemId}`
+                  );
+                  const submitButton = this.querySelector(
+                    'button[type="submit"]'
+                  );
+
+                  // Disable submit button and show loading state
+                  submitButton.disabled = true;
+                  submitButton.innerHTML =
+                    '<i class="fa fa-spinner fa-spin"></i> Submitting...';
+
+                  try {
+                    const response = await fetch(
+                      `/marketplace/items/${itemId}/rate/`,
+                      {
+                        method: "POST",
+                        headers: {
+                          "Content-Type": "application/json",
+                          "X-CSRFToken": document.querySelector(
+                            "[name=csrfmiddlewaretoken]"
+                          ).value,
+                        },
+                        body: JSON.stringify({
+                          stars: document.getElementById(
+                            `stars-input-${itemId}`
+                          ).value,
+                          comment: document.getElementById(`comment-${itemId}`)
+                            .value,
+                        }),
+                      }
+                    );
+
+                    const data = await response.json();
+
+                    if (response.ok) {
+                      // Update rating display with animation
+                      const ratingDisplay = document.getElementById(
+                        `current-rating-${itemId}`
+                      );
+                      if (ratingDisplay) {
+                        ratingDisplay.textContent = `Average Rating: ${data.average_rating} Stars`;
+                        ratingDisplay.classList.add("rating-updated");
+                        setTimeout(() => {
+                          ratingDisplay.classList.remove("rating-updated");
+                        }, 500);
+                      }
+
+                      // Show success message with animation
+                      messageDiv.textContent = "Rating submitted successfully!";
+                      messageDiv.className = "rating-message success show";
+
+                      // Hide form after delay
+                      setTimeout(() => {
+                        formContainer.style.display = "none";
+                        messageDiv.classList.remove("show");
+                      }, 2000);
+                    } else {
+                      throw new Error(data.error || "Failed to submit rating");
+                    }
+                  } catch (error) {
+                    messageDiv.textContent = error.message;
+                    messageDiv.className = "rating-message error show";
+                  } finally {
+                    // Reset submit button
+                    submitButton.disabled = false;
+                    submitButton.textContent = "Submit Rating";
+                  }
+                });
+              });
+            });
+          </script>
+          <div class="product__details__widget">
+            <ul>
+              <li>
+                <span>Availability:</span>
+                <p>{% if item.sold %} Sold {% else %} In Stock {% endif %}</p>
+              </li>
+              <li>
+                <span>Promotions:</span>
+                <p>
+                  {% if item.new_price and item.new_price < item.price %} On
+                  discount {% else %} No Promotions {% endif %}
+                </p>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <style>
+        .product-tabs {
+          max-width: 1200px;
+          margin: 40px auto;
+          position: relative;
+          font-family: Arial, sans-serif;
+          margin-top: 60px;
+        }
+
+        .tab-navigation {
+          display: flex;
+          justify-content: center;
+          list-style: none;
+          padding: 0;
+          margin: 0;
+          position: relative;
+        }
+
+        /* Left line */
+        .tab-navigation::before {
+          content: "";
+          position: absolute;
+          top: 50%;
+          left: 0;
+          width: calc(50% - 180px); /* Adjust based on your content width */
+          height: 1px;
+          background: #e5e5e5;
+          z-index: 1;
+        }
+
+        /* Right line */
+        .tab-navigation::after {
+          content: "";
+          position: absolute;
+          top: 50%;
+          right: 0;
+          width: calc(50% - 180px); /* Adjust based on your content width */
+          height: 1px;
+          background: #e5e5e5;
+          z-index: 1;
+        }
+
+        .nav-item {
+          padding: 0 20px;
+          background: white;
+          z-index: 2;
+        }
+
+        .nav-link {
+          text-decoration: none;
+          color: #333;
+          font-size: 14px;
+          padding: 10px 0;
+          display: block;
+          transition: color 0.3s;
+        }
+
+        .nav-link:hover {
+          color: #000;
+        }
+
+        .nav-link.active {
+          color: #000;
+          font-weight: bold;
+        }
+
+        .tab-content {
+          padding: 30px 0;
+        }
+
+        .tab-pane {
+          display: none;
+        }
+
+        .tab-pane.active {
+          display: block;
+        }
+
+        .tab-pane h6 {
+          margin: 0 0 15px 0;
+          font-size: 16px;
+          font-weight: bold;
+        }
+
+        .tab-pane p {
+          color: #666;
+          line-height: 1.6;
+          margin-bottom: 15px;
+        }
+        @media (max-width: 800px) {
+          .product-tabs {
+            padding: 0 10px;
+          }
+
+          .tab-navigation {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+          }
+
+          .nav-item {
+            padding: 0 5px;
+            flex: 1;
+          }
+
+          .tab-navigation .nav-link {
+            font-size: 15px;
+            padding: 8px 0;
+          }
+        }
+
+        @media (max-width: 480px) {
+          .tab-navigation .nav-link {
+            font-size: 12px;
+          }
+        }
+      </style>
+      <div class="product-tabs">
+        <!-- Tab Navigation -->
+        <ul class="tab-navigation" role="tablist">
+          <li class="nav-item">
+            <a class="nav-link active" href="#tabs-1" role="tab">DESCRIPTION</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#tabs-2" role="tab">SPECIFICATION</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#tabs-3" role="tab"
+              >REVIEWS ({{ review_count }})</a
+            >
+          </li>
+        </ul>
+
+        <!-- Tab Content -->
+        <div class="tab-content">
+          <div id="tabs-1" class="tab-pane active" role="tabpanel">
+            <h6>Description</h6>
+            {% if item.description %}
+            <p style="white-space: pre-wrap">{{ item.description }}</p>
+            {% else %}
+            <p>No description provided by seller.</p>
+            {% endif %}
+          </div>
+
+          <div id="tabs-2" class="tab-pane" role="tabpanel">
+            <h6>Specification</h6>
+            {% if item.specification %}
+            <p style="white-space: pre-wrap">{{ item.specification }}</p>
+            {% else %}
+            <p>No specification provided by seller.</p>
+            {% endif %}
+          </div>
+
+          <style>
+            .reviews-list {
+              margin: 0 auto;
+              padding: 20px;
+              font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+                Helvetica, Arial, sans-serif;
+            }
+
+            .review-item {
+              border: 1px solid #eee;
+              border-radius: 16px;
+              padding: 16px;
+              margin-bottom: 12px;
+              background: white;
+              transition: background-color 0.2s;
+            }
+
+            .review-item:hover {
+              background-color: rgba(0, 0, 0, 0.02);
+            }
+
+            .review-header {
+              display: flex;
+              align-items: center;
+              margin-bottom: 8px;
+            }
+
+            .user-avatar {
+              width: 48px;
+              height: 48px;
+              border-radius: 50%;
+              background: linear-gradient(45deg, #1da1f2, #0d8bd9);
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              margin-right: 12px;
+              overflow: hidden;
+              box-shadow: 0 2px 8px rgba(29, 161, 242, 0.2);
+            }
+
+            .user-avatar img {
+              width: 100%;
+              height: 100%;
+              object-fit: cover;
+            }
+
+            .user-avatar i {
+              color: white;
+              font-size: 24px;
+              text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+            }
+
+            /* Optional: Add hover effect for avatar */
+            .review-item:hover .user-avatar {
+              transform: scale(1.05);
+              transition: transform 0.3s ease;
+            }
+
+            /* Responsive adjustments */
+            @media (max-width: 480px) {
+              .user-avatar {
+                width: 40px;
+                height: 40px;
+              }
+
+              .user-avatar i {
+                font-size: 20px;
+              }
+            }
+
+            .user-info {
+              flex: 1;
+            }
+
+            .username {
+              font-weight: bold;
+              color: #0f1419;
+              margin: 0;
+              font-size: 16px;
+            }
+
+            .twitter-handle {
+              color: #536471;
+              font-size: 14px;
+              margin: 0;
+            }
+
+            .twitter-bird {
+              color: #1da1f2;
+              font-size: 20px;
+              margin-left: auto;
+            }
+
+            .review-content {
+              color: #0f1419;
+              font-size: 15px;
+              line-height: 1.6;
+              margin: 16px 0;
+              white-space: pre-wrap;
+              word-wrap: break-word;
+              position: relative;
+              padding-left: 28px;
+              font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+                Helvetica, Arial, sans-serif;
+            }
+
+            .review-content .fa-quote-left {
+              color: #1da1f2;
+              font-size: 20px;
+              position: absolute;
+              left: 0;
+              top: 2px;
+              opacity: 0.8;
+              transform: rotate(-8deg);
+            }
+            .review-content {
+              border-left: 3px solid rgba(29, 161, 242, 0.1);
+              padding-left: 32px;
+              margin-left: 4px;
+            }
+
+            /* Style for longer quotes */
+            .review-content:not(:empty) {
+              min-height: 40px;
+            }
+
+            .star-rating {
+              color: #ffd700;
+              margin: 8px 0;
+            }
+
+            .star-rating i {
+              margin-right: 2px;
+            }
+
+            .review-actions {
+              display: flex;
+              justify-content: space-between;
+              max-width: 300px;
+              margin-top: 12px;
+              color: #536471;
+            }
+
+            .action-item {
+              display: flex;
+              align-items: center;
+              gap: 8px;
+              cursor: pointer;
+              transition: color 0.2s;
+            }
+
+            .action-item:hover {
+              color: #1da1f2;
+            }
+
+            .action-item i {
+              font-size: 16px;
+            }
+
+            .action-count {
+              font-size: 13px;
+            }
+
+            .no-reviews {
+              text-align: center;
+              color: #536471;
+              padding: 40px;
+              font-size: 16px;
+            }
+            @media (max-width: 480px) {
+              .review-content {
+                font-size: 14px;
+                padding-left: 24px;
+              }
+
+              .review-content .fa-quote-left {
+                font-size: 18px;
+              }
+            }
+
+            /* Optional: Add hover effect */
+            .review-item:hover .review-content .fa-quote-left {
+              transform: rotate(-12deg);
+              transition: transform 0.3s ease;
+            }
+          </style>
+          <div id="tabs-3" class="tab-pane" role="tabpanel">
+            {% if reviews %}
+            <div class="reviews-list">
+              {% for review in reviews %}
+              <div class="review-item">
+                <div class="review-header">
+                  <div class="user-avatar">
+                    {% if review.user.profile.profile_pic %}
+                    <img
+                      src="{{ review.user.profile.profile_pic.url }}"
+                      alt="{{ review.user.username }}"
+                    />
+                    {% else %}
+                    <i class="fas fa-user"></i>
+                    {% endif %}
+                  </div>
+                  <div class="user-info">
+                    <p class="username">{{ review.user.username }}</p>
+                  </div>
+                </div>
+                <div class="star-rating">
+                  {% for i in "12345" %}
+                  <i
+                    class="fa fa-star {% if review.stars >= i|add:0 %}rated{% else %}unrated{% endif %}"
+                  ></i>
+                  {% endfor %}
+                </div>
+                <p class="review-content">
+                  <i class="fa fa-quote-left" aria-hidden="true"></i
+                  >{{review.comment|linebreaksbr }}
+                </p>
+              </div>
+              {% endfor %}
+            </div>
+            {% else %}
+            <p>No reviews yet.</p>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+      <!-- End Tab Navigation -->
+    </div>
+    <!-- Related Items Start -->
+    <style>
+      .related__title {
+        margin-bottom: 45px;
+        padding-bottom: 20px;
+        position: relative;
+      }
+
+      .related__title h5 {
+        font-size: 20px;
+        font-weight: 600;
+        letter-spacing: 2px;
+        margin-bottom: 0;
+      }
+
+      .related__title::after {
+        content: "";
+        position: absolute;
+        left: 50%;
+        bottom: 0;
+        transform: translateX(-50%);
+        width: 50px;
+        height: 2px;
+        background-color: #ca1515;
+      }
+
+      .product-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 30px;
+      }
+
+      .product-card {
+        position: relative;
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+      }
+
+      .product-image-container {
+        position: relative;
+        height: 350px;
+        overflow: hidden;
+      }
+
+      .product-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.3s ease;
+      }
+
+      /* Changed hover target from product-card to product-image-container */
+      .product-image-container:hover .product-image {
+        transform: scale(1.1);
+      }
+
+      .quick-view-btn {
+        position: absolute;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: white;
+        color: #333;
+        padding: 10px 20px;
+        border-radius: 25px;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        cursor: pointer;
+        border: none;
+        font-size: 14px;
+        white-space: nowrap;
+        z-index: 2;
+      }
+
+      .quick-view-btn:hover {
+        background: #333;
+        color: white;
+      }
+
+      /* Changed hover target from product-card to product-image-container */
+      .product-image-container:hover .quick-view-btn {
+        opacity: 1;
+      }
+
+      /* Overlay effect - changed hover target */
+      .product-image-container::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.1);
+        opacity: 0;
+        transition: opacity 0.3s ease;
+      }
+
+      .product-image-container:hover::after {
+        opacity: 1;
+      }
+
+      .product-info {
+        padding: 15px;
+      }
+
+      .product-title-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 5px;
+      }
+
+      .product-title {
+        text-decoration: none;
+        color: #333;
+        font-size: 16px;
+        font-weight: 500;
+        flex-grow: 1;
+        margin-right: 10px;
+      }
+
+      .product-title:hover {
+        color: #2d5796;
+      }
+
+      .other_items .heart-icon {
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 0;
+        display: flex;
+        align-items: center;
+      }
+
+      .other_items i {
+        margin-right: 4px;
+      }
+
+      .heart-icon:hover svg {
+        stroke: #ff4d4d;
+      }
+      .heart-icon.liked svg {
+        fill: #ff4d4d;
+        stroke: #ff4d4d;
+      }
+      .like-count {
+        margin-left: 2px;
+        vertical-align: middle;
+      }
+
+      .product-price {
+        color: #666;
+        font-size: 14px;
+      }
+
+      @media (max-width: 1200px) {
+        .product-grid {
+          grid-template-columns: repeat(3, 1fr);
+        }
+      }
+
+      @media (max-width: 900px) {
+        .product-grid {
+          grid-template-columns: repeat(2, 1fr);
+        }
+      }
+
+      @media (max-width: 600px) {
+        .product-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+      .product-card {
+        position: relative;
+      }
+
+      .item-badge {
+        font-size: 12px;
+        color: #ffffff;
+        font-weight: 500;
+        display: inline-block;
+        padding: 2px 8px;
+        text-transform: uppercase;
+        position: absolute;
+        left: 10px;
+        top: 10px;
+        z-index: 10;
+      }
+
+      .item-badge.sold {
+        background-color: #ff5555; /* Red for sold */
+      }
+
+      .item-badge.discount {
+        background-color: #ff9900; /* Orange for discount */
+      }
+    </style>
+    <div class="row">
+      <div class="col-lg-12 text-center">
+        <div class="related__title">
+          <h5>RELATED PRODUCTS</h5>
+        </div>
+      </div>
+      {% for related_item in related_items %}
+      <div class="product-grid" id="items-container">
+        <div
+          class="product-card"
+          data-category="{{ related_item.category.name }}"
+          data-item-id="{{ related_item.id }}"
+        >
+          {% if related_item.sold %}
+          <span class="item-badge sold">Sold</span>
+          {% elif related_item.new_price %}
+          <span class="item-badge discount">On Discount</span>
+          {% endif %}
+          <div class="product-image-container">
+            <img
+              class="product-image"
+              src="{{ related_item.image.url }}"
+              alt="{{ related_item.title }}"
+            />
+            <a href="{% url 'marketplace:item_detail' related_item.id %}">
+              <button class="quick-view-btn">Quick View</button>
+            </a>
+          </div>
+          <div class="product-info">
+            <div class="product-title-row">
+              <a
+                href="{% url 'marketplace:item_detail' related_item.id %}"
+                class="product-title"
+                >{{ related_item.title }}</a
+              >
+              <a
+                href="#"
+                title="Like"
+                class="heart-icon other_items"
+                data-item-id="{{ related_item.id }}"
+                id="like-btn-{{ related_item.id }}"
+              >
+                <span class="icon-heart">
+                  {% if related_item.id in liked_items %}
+                  <i class="fa fa-heart" aria-hidden="true"></i>
+                  {% else %}
+                  <i class="fa fa-heart-o" aria-hidden="true"></i>
+
+                  {% endif %}
+                </span>
+              </a>
+              <span class="like-count" id="like-count-{{ related_item.id }}">
+                {{ related_item.total_likes }}
+              </span>
+            </div>
+            <div class="product-price">
+              <style>
+                .new-price {
+                  margin-left: 4px;
+                  color: #28a745;
+                }
+                .original-price {
+                  color: #ccc;
+                }
+              </style>
+              <b>
+                {% if related_item.new_price %}
+                <del class="original-price">Ksh {{ related_item.price }}</del>
+                <span class="new-price">Ksh {{ related_item.new_price }}</span>
+                {% else %} Ksh {{ related_item.price }} {% endif %}
+              </b>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% empty %}
+      <p class="text-center">No related products found.</p>
+      {% endfor %}
+    </div>
+    <!-- End Related Items -->
+  </div>
+</section>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/owl.carousel.min.js"></script>
+<script>
+  $(document).ready(function () {
+    const $owlCarousel = $(".product__details__pic__slider").owlCarousel({
+      loop: false,
+      margin: 0,
+      items: 1,
+      dots: false,
+      nav: true,
+      navText: [
+        '<i class="arrow_carrot-left">←</i>',
+        '<i class="arrow_carrot-right">→</i>',
+      ],
+      smartSpeed: 500,
+      autoHeight: false,
+      autoplay: false,
+      mouseDrag: true,
+      touchDrag: true,
+      pullDrag: true,
+      freeDrag: false,
+      onInitialized: updateNavigation, // Ensure buttons are correctly shown after initialization
+      onTranslated: updateNavigation, // Update after each slide change
+    });
+
+    // Function to update navigation arrows visibility
+    function updateNavigation(event) {
+      // Get the carousel instance
+      const carousel = event.relatedTarget;
+
+      // Hide/show prev button (first image)
+      if (carousel.current() === 0) {
+        $(".owl-prev").addClass("disabled");
+      } else {
+        $(".owl-prev").removeClass("disabled");
+      }
+
+      // Hide/show next button (last image)
+      if (carousel.current() === carousel.maximum()) {
+        $(".owl-next").addClass("disabled");
+      } else {
+        $(".owl-next").removeClass("disabled");
+      }
+    }
+
+    // Function to update active thumbnail
+    function updateActiveThumbnail(index) {
+      $(".product__thumb").removeClass("active");
+      $(`.product__thumb[data-slide="${index}"]`).addClass("active");
+    }
+
+    // Handle thumbnail clicks
+    $(".product__thumb").on("click", function (e) {
+      e.preventDefault();
+      const slideIndex = $(this).data("slide");
+      $owlCarousel.trigger("to.owl.carousel", [slideIndex, 500]);
+      updateActiveThumbnail(slideIndex);
+    });
+
+    // Update thumbnail when carousel changes
+    $owlCarousel.on("changed.owl.carousel", function (event) {
+      updateActiveThumbnail(event.item.index);
+    });
+
+    // Ensure first thumbnail is active on page load
+    updateActiveThumbnail(0);
+  });
+</script>
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const tabs = document.querySelectorAll(".nav-link");
+
+    tabs.forEach((tab) => {
+      tab.addEventListener("click", function (e) {
+        e.preventDefault();
+
+        // Remove active class from all tabs and panes
+        tabs.forEach((t) => t.classList.remove("active"));
+        document
+          .querySelectorAll(".tab-pane")
+          .forEach((p) => p.classList.remove("active"));
+
+        // Add active class to clicked tab and corresponding pane
+        this.classList.add("active");
+        document
+          .querySelector(this.getAttribute("href"))
+          .classList.add("active");
+      });
+    });
+  });
+</script>
+{% endblock %}

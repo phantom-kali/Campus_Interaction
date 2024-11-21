@@ -30,11 +30,11 @@ class PollForm(forms.ModelForm):
         model = Poll
         fields = [
             'title', 'description', 'poll_type', 'expiration_time', 
-            'allow_expiration', 'background_color', 'show_share_button', 
+            'allow_expiration', 'background_color', 'show_share_button',
             'is_public', 'banner_image', 'multi_option'
         ]
         widgets = {
-            'title': forms.TextInput(attrs={'class': 'form-title', 'placeholder': 'Enter poll title'}),
+            'title': forms.TextInput(attrs={'class': 'form-title', 'placeholder': 'Enter poll title', 'maxlength':"30"}),
             'description': forms.Textarea(attrs={
                 'class': 'form-description',
                 'id': 'id_description',

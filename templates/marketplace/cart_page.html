@@ -1,0 +1,791 @@
+{% extends "base.html" %}  {% block title %} MarketPlace | Cart {% endblock %}{% block content %} {% load static %}
+<!-- <link rel="stylesheet" href="{% static '/css/marketplace/add_items.css' %}" /> -->
+<link
+  href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
+  rel="stylesheet"
+/>
+
+<!-- Breadcrumb Begin -->
+<div class="breadcrumb-option">
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-12">
+        <div class="breadcrumb__links">
+          <a href="{% url 'marketplace:item_list' %}"
+            ><i class="fa fa-home"></i> All Items</a
+          >
+          <a style="color: #666">Cart</a>
+          <span id="cart-count">{{ cart_count }} Items</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Breadcrumb End -->
+<style>
+  .container-pad {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+    overflow: hidden;
+  }
+
+  /* Cart Section Layout */
+  .cart-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+
+  @media (min-width: 992px) {
+    .cart-grid {
+      grid-template-columns: 2fr 1fr;
+    }
+  }
+  .cart-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+
+  @media (min-width: 992px) {
+    .cart-grid {
+      grid-template-columns: 2fr 1fr;
+    }
+  }
+
+  /* Cart Table Section Styles */
+  .cart-section {
+    border: 1px solid #e5e5e5;
+    border-radius: 4px;
+    max-height: fit-content;
+    padding: 1rem;
+    width: 100%;
+    overflow: hidden;
+  }
+
+  .table-wrapper {
+    overflow-x: auto;
+    width: 100%;
+    -webkit-overflow-scrolling: touch;
+    margin-bottom: 1rem;
+  }
+
+  .cart-table {
+    width: 100%;
+    min-width: 600px; /* Add minimum width to ensure horizontal scroll */
+    border-collapse: collapse;
+  }
+
+  .cart-table th,
+  .cart-table td {
+    padding: 1rem;
+    border-bottom: 1px solid #e5e5e5;
+    white-space: nowrap;
+  }
+
+  .cart-table th {
+    text-align: left;
+    font-size: 14px;
+    color: #000;
+    font-weight: 500;
+  }
+
+  .product-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0;
+  }
+
+  .product-image {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+  }
+
+  /* Quantity Controls */
+  .quantity-controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .quantity-btn {
+    padding: 0.5rem 1rem;
+    border: 1px solid #e5e5e5;
+    background: none;
+    cursor: pointer;
+  }
+
+  .quantity-input {
+    width: 50px;
+    text-align: center;
+    border: 1px solid #000;
+    border-left: none;
+    border-right: none;
+    padding: 0.5rem;
+  }
+
+  /* Coupon and Update Section */
+  .cart-actions {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-top: 2rem;
+    padding: 1rem 0;
+    border-top: 1px solid #e5e5e5;
+  }
+
+  .coupon-section {
+    display: flex;
+    gap: 1rem;
+  }
+
+  /* Cart Totals Section */
+  .cart-totals {
+    border: 1px solid #e5e5e5;
+    padding: 2rem;
+    border-radius: 4px;
+  }
+
+  .cart-totals h2 {
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .totals-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 1rem 0;
+    border-bottom: 1px solid #e5e5e5;
+  }
+
+  .cart-item-info {
+    border-bottom: 1px solid #ccc;
+    padding: 7px;
+    margin-bottom: 10px;
+  }
+
+  .checkout-btn {
+    width: 100%;
+    padding: 1rem;
+    margin-top: -10px;
+    background-color: #000;
+    color: white;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+
+    transition: background-color 0.2s;
+  }
+
+  .checkout-btn:hover {
+    background-color: #333;
+  }
+
+  .total-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 1rem 0;
+    font-size: 1.2rem;
+    font-weight: bold;
+  }
+  @media (max-width: 768px) {
+    .product-image {
+      width: 80px;
+      height: 80px;
+      object-fit: cover;
+    }
+  }
+  .sold-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(0, 0, 0, 0.5); /* Slightly transparent */
+    color: red;
+    font-size: 1.2rem;
+    font-weight: bold;
+    z-index: 1;
+    border-radius: 4px;
+  }
+
+  .product-wrapper {
+    position: relative;
+  }
+
+  /* Greys out the input and button without hiding product info */
+  .disabled-controls {
+    opacity: 0.5;
+    pointer-events: none;
+  }
+  .item-price {
+    font-size: 12px;
+    margin-top: 5px;
+  }
+</style>
+
+<div class="container container-pad">
+  <div class="cart-grid">
+    <!-- Cart Items Section -->
+    <div class="cart-section">
+      <div class="table-wrapper">
+        {% if cart_items %}
+        <table class="cart-table">
+          <thead>
+            <tr>
+              <th>PRODUCT</th>
+              <th>PRICE</th>
+              <th>QUANTITY</th>
+              <th>TOTAL</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for cart_item in cart_items %}
+            <tr id="cart-item-{{ cart_item.id }}">
+              <td>
+                <div class="product-wrapper">
+                  {% if cart_item.item.sold %}
+                  <!-- Sold overlay appears on top -->
+                  <div class="sold-overlay">Sold</div>
+                  {% endif %}
+                  <!-- Product info is visible underneath overlay -->
+                  <div class="product-info">
+                    <img
+                      src="{{ cart_item.item.image.url }}"
+                      alt="{{ cart_item.item.title }}"
+                      class="product-image"
+                    />
+                    <span>{{ cart_item.item.title }}</span>
+                  </div>
+                </div>
+              </td>
+              <td>Ksh {{ cart_item.item.price }}</td>
+              <td>
+                <!-- Grey out the quantity input if sold -->
+                <div
+                  class="quantity-controls {% if cart_item.item.sold %}disabled-controls{% endif %}"
+                >
+                  <input
+                    type="text"
+                    value="{{ cart_item.quantity }}"
+                    class="quantity-input"
+                    readonly
+                    style="background-color: hwb(0 80% 20%)"
+                  />
+                </div>
+              </td>
+              <td>Ksh {{ cart_item.item.price }}</td>
+              <td>
+                <!-- Disable the remove button if sold -->
+                <button onclick="removeCartItem('{{ cart_item.id }}')">
+                  <i
+                    class="fa fa-times-circle"
+                    aria-hidden="true"
+                    style="
+                      color: #000;
+                      height: 45px;
+                      width: 45px;
+                      background: #f2f2f2;
+                      border-radius: 50%;
+                      font-size: 18px;
+                      line-height: 44px;
+                      text-align: center;
+                      display: inline-block;
+                      font-weight: 600;
+                      cursor: pointer;
+                    "
+                  ></i>
+                </button>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        {% else %}
+        <p>Your cart is empty.</p>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Cart Totals Section -->
+    <div class="cart-totals">
+      <h2>CART TOTALS</h2>
+
+      <!-- Display subtotal -->
+      <div class="totals-row">
+        <span>Subtotal:</span>
+        <span
+          style="
+            color: red;
+            font-size: 24px;
+            font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial,
+              sans-serif;
+            font-weight: 900;
+          "
+          >Ksh {{ total_price }}</span
+        >
+      </div>
+
+      <!-- Loop through each cart item and display details -->
+      {% for cart_item in cart_items %} {% if not cart_item.item.sold %}
+      <div class="cart-item-info" style="border-bottom: 1px solid #ccc">
+        <p>
+          <strong>{{ forloop.counter }}.</strong>
+          <span style="color: #000; font-size: 15px">
+            {{ cart_item.item.title }}</span
+          >
+        </p>
+        <p class="item-price">Price: Ksh {{ cart_item.item.price }}</p>
+        <style>
+          .seller-info {
+            padding: 20px;
+            background-color: #ffffff;
+            border: 1px solid #eff3f4;
+            border-radius: 16px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            transition: all 0.2s ease;
+          }
+
+          .seller-info:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            transform: translateY(-2px);
+          }
+
+          .seller-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+          }
+
+          .seller-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            overflow: hidden;
+            background: linear-gradient(45deg, #1da1f2, #0d8bd9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 8px rgba(29, 161, 242, 0.2);
+          }
+
+          .seller-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+          }
+
+          .seller-avatar i {
+            color: white;
+            font-size: 28px;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+          }
+
+          .seller-title {
+            flex: 1;
+          }
+
+          .seller-title h6 {
+            font-size: 18px;
+            font-weight: 600;
+            color: #0f1419;
+            margin: 0 0 4px 0;
+          }
+
+          .seller-info p {
+            font-size: 15px;
+            color: #536471;
+            line-height: 1.6;
+            margin: 0;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+          }
+
+          /* Add status indicator for online/offline */
+          .seller-status {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            border: 2px solid #fff;
+            position: absolute;
+            bottom: 2px;
+            right: 2px;
+          }
+
+          .status-online {
+            background-color: #31a24c;
+          }
+
+          .status-offline {
+            background-color: #8e8e8e;
+          }
+
+          .seller-avatar-container {
+            position: relative;
+          }
+
+          /* Responsive adjustments */
+          @media (max-width: 480px) {
+            .seller-info {
+              padding: 15px;
+            }
+
+            .seller-avatar {
+              width: 50px;
+              height: 50px;
+            }
+
+            .seller-avatar i {
+              font-size: 24px;
+            }
+
+            .seller-title h6 {
+              font-size: 16px;
+            }
+
+            .seller-info p {
+              font-size: 14px;
+            }
+          }
+        </style>
+
+        <!-- Seller information -->
+        <div class="seller-info">
+          <div class="seller-header">
+            <div class="seller-avatar-container">
+              <div class="seller-avatar">
+                {% if cart_item.item.seller.profile.profile_pic %}
+                <img
+                  src="{{ cart_item.item.seller.profile.profile_pic.url }}"
+                  alt="{{ cart_item.item.seller.username }}"
+                />
+                {% else %}
+                <i class="fas fa-user"></i>
+                {% endif %}
+              </div>
+              <!-- Optional: Add online/offline status indicator -->
+              <div
+                class="seller-status {% if cart_item.item.seller.profile.is_online %}status-online{% else %}status-offline{% endif %}"
+              ></div>
+            </div>
+            <div class="seller-title">
+              <h6>Seller Information</h6>
+              <p style="white-space: pre-wrap">{{ cart_item.item.seller }}</p>
+              <!-- Optional: Add more seller information -->
+              {% if cart_item.item.seller.profile.course %}
+              <p class="seller-detail">
+                {{ cart_item.item.seller.profile.course }}
+              </p>
+              {% endif %} {% if cart_item.item.seller.profile.campus %}
+              <p class="seller-detail">
+                {{ cart_item.item.seller.profile.campus }}
+              </p>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+        <!-- Checkout button for each item -->
+        <button class="checkout-btn" data-item-id="{{ cart_item.item.id }}" data-seller="{{ cart_item.item.seller.username }}">
+          Checkout Item {{ forloop.counter }}
+      </button>  
+      </div>
+      {% endif %} {% endfor %}
+    </div>
+  </div>
+</div>
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+      // Listen for clicks on the checkout buttons
+      document.querySelectorAll('.checkout-checkbox').forEach(function(checkbox) {
+          checkbox.addEventListener('change', function() {
+              const itemId = this.id.split('-')[2];  // Extract item ID from the checkbox ID
+              const itemElement = document.querySelector(`#checkout-item-${itemId}`);
+              const sellerUsername = itemElement.getAttribute('data-seller');
+              const itemTitle = itemElement.previousElementSibling.querySelector('span').textContent;
+              const itemDescription = itemElement.previousElementSibling.nextElementSibling.querySelector('.item-price').textContent;
+
+              if (this.checked) {
+                  // Redirect to the chat page with pre-filled details
+                  window.location.href = `/messaging/chat/${sellerUsername}/?item_title=${encodeURIComponent(itemTitle)}&item_description=${encodeURIComponent(itemDescription)}`;
+              }
+          });
+      });
+
+      // Listen for clicks on the checkout buttons directly (if no checkbox is needed)
+      document.querySelectorAll('.checkout-btn').forEach(function(button) {
+          button.addEventListener('click', function(event) {
+              event.preventDefault();
+              
+              const itemId = this.getAttribute('data-item-id');
+              const sellerUsername = this.getAttribute('data-seller');
+              const itemTitle = this.closest('.cart-item-info').querySelector('span').textContent;
+              const itemDescription = this.closest('.cart-item-info').querySelector('.item-price').textContent;
+
+              // Redirect to the chat page with pre-filled details
+              window.location.href = `/messaging/chat/${sellerUsername}/?item_title=${encodeURIComponent(itemTitle)}&item_description=${encodeURIComponent(itemDescription)}`;
+          });
+      });
+  });
+</script>
+
+<section class="listing-tips py-5 bg-light">
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-12">
+        <h6 class="coupon__link">
+          <span class="icon_tag_alt"></span>
+          <a href="{% url 'marketplace:add_item' %}" style="color: #0056b3"
+            >Ready to Sell?</a
+          >
+          Add your items here to start selling.
+        </h6>
+      </div>
+    </div>
+    <h3 class="mb-4 text-center" style="font-size: 18px;"><b>Tips for a Successful Listing</b></h3>
+    <div class="card shadow-sm border-0">
+      <div class="card-body">
+        <ul class="list-group list-group-flush">
+          <li class="list-group-item d-flex align-items-start">
+            <i class="fas fa-camera-retro fa-2x text-primary me-3"></i>
+            <div>
+              <strong>Use High-Quality Photos:</strong>
+              <p class="mb-0">
+                Clear, well-lit images attract more buyers. Aim for good
+                lighting, ideally in natural light, and avoid cluttered
+                backgrounds.
+              </p>
+              <small class="text-muted"
+                >Tip: Capture multiple angles of the item to give buyers a
+                complete view.</small
+              >
+            </div>
+          </li>
+
+          <li class="list-group-item d-flex align-items-start">
+            <i class="fas fa-edit fa-2x text-success me-3"></i>
+            <div>
+              <strong>Write an Accurate Description:</strong>
+              <p class="mb-0">
+                Include essential details, such as size, condition, brand, and
+                any defects, to help buyers make an informed decision.
+              </p>
+              <small class="text-muted"
+                >Tip: Use bullet points for easier readability.</small
+              >
+            </div>
+          </li>
+
+          <li class="list-group-item d-flex align-items-start">
+            <i class="fas fa-tag fa-2x text-warning me-3"></i>
+            <div>
+              <strong>Price Competitively:</strong>
+              <p class="mb-0">
+                Research similar items on the platform to set a fair price.
+                Competitive pricing can help you sell faster.
+              </p>
+              <small class="text-muted"
+                >Tip: Consider using promotional pricing for the first few items
+                to build reviews.</small
+              >
+            </div>
+          </li>
+
+          <li class="list-group-item d-flex align-items-start">
+            <i class="fas fa-comments fa-2x text-info me-3"></i>
+            <div>
+              <strong>Be Responsive:</strong>
+              <p class="mb-0">
+                Reply quickly to messages from potential buyers to build trust
+                and improve your chances of making a sale.
+              </p>
+              <small class="text-muted"
+                >Tip: Enable notifications to respond promptly.</small
+              >
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+<style>
+  .notification-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1000;
+    width: 530px;
+  }
+
+  .notification {
+    display: flex;
+    align-items: center;
+    background-color: #4caf50;
+    color: white;
+    padding: 16px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+    animation: slideIn 0.5s ease, slideOut 0.5s ease 4s forwards;
+    position: relative;
+    overflow: hidden;
+  }
+  .icon {
+    display: flex;
+    align-items: center;
+    padding-right: 12px; /* Space between icon and border */
+    margin-right: 12px; /* Space between border and message */
+    border-right: 2px solid #ccc; /* Visible border */
+  }
+
+  .icon i {
+    font-size: 1.5em;
+    color: white; /* Icon color */
+  }
+  .notification .icon {
+    font-size: 1.5em;
+    margin-right: 10px;
+  }
+
+  .notification .message {
+    flex-grow: 1;
+    font-size: 1em;
+  }
+
+  /* Close Button */
+  .close-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px;
+    font-size: 1.5em;
+    color: white;
+    cursor: pointer;
+    margin-left: 12px;
+    transition: color 0.3s ease;
+  }
+
+  .close-button i {
+    color: white;
+  }
+
+  .close-button:hover i {
+    color: #ff6666;
+  }
+
+  .notification .progress-bar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 4px;
+    background-color: rgba(255, 255, 255, 0.8);
+    width: 100%;
+  }
+
+  @keyframes slideIn {
+    0% {
+      opacity: 0;
+      transform: translateX(100%);
+    }
+    100% {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  @keyframes slideOut {
+    0% {
+      opacity: 1;
+      transform: translateX(0);
+    }
+    100% {
+      opacity: 0;
+      transform: translateX(100%);
+    }
+  }
+
+  @keyframes progress {
+    from {
+      width: 100%;
+    }
+    to {
+      width: 0;
+    }
+  }
+
+  @media (max-width: 767px) {
+    .notification-container {
+      top: 10px;
+      right: 10px;
+      width: 90%;
+    }
+
+    .notification {
+      padding: 12px;
+    }
+
+    .notification .icon {
+      font-size: 1.3em;
+    }
+
+    .notification .close-button {
+      font-size: 1em;
+      margin-left: 8px;
+    }
+  }
+</style>
+<script>
+  function removeCartItem(itemId) {
+    fetch("{% url 'marketplace:remove_cart_item' %}", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRFToken": "{{ csrf_token }}",
+      },
+      body: JSON.stringify({ item_id: itemId }),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.success) {
+          // Display the notification with the success message
+          document.body.insertAdjacentHTML(
+            "beforeend",
+            `<div class="notification-container">
+              <div class="notification">
+                <div class="icon"><i class="fa-solid fa-circle-check"></i></div>
+                <div class="message">Item removed from cart successfully</div>
+                <div class="close-button" onclick="this.parentElement.style.display='none';">
+                  <i class="fa-solid fa-circle-xmark"></i>
+                </div>
+                <div class="progress-bar"></div>
+              </div>
+            </div>`
+          );
+
+          // Start the progress bar animation and fade-out
+          const progressBar = document.querySelector(".progress-bar");
+          progressBar.style.animation = "progress 4s linear forwards";
+          
+          // Automatically refresh the page after 4 seconds
+          setTimeout(() => {
+            location.reload();
+          }, 4000);
+        } else {
+          alert("Could not remove item. Please try again.");
+        }
+      })
+      .catch((error) => console.error("Error:", error));
+  }
+</script>
+
+
+{% endblock %}

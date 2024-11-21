@@ -6,10 +6,10 @@ from rest_framework.permissions import IsAuthenticated
 from django.utils import timezone
 from django.db.models import Q
 from django_filters.rest_framework import DjangoFilterBackend
-from .models import Event, EventRegistration, Comment, EventReaction
+from .models import Event, EventRegistration, Comment
 from .serializers import (
     EventSerializer, EventRegistrationSerializer,
-    CommentSerializer, EventReactionSerializer
+    CommentSerializer
 )
 from .filters import EventFilter
 
@@ -51,33 +51,7 @@ class EventViewSet(viewsets.ModelViewSet):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    @action(detail=True, methods=['post'])
-    def react(self, request, pk=None):
-        event = self.get_object()
-        serializer = EventReactionSerializer(
-            data=request.data,
-            context={'request': request, 'event': event}
-        )
-        
-        if serializer.is_valid():
-            reaction_type = serializer.validated_data['reaction_type']
-            existing_reaction = EventReaction.objects.filter(
-                event=event,
-                user=request.user.profile
-            ).first()
-
-            if existing_reaction:
-                if existing_reaction.reaction_type == reaction_type:
-                    existing_reaction.delete()
-                    return Response(status=status.HTTP_204_NO_CONTENT)
-                existing_reaction.reaction_type = reaction_type
-                existing_reaction.save()
-            else:
-                serializer.save(event=event, user=request.user.profile)
-            
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
+    
 
 class CommentViewSet(viewsets.ModelViewSet):
     serializer_class = CommentSerializer

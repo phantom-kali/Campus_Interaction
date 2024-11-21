@@ -13,6 +13,7 @@ urlpatterns = [
     path("marketplace/", include("marketplace.urls")),
     path("messaging/", include("messaging.urls")),
     # path("notifications/", include("notifications.urls")),
+    path("resources/", include("resources.urls")),
     path('events/', include('events.urls')),
     path('polls/', include('polls.urls')),
     path('maps/', include('maps.urls')),

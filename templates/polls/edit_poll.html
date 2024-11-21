@@ -1,466 +1,9 @@
 {% extends 'base.html' %} {% block title %}Poll - Edit {{poll.title}}{% endblock %} 
 {% block content %}
-<style>
-  .poll_navbar {
-    padding: 10px 20px;
-  }
-  .navbar-buttons {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-  @import url("https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap");
-  .poll_navbar .logo {
-    font-size: 30px;
-    color: #333;
-    text-decoration: none;
-    font-family: "Roboto", sans-serif;
-    font-weight: 900;
-    font-style: normal;
-  }
+{% load static %}
 
-  /* Button Styling */
-  .create-poll-btn {
-    background-color: blue; /* Green */
-    color: #fff;
-    padding: 10px 12px;
-    border: none;
-    border-radius: 5px;
-    font-size: 14px;
-    text-transform: uppercase;
-    font-weight: bold;
-    display: inline-flex;
-    align-items: center;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-  }
-
-  .create-poll-btn:hover {
-    background-color: #4a56e2;
-    color: #fff;
-  }
-
-  .toggle-filters-btn {
-    background-color: #4a56e2;
-    color: #fff;
-    padding: 8px 12px;
-    border: none;
-    border-radius: 5px;
-    font-size: 14px;
-    text-transform: uppercase;
-    font-weight: bold;
-    display: inline-flex;
-    align-items: center;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-  }
-
-  .toggle-filters-btn:hover {
-    background-color: #1c216d;
-  }
-
-  /* Flex container for buttons */
-  .navbar-buttons {
-    display: flex;
-    gap: 10px;
-  }
-  .dashboard {
-    color: #555;
-    font-size: 14px;
-    padding: 8px 10px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    text-transform: uppercase;
-    font-weight: bold;
-    display: inline-flex;
-    align-items: center;
-    cursor: pointer;
-    margin-top: 5px;
-    text-decoration: none;
-    transition: background-color 0.3s ease, color 0.3s ease;
-  }
-  .dashboard:hover {
-    background-color: #f0f0f0;
-    color: #333;
-  }
-  .poll-title {
-    text-align: center;
-    font-size: 30px;
-    font-family: "Roboto", sans-serif;
-    font-weight: 900;
-    font-style: normal;
-    text-transform: uppercase;
-  }
-  /* Base Layout */
-  .create_poll_form {
-    display: flex;
-    flex-direction: column;
-    max-width: 800px;
-    margin: 0 auto;
-    transition: all 0.3s ease; /* Smooth transition when options are toggled */
-  }
-
-  .form-main {
-    flex: 1;
-    padding: 20px;
-    background-color: #ffffff;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  }
-  .create_poll_form {
-    max-width: 800px;
-    margin: 0 auto;
-    padding: 18px;
-    background-color: white;
-    border-radius: 8px;
-    box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
-    box-sizing: border-box;
-  }
-  .question-container {
-    margin-bottom: 20px;
-  }
-  .option-form {
-    margin-bottom: 20px;
-  }
-  .form-title {
-    width: 100%;
-    padding: 10px;
-    border-radius: 6px;
-    outline: none !important;
-  }
-  .option-form {
-    display: flex;
-    align-items: center;
-    margin-bottom: 10px;
-  }
-  .form-option-text {
-    flex-grow: 1;
-    padding: 8px;
-    margin-right: 10px;
-    outline: none !important;
-    background-color: #fff;
-    border-radius: 6px;
-    box-sizing: border-box;
-  }
-
-  .form-control-file {
-    display: none !important;
-  }
-  .form-description {
-    resize: none;
-    padding: 10px;
-    border-radius: 6px;
-    outline: none !important;
-    width: 100%;
-  }
-
-  .form-title:hover,
-  .form-description:hover,
-  .form-option-text:hover {
-    border-color: #4a56e2;
-  }
-  .form-title:focus,
-  .form-description:focus,
-  .form-option-text:focus {
-    border-color: #4a56e2;
-  }
-  .upload-btn {
-    background-color: #007bff;
-    color: white;
-    border: none;
-    padding: 8px 12px;
-    cursor: pointer;
-    box-sizing: border-box;
-    border-radius: 4px;
-  }
-  /* Preview Image Styling */
-  .file-info {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-top: 10px;
-  }
-
-  .preview-image {
-    width: 50px;
-    height: 50px;
-    object-fit: cover;
-    border-radius: 5px;
-    border: 1px solid #ccc;
-  }
-
-  /* Delete Button */
-  .delete-btn {
-    color: #ff4d4d;
-    cursor: pointer;
-    font-size: 14px;
-  }
-
-  .poll-type-container {
-    margin: 20px 0;
-    padding: 15px;
-    border: 2px solid #3872cf;
-    border-radius: 10px;
-    background-color: #f9f9f9;
-  }
-
-  .poll-type-title {
-    font-size: 18px;
-    font-weight: bold;
-    color: #3872cf;
-    margin-bottom: 10px;
-  }
-
-  .poll-type-options {
-    display: flex;
-    gap: 15px;
-  }
-
-  .poll-type-option {
-    position: relative;
-    cursor: pointer;
-    padding-left: 30px;
-    font-size: 16px;
-    color: #333;
-    transition: color 0.3s;
-  }
-
-  .poll-type-option:hover {
-    color: #3872cf; /* Change color on hover */
-  }
-
-  .poll-type-option input {
-    display: none; /* Hide the default radio input */
-  }
-
-  .custom-radio {
-    position: absolute;
-    top: 50%;
-    left: 0;
-    transform: translateY(-50%);
-    width: 20px;
-    height: 20px;
-    border: 2px solid #3872cf;
-    border-radius: 50%;
-    background-color: #fff;
-    transition: background-color 0.3s;
-  }
-
-  .poll-type-option input:checked + .custom-radio {
-    background-color: #3872cf; /* Change background color when checked */
-  }
-
-  .poll-type-option input:checked + .custom-radio:after {
-    content: "";
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    background-color: #fff; /* Inner circle color */
-  }
-  .actions {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-
-  .actions button {
-    padding: 8px 10px;
-    background-color: #4a56e2;
-    color: #fff;
-    border-radius: 10px;
-    border: none; /* Removes default border */
-    cursor: pointer; /* Changes cursor to pointer on hover */
-    transition: background-color 0.3s ease, transform 0.2s ease; /* Smooth transition */
-  }
-
-  /* Hover effect */
-  .actions button:hover {
-    background-color: #3b47c3; /* Darker shade on hover */
-    transform: translateY(-2px); /* Slight lift effect */
-  }
-
-  /* Active effect */
-  .actions button:active {
-    transform: translateY(0); /* Return to original position */
-    background-color: #2e3bb2; /* Even darker shade when active */
-  }
-
-  /* Focus effect for accessibility */
-  .actions button:focus {
-    outline: none; /* Removes default outline */
-    box-shadow: 0 0 0 3px rgba(74, 86, 226, 0.5); /* Custom focus outline */
-  }
-  .options {
-    margin-top: 20px;
-    padding: 20px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    background-color: #f9f9f9;
-    display: none;
-  }
-
-  .color-swatch {
-    display: inline-block;
-    width: 37px;
-    height: 37px;
-    border-radius: 4px;
-    margin-right: 8px;
-    margin-top: 10px;
-    vertical-align: middle;
-    cursor: pointer;
-    border: 2px solid transparent;
-    border: 1px solid #000;
-  }
-
-  .color-swatch.selected {
-    border: 6px solid #3358ff;
-  }
-
-  .form-period {
-    border: 1px solid #ccc;
-    border-radius: 6px;
-    padding: 10px;
-    font-size: 14px;
-    transition: border-color 0.3s;
-  }
-
-  .form-period:focus {
-    border-color: #4a56e2;
-    outline: none;
-  }
-  .form-period:hover {
-    border-color: #4a56e2;
-    outline: none;
-  }
-  /* Overall styling for the drag area */
-  .drag-area {
-    border: 2px dashed #cccccc;
-    border-radius: 10px;
-    padding: 20px;
-    text-align: center;
-    height: 200px;
-    cursor: pointer;
-    position: relative;
-    transition: all 0.3s ease; /* Smooth transition for visual changes */
-    background-color: #f9f9f9; /* Light background for the drag area */
-  }
-
-  .drag-area.hover {
-    border-color: #333;
-  }
-
-  /* Icon styling */
-  .icon {
-    font-size: 40px;
-    margin-bottom: 10px;
-    color: #007bff; /* Blue color for the icon */
-  }
-
-  /* Header and span styling */
-  header {
-    /* font-size: 18px; */
-    font-weight: bold;
-    color: #333; /* Dark text color for header */
-  }
-
-  span {
-    color: #666; /* Gray color for the "OR" text */
-  }
-  .preview-container {
-    margin-top: 10px;
-    position: relative; /* Ensures preview is correctly placed */
-  }
-  #browse-btn {
-    background-color: #007bff; /* Blue background color */
-    color: #fff; /* White text color */
-    border: none; /* Remove default border */
-    border-radius: 5px; /* Rounded corners */
-    padding: 10px 20px; /* Add padding */
-    font-size: 16px; /* Font size */
-    cursor: pointer; /* Pointer cursor on hover */
-    transition: background-color 0.3s ease; /* Smooth background color transition */
-  }
-
-  #browse-btn:hover {
-    background-color: #0056b3; /* Darker blue on hover */
-  }
-  .preview-container img {
-    width: 100%; /* Cover the full width */
-    max-height: 150px; /* Set a max height */
-    object-fit: cover; /* Ensure the image covers the area without distortion */
-    border-radius: 10px;
-    position: absolute; /* Position absolutely to ensure it covers */
-    top: 0;
-    left: 0;
-  }
-
-  /* Hide original content when image is uploaded */
-  .drag-area.hide-content .icon,
-  .drag-area.hide-content header,
-  .drag-area.hide-content span,
-  .drag-area.hide-content button {
-    display: none; /* Hide these elements */
-  }
-  #error-message {
-            position: fixed;
-            top: 10px; 
-            left: 50%;
-            transform: translateX(-50%); 
-            z-index: 5; 
-            width: auto; 
-            max-width: 90%; 
-            margin: 0 auto; 
-            background-color: #f8d7da;
-            color: #721c24; 
-            border: 1px solid #f5c6cb; 
-            padding: 10px 15px; 
-            border-radius: 5px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); 
-            display: flex;
-            justify-content: space-between; 
-            align-items: center; 
-            transition: opacity 0.5s ease; 
-        }
-
-        #error-message i {
-            cursor: pointer; /* Show pointer cursor on hover */
-            margin-left: 10px; /* Space between text and icon */
-            color: #721c24; /* Icon color matching alert text */
-        }
-
-        /* For fading out effect */
-        .fade-out {
-            opacity: 0;
-        }
-        .form-control-file{
-          display: none !important;
-        }
-    @media (max-width: 768px) {
-    .polls-container {
-      flex-direction: column;
-    }
-
-    .polls_items {
-      flex: none; /* Reset flex property */
-      margin-bottom: 20px; /* Space between polls and sidebar */
-    }
-
-    .sidebar {
-      border-left: none; /* Remove left border on small screens */
-      border-top: 1px solid #ccc; /* Add top border for separation */
-    }
-    .poll_navbar .logo{
-      font-size: 23px;
-    }
-    .create-poll-btn{
-      font-size: 12px;
-    }
-  }
-</style>
+<script src="https://code.jquery.com/jquery-3.4.1.js"></script>
+<link rel="stylesheet" href="{% static '/css/polls/create_edit_poll.css' %}">
 <nav class="poll_navbar">
   <div class="navbar-buttons">
     <a href="{% url 'polls:edit_poll' poll.id %}" class="logo">Edit - {{ poll.title|slice:":7" }}{% if poll.title|length > 7 %}...{% endif %}
@@ -471,14 +14,131 @@
   </div>
   <a href="{% url 'polls:user_dashboard' %}" class="dashboard">Your Polls</a>
 </nav>
+<style>
+  @import url('https://fonts.googleapis.com/css?family=Poppins:400,500,600,700&display=swap');
 
+  .alert {
+  background: #ffdb9b;
+  padding: 20px 40px;
+  min-width: 300px;
+  max-width: 500px;
+  position: fixed; /* Changed from absolute to fixed */
+  right: 20px;
+  top: 20px;
+  border-radius: 5px;
+  border-left: 8px solid #ffa502;
+  display: flex;
+  align-items: center;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-20px); /* Slide in from top */
+  z-index: 1000;
+}
+
+
+  .alert.show {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0); /* Smooth transition to visible */
+  }
+
+  .alert .fa-exclamation-circle {
+    margin-right: 15px;
+    color: #ce8500;
+    font-size: 24px;
+  }
+
+  .alert .msg {
+    flex: 1;
+    font-size: 16px;
+    color: #ce8500;
+  }
+
+  .alert .close-btn {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    font-size: 20px;
+    color: #ce8500;
+  }
+
+  .alert .close-btn:hover {
+    color: #ffa502;
+  }
+
+  /* Responsive adjustments for smaller screens */
+  @media (max-width: 600px) {
+    .alert {
+      padding: 15px 20px;
+      min-width: auto;
+      max-width: 90%;
+      right: 5%;
+      top: 10px;
+    }
+
+    .alert .fa-exclamation-circle {
+      font-size: 20px;
+      margin-right: 10px;
+    }
+
+    .alert .msg {
+      font-size: 14px;
+    }
+
+    .alert .close-btn {
+      font-size: 18px;
+    }
+  }
+
+  @media (max-width: 400px) {
+    .alert {
+      padding: 10px 15px;
+      max-width: 95%;
+      right: 2.5%;
+    }
+
+    .alert .msg {
+      font-size: 13px;
+    }
+
+    .alert .fa-exclamation-circle {
+      font-size: 18px;
+    }
+
+    .alert .close-btn {
+      font-size: 16px;
+    }
+  }
+</style>
 <!-- <h1 class="poll-title">Your Polls</h1> -->
 {% if error_message %}
-<div id="error-message" class="alert alert-danger" role="alert">
-    {{ error_message }}
-    <i class='bx bx-x' onclick="dismissErrorMessage()"></i> <!-- Dismiss button -->
+<div class="alert show">
+  <span class="fas fa-exclamation-circle"></span>
+  <span class="msg">Warning: {{ error_message }}!</span>
 </div>
 {% endif %}
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    const alertBox = document.querySelector(".alert");
+
+    // Auto-hide the alert after 5 seconds
+    setTimeout(function() {
+      if (alertBox) {
+        alertBox.classList.remove("show");
+      }
+    }, 5000);
+
+    // Close button functionality
+    document.querySelector(".close-btn").addEventListener("click", function() {
+      if (alertBox) {
+        alertBox.classList.remove("show");
+      }
+    });
+  });
+</script>
+
 
 <form method="post" enctype="multipart/form-data" class="create_poll_form">
   {% csrf_token %}
@@ -524,8 +184,9 @@
   </div>
 {{ option_formset.management_form }}
 <div id="option-formset">
-    {% for form in option_formset|slice:":-2" %}
+  {% for form in option_formset|slice:":-2" %}
     <input type="hidden" name="form-{{ forloop.counter0 }}-id" value="{{ form.instance.id }}">
+    
     <label for="{{ form.option_text.id_for_label }}"><b>Option Text:</b></label>
     <div class="option-form">
         {{ form.option_text }}
@@ -534,14 +195,24 @@
             <input type="file" name="form-{{ forloop.counter0 }}-option_image" style="display: none;">
         </label>
     </div>
+    
     <div class="file-info">
         <img class="preview-image"
              style="{% if form.instance.option_image %}display: block;{% else %}display: none;{% endif %}"
              src="{% if form.instance.option_image %}{{ form.instance.option_image.url }}{% endif %}"
              alt="Preview" />
-        <span class="delete-btn" style="{% if form.instance.option_image %}display: inline{% else %}display: none{% endif %}"
+        <span class="delete-btn" 
+              style="{% if form.instance.option_image %}display: inline{% else %}display: none{% endif %}"
               onclick="deleteFile(this)">Delete</span>
     </div>
+
+    <div class="delete-image-checkbox">
+      <label>
+          <input type="checkbox" name="form-{{ forloop.counter0 }}-remove_image" value="1">
+          Remove this image
+      </label>
+  </div>
+
     <div class="correct-answer"
          style="{% if poll_form.instance.poll_type != 'question' %}display: none;{% endif %}">
         <label class="correct-answer-label">
@@ -550,6 +221,7 @@
     </div>
     {% endfor %}
 </div>
+
 
   <div class="actions" style="margin-top: 5px;">
     <button type="button" id="add-option">
@@ -562,8 +234,13 @@
   </div>
 
   <div class="options" style="display: none">
+    
     <!-- Background Color Selection -->
-    <div>
+    <h3  style="text-align: center;">
+      <u>Optional Customizations</u>
+  </h3>
+  
+    <div class="color-picker-section">
       <label for="background-color-picker"
         ><b>Choose Background Color:</b></label
       >
@@ -654,88 +331,290 @@
     </div>
 
     <br />
-    <div class="form-check mb-3">
-      <input
-        type="checkbox"
-        id="allow-expiration"
-        name="allow_expiration"
-        class="form-check-input"
-        value="True"
-        {%
-        if
-        poll_form.allow_expiration.value
-        %}checked{%
-        endif
-        %}
-      />
-      <label for="allow-expiration" class="form-check-label"
-        ><b>{{ poll_form.allow_expiration.label }}</b></label
-      >
+    <style>
+        .expiration-container {
+        background-color: #f9f9f9;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        padding: 15px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
 
-      {% if poll_form.allow_expiration.errors %}
-      <div class="text-danger">{{ poll_form.allow_expiration.errors }}</div>
-      {% endif %}
-    </div>
-
-    <div class="mb-3 expiration-fields" style="display: none">
-      <b>{{ poll_form.expiration_time.label_tag }}</b>
-      {{ poll_form.expiration_time }} {% if poll_form.expiration_time.errors %}
-      <div class="text-danger">{{ poll_form.expiration_time.errors }}</div>
-      {% endif %}
-    </div>
-    <div class="mb-3 expiration-fields" style="display: none">
-      <b>{{ poll_form.expiration_time.label_tag }}</b>
-      {{ poll_form.expiration_time }} {% if poll_form.expiration_time.errors %}
-      <div class="text-danger">{{ poll_form.expiration_time.errors }}</div>
-      {% endif %}
-    </div>
-
- 
-    
-    <div class="form-check mb-3">
-      <b> {{ poll_form.multi_option.label_tag }}</b>
-      {{ poll_form.multi_option }} {% if poll_form.multi_option.errors %}
-      <div class="text-danger">{{ poll_form.multi_option.errors }}</div>
-      {% endif %}
-    </div>
-    <div class="form-check mb-3">
-        <b> {{ poll_form.is_public.label_tag }}</b>
-        {{ poll_form.is_public }} {% if poll_form.is_public.errors %}
-        <div class="text-danger">{{ poll_form.is_public.errors }}</div>
+        .form-check {
+        margin-bottom: 10px;
+        }
+        .mb-3 {
+        margin-bottom: 1rem;
+        }
+        .text-danger {
+        color: #d9534f;
+        font-size: 0.875em;
+        }
+    </style>
+    <div class="expiration-container">
+      <div class="form-check mb-3">
+        <input
+          type="checkbox"
+          id="allow-expiration"
+          name="allow_expiration"
+          class="form-check-input"
+          value="True"
+          {% if poll_form.allow_expiration.value %}checked{% endif %}
+        />
+        <label for="allow-expiration" class="form-check-label">
+          <b>{{ poll_form.allow_expiration.label }}</b>
+        </label>
+        {% if poll_form.allow_expiration.errors %}
+        <div class="text-danger">{{ poll_form.allow_expiration.errors }}</div>
         {% endif %}
+      </div>
+      <div class="mb-3 expiration-fields" style="display: none">
+        <b>{{ poll_form.expiration_time.label_tag }}</b>
+        {{ poll_form.expiration_time }}
+        {% if poll_form.expiration_time.errors %}
+        <div class="text-danger">{{ poll_form.expiration_time.errors }}</div>
+        {% endif %}
+      </div>
+    </div>
+    <style>
+        .options-container {
+          background-color: #fefefe;
+          border: 1px solid #ddd;
+          border-radius: 10px;
+          padding: 5px;
+          margin-bottom: 20px;
+          box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+          transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .form-check {
+          position: relative;
+          padding-left: 20px;
+          margin-bottom: 15px;
+        }
+        .form-check b {
+          font-weight: 600;
+          margin-bottom: 5px;
+          display: block;
+        }
+        .text-danger {
+          color: #d9534f;
+          font-size: 0.875em;
+        }
+        .form-control-wrapper {
+            margin-left: 20px;
+          }
+          .form-check-input {
+          appearance: none;
+          width: 20px;
+          height: 20px;
+          border: 2px solid #007bff;
+          border-radius: 4px;
+          outline: none;
+          cursor: pointer;
+          transition: background-color 0.3s, border-color 0.3s;
+        }
+
+        .form-check-input:checked {
+          background-color: #007bff;
+          border-color: #0056b3;
+        }
+
+        .form-check-input:checked::before {
+          content: "";
+          display: block;
+          width: 12px;
+          height: 12px;
+          margin: 4px;
+          background-color: white;
+          border-radius: 2px;
+        }
+
+        .form-check-input:hover {
+          border-color: #0056b3;
+        }
+
+        .form-check-input:focus {
+          box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.5);
+        }
+    </style>
+    <div class="options-container">
+      <div class="form-check mb-3">
+        <b>{{ poll_form.multi_option.label_tag }}</b>
+        <div class="form-control-wrapper">
+          {{ poll_form.multi_option }} 
+          {% if poll_form.multi_option.errors %}
+          <div class="text-danger">{{ poll_form.multi_option.errors }}</div>
+          {% endif %}
+        </div>
+      </div>
+      <div class="form-check mb-3">
+        <b>{{ poll_form.is_public.label_tag }}</b>
+        <div class="form-control-wrapper">
+          {{ poll_form.is_public }} 
+          {% if poll_form.is_public.errors %}
+          <div class="text-danger">{{ poll_form.is_public.errors }}</div>
+          {% endif %}
+        </div>
       </div>
       <div class="form-check mb-3">
         <b>{{ poll_form.show_share_button.label_tag }}</b>
-        {{ poll_form.show_share_button }} {% if poll_form.show_share_button.errors %}
-        <div class="text-danger">{{ poll_form.show_share_button.errors }}</div>
-        {% endif %}
+        <div class="form-control-wrapper">
+          {{ poll_form.show_share_button }} 
+          {% if poll_form.show_share_button.errors %}
+          <div class="text-danger">{{ poll_form.show_share_button.errors }}</div>
+          {% endif %}
+        </div>
       </div>
-
-    <br />
-    <label for="banner-image"><b>Banner Image(Optional):</b></label>
-    <div class="drag-area" id="drag-area">
-      <div class="icon"><i class="fas fa-cloud-upload-alt"></i></div>
-      <header>Drag & Drop to Upload File</header>
-      <span>OR</span>
-      <button type="button" id="browse-btn">Browse File</button>
-      <input
-        type="file"
-        name="banner_image"
-        id="banner_image"
-        hidden
-        accept="image/*"
-      />
-      <div id="preview-container" class="preview-container"></div>
     </div>
+    <style>
+ .banner-image-container {
+  background-color: #f9f9f9;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+    </style>
+<div class="banner-image-container">
+  <label for="banner-image"><b>Banner Image</b></label>
+
+  <style>
+    .banner-image-preview {
+      width: 100%;
+      height: 150px;
+      object-fit: cover;
+      border-radius: 10px;
+      border: 1px solid #000;
+    }
+    .drag-area {
+      display: none; 
+    }
+    .show {
+      display: block; 
+    }
+    #edit-banner-btn {
+    background-color: #ffa502;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+#edit-banner-btn:hover {
+    background-color: #e69a00;
+    transform: translateY(-2px);
+}
+
+#edit-banner-btn:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(255, 165, 2, 0.5);
+}
+
+  </style>
+
+  <!-- Display the existing banner image if it exists -->
+  {% if poll.banner_image %}
+    <div class="existing-banner">
+      <img src="{{ poll.banner_image.url }}" alt="Current Banner Image" class="banner-image-preview" />
+      <p>Current Banner Image</p>
+      <button id="edit-banner-btn" type="button">Change Banner Image</button>
+    </div>
+  {% else %}
+    <p>No banner image uploaded.</p>
+  {% endif %}
+
+  <div class="drag-area" id="drag-area">
+    <div class="icon"><i class="fas fa-cloud-upload-alt"></i></div>
+    <header>Drag & Drop to Upload File</header>
+    <span>OR</span>
+    <button type="button" id="browse-btn">Browse File</button>
+    <input
+      type="file"
+      name="banner_image"
+      id="banner_image"
+      hidden
+      accept="image/*"
+    />
+    <div id="preview-container" class="preview-container"></div>
   </div>
-  <div style="width: 100%; display: flex; justify-content: space-between; align-items: center; margin-top:15px;">
-    <div>
-      <a href="{% url 'polls:user_dashboard' %}" style="padding-top: 9px; font-size: 15px; display: block; color: #c93b30;">
-        Delete poll
-    </a>
+</div>
+
+    <style>
+      .actions1 {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 10px; /
+      }
+      .actions1 button {
+      width: 30%;
+      border: none;
+      outline: none;
+      background-color: #4a56e2;
+      padding: 10px 10px;
+      border-radius: 10px;
+      color: #fff;
+      font-size: 15px;
+      }
+      .actions1 button:hover {
+      background-color: #3b47c3;
+      transform: translateY(-2px);
+      }
+
+      .actions1 button:active {
+      transform: translateY(0);
+      background-color: #2e3bb2;
+      }
+
+      .actions1 button:focus {
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(74, 86, 226, 0.5);
+      }
+    </style>
+    <div class="actions1">
+      <button type="button" id="close-options" style="display: none;">Close</button>
     </div>
   </div>
 </form>
+<script>
+  document.getElementById("edit-banner-btn").addEventListener("click", function() {
+    const dragArea = document.getElementById("drag-area");
+    const existingBanner = document.querySelector(".existing-banner");
+
+    // Toggle visibility
+    dragArea.classList.toggle("show"); // Show or hide the drag area
+    existingBanner.style.display = dragArea.classList.contains("show") ? "none" : "block"; // Hide or show the existing banner
+  });
+
+  document.getElementById("browse-btn").addEventListener("click", function() {
+    document.getElementById("banner_image").click(); // Trigger file input click
+  });
+
+  document.getElementById("banner_image").addEventListener("change", function() {
+    const file = this.files[0];
+    const previewContainer = document.getElementById("preview-container");
+    previewContainer.innerHTML = ""; // Clear previous previews
+
+    if (file) {
+      const reader = new FileReader();
+      
+      reader.onload = function(e) {
+        const img = document.createElement("img");
+        img.src = e.target.result;
+        img.classList.add("banner-image-preview");
+        previewContainer.appendChild(img);
+      };
+      
+      reader.readAsDataURL(file);
+    }
+  });
+</script>
+
 <script>
   document.addEventListener("DOMContentLoaded", function () {
     const dragArea = document.getElementById("drag-area");
@@ -871,8 +750,8 @@
   document.addEventListener("DOMContentLoaded", function () {
     const allowExpirationCheckbox = document.getElementById("allow-expiration");
     const expirationFields = document.querySelector(".expiration-fields");
-
-    // Function to toggle the display of the expiration fields
+    const expirationTimeInput = document.querySelector(".form-period");
+  
     function toggleExpirationFields() {
       if (allowExpirationCheckbox.checked) {
         expirationFields.style.display = "block"; // Show expiration fields
@@ -880,30 +759,54 @@
         expirationFields.style.display = "none"; // Hide expiration fields
       }
     }
-
-    // Add event listener for checkbox change
+    expirationTimeInput.addEventListener("click", function () {
+      this.showPicker(); 
+    });
     allowExpirationCheckbox.addEventListener("change", toggleExpirationFields);
+    toggleExpirationFields();
   });
-</script>
+  </script>
 <script>
   document.addEventListener("DOMContentLoaded", function () {
-    const toggleButton = document.getElementById("toggle-options");
-    const optionsDiv = document.querySelector(".options");
-
-    toggleButton.addEventListener("click", function () {
-      if (
-        optionsDiv.style.display === "none" ||
-        optionsDiv.style.display === ""
-      ) {
-        optionsDiv.style.display = "block"; // Show options
-        toggleButton.innerHTML = 'Customize<i class="bx bx-cog"></i>'; // Change button text
-      } else {
-        optionsDiv.style.display = "none"; // Hide options
-        toggleButton.innerHTML = 'Customize<i class="bx bx-cog"></i>'; // Change button text
-      }
-    });
+      const toggleButton = document.getElementById("toggle-options");
+      const optionsDiv = document.querySelector(".options");
+      const closeButton = document.getElementById("close-options");
+      const formElement = document.querySelector('.create_poll_form');
+  
+      toggleButton.addEventListener("click", function () {
+          optionsDiv.style.display = "block";
+          
+          // Scroll to the "Optional Customizations" heading
+          const customizationsHeading = document.querySelector(".optional-customizations");
+          if (customizationsHeading) {
+              const scrollToPosition = customizationsHeading.offsetTop; 
+  
+              window.scrollTo({
+                  top: scrollToPosition, 
+                  behavior: 'smooth' 
+              });
+          }
+  
+          toggleButton.style.display = "none"; 
+          closeButton.style.display = "block"; 
+      });
+  
+      closeButton.addEventListener("click", function () {
+          const formOffsetTop = formElement.offsetTop; // Get the offset position of the form
+  
+          window.scrollTo({
+              top: formOffsetTop, // Scroll to the form element
+              behavior: 'smooth'
+          });
+          
+          closeButton.style.display = "none"; 
+          toggleButton.style.display = "block"; 
+          setTimeout(() => {
+              optionsDiv.style.display = "none"; 
+          }, 300); 
+      });
   });
-</script>
+  </script>
 
 <script>
   function toggleCorrectAnswerInputs() {
@@ -928,7 +831,7 @@
 
 <script>
   document.addEventListener("DOMContentLoaded", function () {
-    const pollTypeElement = document.querySelector('input[name="poll_type"]:checked'); // Use the checked radio button
+    const pollTypeElement = document.querySelector('input[name="poll_type"]:checked');
     const optionFormsetContainer = document.getElementById("option-formset");
     const addOptionButton = document.getElementById("add-option");
     const totalFormsInput = document.querySelector("#id_form-TOTAL_FORMS");
@@ -942,10 +845,8 @@
       });
     }
 
-    // Initial call to set the correct state on page load
     toggleCorrectAnswerCheckbox();
 
-    // Event listener for poll type change
     document.querySelectorAll('input[name="poll_type"]').forEach((radio) => {
       radio.addEventListener("change", toggleCorrectAnswerCheckbox);
     });
@@ -971,8 +872,6 @@
 
     addOptionButton.addEventListener("click", function () {
       const formCount = parseInt(totalFormsInput.value, 10);
-
-      // Create new form HTML with a unique ID for the option text
       const newFormHtml = `
                 <label><b>Option Text:</b></label>
                 <div class="option-form">
@@ -985,6 +884,7 @@
                 <div class="file-info">
                     <img class="preview-image" style="display: none;" alt="Preview">
                     <span class="delete-btn" style="display: none;" onclick="deleteFile(this)">Delete</span>
+                    <input type="hidden" name="form-${formCount}-remove_image" value="0">
                 </div>
                 <div class="correct-answer" style="display: none;">
                     <label class="correct-answer-label">
@@ -994,8 +894,6 @@
             `;
 
       optionFormsetContainer.insertAdjacentHTML("beforeend", newFormHtml);
-
-      // Check the poll type to set correct display for the new option
       toggleCorrectAnswerCheckbox();
 
       const newFileInput = optionFormsetContainer.querySelector(
@@ -1022,6 +920,10 @@
     previewImage.style.display = "none";
     previewImage.src = "";
     element.style.display = "none";
+
+    // Set the hidden input to indicate the image should be removed
+    const removeImageInput = fileInfo.querySelector('input[type="hidden"][name$="-remove_image"]');
+    removeImageInput.value = "1";  // Set to "1" to indicate deletion
   }
 </script>
 <script>

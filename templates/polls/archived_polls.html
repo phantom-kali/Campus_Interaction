@@ -43,50 +43,100 @@
     <div class="poll-type-buttons">
       <button
         class="poll-type-btn active"
-        data-type=""
+        data-type="all"
         onclick="filterPolls(this)"
       >
-        All Archived
+        All
       </button>
       <button
         class="poll-type-btn"
-        data-type="question"
+        data-type="expired"
         onclick="filterPolls(this)"
       >
-        Expired
+        Expired Polls
       </button>
       <button
         class="poll-type-btn"
-        data-type="opinion"
+        data-type="user_archived"
         onclick="filterPolls(this)"
       >
-        Results
+        User Archived
       </button>
-      <button
-        class="poll-type-btn"
-        data-type="others"
-        onclick="filterPolls(this)"
-      >
-        Others
-      </button>
-    </div>
+    </div>    
+
     {% endif %}
+    <div
+      id="no-polls-message"
+      style="
+        display: none;
+        text-align: center;
+        margin: 60px 0;
+        font-size: 15px;
+        color: black;
+      "
+    >
+      <i
+        class="fas fa-poll"
+        aria-hidden="true"
+        style="color: #007bff; font-size: 30px; margin-bottom: 10px"
+      ></i>
+      <b>No archived poll available in this category.</b>
+    </div>
     <style>
       .highlight {
         background-color: yellow;
         transition: background-color 0.3s ease, color 0.3s ease;
         color: black;
+        border-radius: 6px;
       }
+    </style>
+    <style>
+        .status-indicator {
+    position: absolute;
+    top: -10px;
+    left: 10px;
+    z-index: 10;
+  }
+  
+  .status {
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-weight: bold;
+    color: white;
+    font-size: 12px;
+    text-transform: uppercase;
+  }
+
+  .expired_poll {
+    background-color: #e74c3c;
+  }
+
+  .archived {
+    background-color: #2ecc71;
+  }
+
+  .poll-item {
+    position: relative;
+    margin-bottom: 20px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  }
     </style>
 
 <!-- Archived Polls List -->
     <ul class="poll-list">
-      {% if archived_polls %} {% for poll in archived_polls %}
-      <li
-        class="poll-item"
-        data-poll-type="{{ poll.poll_type }}"
-        id="poll-{{ poll.id }}"
-      >
+      {% if combined_polls %}
+    {% for poll in combined_polls %}
+    <li class="poll-item {% if poll in archived_polls %}expired{% elif poll in optional_polls_archived %}optional{% endif %}" data-poll-type="{{ poll.poll_type }}" id="poll-{{ poll.id }}">
+      <div class="status-indicator">
+        {% if poll in archived_polls %}
+          <span class="status badge expired_poll">Expired</span>
+        {% elif poll in optional_polls_archived %}
+          <span class="status badge archived">Archived</span>
+        {% endif %}
+      </div>
         <div class="poll-content">
           <div class="banner-container">
             {% load static %} {% if poll.banner_image %}
@@ -352,31 +402,35 @@
       <div class="archived-section">
         <h5>Archived Results</h5>
         <ul class="archived-results popular-polls">
-          {% for result in archived_results %}
+          {% for poll in archived_results %}
           <li>
-            <a href="{% url 'polls:poll_results' result.poll.id %}">
-              {{ result.poll.title|truncatechars:10 }} -
-              <span>{{ result.vote_count }} votes</span>
-            </a>
+              <a href="{% url 'polls:poll_results' poll.id %}">
+                <i class="fas fa-check-circle" style="color: blue;"></i>
+                  {{ poll.title|truncatechars:10 }} 
+                  <span style="color: blue; margin-left: 3px">({{ poll.total_votes }}) votes</span>
+              </a>
           </li>
           {% endfor %}
-        </ul>
+      </ul>      
       </div>
-    
-      {% endif %} {% if other_archived_polls %}
-      <!-- Archieved Polls with users preference -->
+      {% endif %} {% if optional_polls_archived %}
       <div class="archived-section">
-        <h5>Other Archived Polls</h5>
-        <ul class="other-archived-polls popular-polls">
-          {% for poll in other_archived_polls %}
-          <li>
-            <a href="{% url 'polls:poll_results' poll.id %}">
-              {{ poll.title|truncatechars:10 }}
-              <span style="color: #6c757d">(Archived)</span>
-            </a>
-          </li>
-          {% endfor %}
-        </ul>
+          <h5>Other Archived Polls</h5>
+          <ul class="other-archived-polls popular-polls">
+              {% for poll in optional_polls_archived %}
+                  <li>
+                      <a href="{% url 'polls:archived_polls' %}#poll-{{ poll.id }}"
+                      onclick="scrollToPoll('{{ poll.id }}');">
+                        <i
+                        class="fas fa-archive"
+                        aria-hidden="true"
+                        style="color: #4e9e4a"
+                      ></i>{{ poll.title|truncatechars:10 }}
+                          <span style="color: #4e9e4a">(Archived)</span>
+                      </a>
+                  </li>
+              {% endfor %}
+          </ul>
       </div>
       {% endif %} {% if no_polls_message %}
       <p
@@ -390,18 +444,7 @@
 
     <div style="margin-top: 13%">
       <h3>About Archived Polls</h3>
-      <p>
-        Archived polls are a treasure trove of past conversations and insights.
-        They represent a snapshot of community opinions, capturing the
-        sentiments and trends of their time. By exploring these archived polls,
-        you can revisit topics that have sparked discussions, see how public
-        opinions have evolved, and analyze the outcomes of various debates.
-        Whether you’re looking to reflect on previous discussions or gain
-        inspiration for new ones, our archived polls offer valuable context and
-        a chance to learn from the past. Dive in, discover what has been said,
-        and contribute to ongoing dialogues that continue to shape our
-        understanding of key issues!
-      </p>
+      <p> Our archived polls provide a valuable resource for revisiting past discussions and insights. By exploring these polls, you can easily access historical opinions and trends, analyze the outcomes of various topics, and see how community sentiments have evolved over time. Whether you're seeking inspiration for new discussions or looking to reflect on previous conversations, our archive offers a quick and efficient way to engage with key issues from the past. </p>
     </div>
   </div>
 
@@ -648,5 +691,43 @@
       }
     });
   </script>
+  <!-- Filter archive Polls -->
+  <script>
+    function filterPolls(button) {
+      const type = button.getAttribute('data-type');
+      const pollItems = document.querySelectorAll('.poll-item');
+      
+      // Remove active class from all buttons and add to the clicked button
+      document.querySelectorAll('.poll-type-btn').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      button.classList.add('active');
+      
+      // Filter poll items based on the selected type
+      pollItems.forEach(item => {
+        const pollType = item.getAttribute('data-poll-type');
+  
+        if (type === 'all' || 
+            (type === 'expired' && item.classList.contains('expired')) || 
+            (type === 'user_archived' && item.classList.contains('optional')) || 
+            (type === 'popular' && pollType === 'popular')) {
+          item.style.display = ''; // Show item
+        } else {
+          item.style.display = 'none'; // Hide item
+        }
+        
+        // Hide comments section when filtering
+        const commentsSection = document.getElementById(`comments-section-${item.id.split('-')[1]}`);
+        commentsSection.style.display = 'none'; // Ensure comments are hidden
+      });
+  
+      // Show the no polls message if there are no visible polls
+      const noPollsMessage = document.getElementById("no-polls-message");
+      const hasVisiblePolls = Array.from(pollItems).some(item => item.style.display !== 'none');
+      noPollsMessage.style.display = hasVisiblePolls ? 'none' : 'block'; // Show/hide message
+    }
+  
+  </script>
+  
   {% endblock %}
 </div>

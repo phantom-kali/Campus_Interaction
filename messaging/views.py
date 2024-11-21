@@ -14,7 +14,7 @@ def chat_room(request, username):
     # Fetch messages for this conversation
     messages = Message.objects.filter(conversation=conversation).order_by('timestamp')
     
-    return render(request, 'messaging/chat_room.html', {
+    return render(request, 'messaging/alternate.html', {
         'conversation': conversation,
         'other_user': other_user,
         'conversation_id': conversation.id,

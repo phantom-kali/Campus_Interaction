@@ -1,191 +1,2355 @@
-{% extends "base.html" %}
+{% extends 'base.html' %} {% load static %} {% block title %}CampHub |
+MarketPlace{% endblock %}{% block content %}
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/material-design-iconic-font/2.2.0/css/material-design-iconic-font.min.css"
+/>
 
-{% block content %}
+<style>
+  #header {
+    background: url("{% static 'images/default_marketplace/market.jpg' %}")
+      no-repeat center center;
+    background-size: cover;
+    margin-top: -5.3%;
+    position: relative;
+  }
 
-    <!-- <div class="banner" id="promoBanner">
-        <span>✨ Special Offer: 20% Off on All Items! ✨</span>
-    </div> -->
+  .carousel-inner h1 {
+    font-size: 60px;
+    font-family: var(--lg-font);
+  }
 
-    <!-- <nav class="navbar navbar-expand navbar-dark bg-dark fixed-top" aria-label="Second navbar example">
-        <div class="container-fluid">
-            <a class="navbar-brand fw-bold" href="#">MarketPlace</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarsExample02" aria-controls="navbarsExample02" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
+  .carousel-item .btn {
+    border-color: #fff !important;
+    transition: all 0.3s ease;
+  }
 
-            <div class="collapse navbar-collapse" id="navbarsExample02">
-                <ul class="navbar-nav me-auto">
-                    <li class="nav-item">
-                        <a class="nav-link active" aria-current="page" href="#">Home</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">Link</a>
-                    </li>
-                </ul>
-                <form id="navbar-search-form" method="get" action="{% url 'marketplace:item_list' %}" class="custom-search-form">
-                    <input class="form-control custom-search-input" type="input" name="q" placeholder="Search items..." aria-label="Search" value="{{ query|default:'' }}">
-                    <button class="btn custom-search-btn" type="submit">Search</button>
-                </form>
-                
-                <button id="search-icon" class="btn btn-outline-light d-lg-none">
-                    <i class="fas fa-search"></i> 
-                </button>
+  .carousel-item .btn:hover {
+    border-color: var(--pink) !important;
+    background-color: var(--pink);
+    color: #fff;
+  }
+
+  .title h2::before {
+    position: absolute;
+    content: "";
+    width: 4px;
+    height: 50px;
+    background-color: var(--pink);
+    left: -20px;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+
+  #header a {
+    color: #fff;
+    font-size: 24px;
+    font-weight: 700;
+    text-decoration: none;
+    transition: color 0.3s ease;
+    border-radius: 10px;
+    background-color: #2d5796;
+    padding: 10px 20px;
+  }
+
+  @media (max-width: 768px) {
+    #header {
+      margin-top: -5%;
+    }
+
+    .carousel-inner h1 {
+      font-size: 48px;
+    }
+
+    .carousel-inner h2 {
+      font-size: 36px;
+    }
+
+    .carousel-item .btn {
+      font-size: 18px;
+      padding: 8px 15px;
+    }
+  }
+
+  @media (max-width: 576px) {
+    #header {
+      margin-top: -11.7%;
+    }
+
+    .carousel-inner h1 {
+      font-size: 36px;
+    }
+
+    .carousel-inner h2 {
+      font-size: 28px;
+    }
+
+    .carousel-item .btn {
+      font-size: 16px;
+      padding: 8px 12px;
+    }
+
+    .text-center .title1 {
+      font-size: 28px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .carousel-inner h1 {
+      font-size: 30px;
+    }
+
+    .carousel-inner h2 {
+      font-size: 24px;
+    }
+
+    .carousel-item .btn {
+      font-size: 14px;
+      padding: 6px 10px;
+    }
+
+    .text-center .title1 {
+      font-size: 24px;
+    }
+  }
+</style>
+
+<style>
+  .notification-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1000;
+    width: 530px;
+  }
+
+  .notification {
+    display: flex;
+    align-items: center;
+    background-color: #4caf50;
+    color: white;
+    padding: 16px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+    animation: slideIn 0.5s ease, slideOut 0.5s ease 4s forwards;
+    position: relative;
+    overflow: hidden;
+  }
+  .icon {
+    display: flex;
+    align-items: center;
+    padding-right: 12px; /* Space between icon and border */
+    margin-right: 12px; /* Space between border and message */
+    border-right: 2px solid #ccc; /* Visible border */
+  }
+
+  .icon i {
+    font-size: 1.5em;
+    color: white; /* Icon color */
+  }
+  .notification .icon {
+    font-size: 1.5em;
+    margin-right: 10px;
+  }
+
+  .notification .message {
+    flex-grow: 1;
+    font-size: 1em;
+  }
+
+  /* Close Button */
+  .close-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px;
+    font-size: 1.5em;
+    color: white;
+    cursor: pointer;
+    margin-left: 12px;
+    transition: color 0.3s ease;
+  }
+
+  .close-button i {
+    color: white;
+  }
+
+  .close-button:hover i {
+    color: #ff6666;
+  }
+
+  .notification .progress-bar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 4px;
+    background-color: rgba(255, 255, 255, 0.8);
+    width: 100%;
+  }
+
+  @keyframes slideIn {
+    0% {
+      opacity: 0;
+      transform: translateX(100%);
+    }
+    100% {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  @keyframes slideOut {
+    0% {
+      opacity: 1;
+      transform: translateX(0);
+    }
+    100% {
+      opacity: 0;
+      transform: translateX(100%);
+    }
+  }
+
+  @keyframes progress {
+    from {
+      width: 100%;
+    }
+    to {
+      width: 0;
+    }
+  }
+
+  @media (max-width: 767px) {
+    .notification-container {
+      top: 10px;
+      right: 10px;
+      width: 90%;
+    }
+
+    .notification {
+      padding: 12px;
+    }
+
+    .notification .icon {
+      font-size: 1.3em;
+    }
+
+    .notification .close-button {
+      font-size: 1em;
+      margin-left: 8px;
+    }
+  }
+</style>
+{% if success_message %}
+<div class="notification-container">
+  <div class="notification">
+    <div class="icon"><i class="fa-solid fa-circle-check"></i></div>
+    <div class="message">{{ success_message }}</div>
+    <div
+      class="close-button"
+      onclick="this.parentElement.style.display='none';"
+    >
+      <i class="fa-solid fa-circle-xmark"></i>
+    </div>
+    <div class="progress-bar"></div>
+  </div>
+</div>
+{% endif %}
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const notification = document.querySelector(".notification");
+    const progressBar = document.querySelector(".progress-bar");
+
+    // Auto-fade out after 4 seconds
+    setTimeout(() => {
+      notification.classList.add("fade-out");
+    }, 4000);
+
+    // Shrink progress bar over time
+    progressBar.style.animation = "progress 4s linear forwards";
+
+    // Remove the notification from DOM after fade out
+    notification.addEventListener("animationend", () => {
+      if (notification.classList.contains("fade-out")) {
+        notification.remove();
+      }
+    });
+  });
+</script>
+<!-- header -->
+<header
+  id="header"
+  class="vh-100 carousel slide"
+  data-bs-ride="carousel"
+  style="padding-top: 104px"
+>
+  <div class="container h-100 d-flex align-items-center carousel-inner">
+    <div class="text-center carousel-item active">
+      <h2 class="text-capitalize text-white title1">CampHub Market</h2>
+      <h1 class="text-uppercase py-2 fw-bold text-white">
+        start selling your Items
+      </h1>
+      <a href="{% url 'marketplace:add_item' %}" class="btn mt-3 text-uppercase"
+        >Start Selling</a
+      >
+    </div>
+    <div class="text-center carousel-item">
+      <h2 class="text-capitalize text-white title1">Discover Amazing Deals</h2>
+      <h1 class="text-uppercase py-2 fw-bold text-white">shop securely</h1>
+      <a href="#shopSection" class="btn mt-3 text-uppercase">Start Shopping</a>
+    </div>
+    <div class="text-center carousel-item">
+      <h2 class="text-capitalize text-white title1">
+        CampHub Seller Dashboard
+      </h2>
+      <h1 class="text-uppercase py-2 fw-bold text-white">
+        View & Manage Your Items with Ease
+      </h1>
+      <a
+        href="{% url 'marketplace:seller_dashboard' %}"
+        class="btn mt-3 text-uppercase"
+      >
+        Seller Dashboard
+      </a>
+    </div>
+  </div>
+
+  <button
+    class="carousel-control-prev"
+    type="button"
+    data-bs-target="#header"
+    data-bs-slide="prev"
+  >
+    <span class="carousel-control-prev-icon"></span>
+  </button>
+  <button
+    class="carousel-control-next"
+    type="button"
+    data-bs-target="#header"
+    data-bs-slide="next"
+  >
+    <span class="carousel-control-next-icon"></span>
+  </button>
+</header>
+<!-- end of header -->
+
+<!-- Add and Dashboard Links -->
+<style>
+  .floating-buttons {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    display: flex;
+    z-index: 1000;
+    gap: 10px;
+  }
+
+  .floating-buttons .btn {
+    background-color: #007bff;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 50px;
+    text-align: center;
+    font-size: 16px;
+    text-decoration: none;
+    display: inline-block;
+  }
+
+  .floating-buttons .btn-add {
+    background-color: #28a745;
+  }
+
+  .floating-buttons .btn-dashboard {
+    background-color: #ffc107;
+  }
+
+  @media (max-width: 768px) {
+    .floating-buttons {
+      bottom: 15px;
+      right: 15px;
+      gap: 8px;
+    }
+
+    .floating-buttons .btn {
+      padding: 8px 16px;
+      font-size: 14px;
+    }
+  }
+
+  @media (max-width: 576px) {
+    .floating-buttons {
+      bottom: 10px;
+      right: 10px;
+      gap: 6px;
+    }
+
+    .floating-buttons .btn {
+      padding: 6px 12px;
+      font-size: 12px;
+    }
+  }
+</style>
+<div class="floating-buttons">
+  <a href="{% url 'marketplace:add_item' %}" class="btn btn-add">Add Items</a>
+  <a href="{% url 'marketplace:seller_dashboard' %}" class="btn btn-dashboard"
+    >Dashboard</a
+  >
+</div>
+
+<!-- Banner -->
+<style>
+  .wrap-pic-w {
+    position: relative;
+    overflow: hidden;
+    border-radius: 8px;
+  }
+
+  .wrap-pic-w img {
+    width: 100%;
+    height: 300px;
+    object-fit: cover;
+    transition: all 0.5s ease;
+    filter: blur(0);
+  }
+
+  .wrap-pic-w:hover img {
+    transform: scale(1.1);
+    filter: blur(3px);
+  }
+
+  .block1-txt {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(rgba(0, 0, 0, 0), rgba(0, 0, 0, 0));
+    color: white;
+    text-decoration: none;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 2rem;
+    transition: all 0.5s ease;
+  }
+
+  .wrap-pic-w:hover .block1-txt {
+    background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.8));
+  }
+
+  .block1-name {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    transform: translateY(-20px);
+    opacity: 0;
+    transition: all 0.5s ease;
+  }
+
+  .block1-info {
+    font-size: 1rem;
+    opacity: 0;
+    transform: translateY(-20px);
+    transition: all 2s ease 0.1s;
+    color: #ff9900;
+  }
+
+  .block1-txt-child2 {
+    transform: translateY(20px);
+    opacity: 0;
+    transition: all 0.5s ease 0.2s;
+  }
+
+  .wrap-pic-w:hover .block1-name,
+  .wrap-pic-w:hover .block1-info,
+  .wrap-pic-w:hover .block1-txt-child2 {
+    transform: translateY(0);
+    opacity: 1;
+  }
+
+  .block1-link {
+    display: inline-block;
+    padding: 0.5rem 1.5rem;
+    background-color: rgba(255, 255, 255, 0.9);
+    color: #333;
+    border-radius: 25px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+  }
+
+  .block1-link:hover {
+    background-color: #2d5796;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    color: white;
+  }
+
+  .p-t-80 {
+    padding-top: 5rem;
+  }
+  .p-b-50 {
+    padding-bottom: 3rem;
+  }
+  .p-b-30 {
+    padding-bottom: 2rem;
+  }
+</style>
+
+<div class="sec-banner bg0 p-t-80 p-b-50">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-6 col-xl-4 p-b-30">
+        <div class="block1 wrap-pic-w">
+          <img
+            src="{% static 'images/default_marketplace/electronics.jpg' %}"
+            alt="Electronics Category"
+          />
+          <a href="#shopSection" class="block1-txt">
+            <div class="block1-txt-child1">
+              <span class="block1-name"> Electronics </span>
+              <span class="block1-info"> Latest Gadgets </span>
             </div>
+            <div class="block1-txt-child2">
+              <div class="block1-link">Explore Now</div>
+            </div>
+          </a>
         </div>
-    </nav> -->
+      </div>
 
-    <main>
-        <h3>Filter by Category</h3>
-        <form method="get" action="{% url 'marketplace:item_list' %}">
-            <select name="category" onchange="this.form.submit()">
-                <option value="all">All Items</option> 
-                {% for category in categories %}
-                    <option value="{{ category.name }}" {% if category.name == selected_category %}selected{% endif %}>
-                        {{ category.name }}
-                    </option>
-                {% endfor %}
-            </select>
-        </form>
+      <div class="col-md-6 col-xl-4 p-b-30">
+        <div class="block1 wrap-pic-w">
+          <img
+            src="{% static 'images/default_marketplace/fashion.jpg' %}"
+            alt="Fashion Category"
+          />
+          <a href="#shopSection" class="block1-txt">
+            <div class="block1-txt-child1">
+              <span class="block1-name"> Fashion </span>
+              <span class="block1-info"> Trending Styles </span>
+            </div>
+            <div class="block1-txt-child2">
+              <div class="block1-link">Shop Collection</div>
+            </div>
+          </a>
+        </div>
+      </div>
 
-        {% if selected_category == 'all' %}
-        <h3>Your Search History</h3>
-        <ul>
-            {% for search, item in search_items %}
-                {% if item %}
-                    <li>
-                        <a href="{% url 'marketplace:item_detail' item.id %}?q={{ search.query|urlencode }}">{{ search.query }}</a>
-                    </li>
-                {% else %}
-                    <li>{{ search.query }} (No matching item)</li>
-                {% endif %}
-            {% empty %}
-                <li>No search history found.</li>
-            {% endfor %}
-        </ul>
-        {% endif %}
+      <div class="col-md-6 col-xl-4 p-b-30">
+        <div class="block1 wrap-pic-w">
+          <img
+            src="{% static 'images/default_marketplace/books.jpg' %}"
+            alt="Books Collection"
+          />
+          <a href="#shopSection" class="block1-txt">
+            <div class="block1-txt-child1">
+              <span class="block1-name"> Books & Literature </span>
+              <span class="block1-info"> Find Your Next Read </span>
+            </div>
+            <div class="block1-txt-child2">
+              <div class="block1-link">Browse Library</div>
+            </div>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- End of Banner -->
+  <!-- Products -->
+  <style>
+    .category-button {
+      border: none;
+      background-color: transparent;
+      outline: none;
+      gap: 20px;
+    }
 
-        <h1>Deals and Offers</h1>
+    .category-button:hover {
+      border-bottom: 1px solid #ccc;
+    }
 
-        <ul>
-            {% for item in deal_items %}
-                <li>
-                    <a href="{% url 'marketplace:item_detail' item.id %}">{{ item.title }}</a> 
-                    {% if item.is_deal %}
-                        <span style="text-decoration: line-through;">${{ item.original_price }}</span>
-                        <strong>Now: ${{ item.price }}</strong>
-                        <span>({{ item.discount_percentage }}% Off!)</span>
-                    {% else %}
-                        ${{ item.price }}
-                    {% endif %}
-                </li>
-            {% empty %}
-                <li>No deals available at the moment.</li>
-            {% endfor %}
-        </ul>
+    .p-b-10 {
+      padding-bottom: 10px;
+    }
 
-        {% if selected_category == 'all' %}
-            {% for category, items in categorized_items.items %}
-                <h4>{{ category }}</h4>
-                <ul>
-                    {% if items %}
-                        {% for item in items %}
-                            <li>
-                                <a href="{% url 'marketplace:item_detail' item.id %}">{{ item.title }}</a>
-                                {% if item.sold %}
-                                    <span>(Sold)</span>
-                                {% endif %}
-                                - {% if item.original_price and item.price != item.original_price %}
-                                    <span style="text-decoration: line-through;">${{ item.original_price }}</span> 
-                                    - ${{ item.price }}
-                                {% else %}
-                                    ${{ item.price }}
-                                {% endif %}
-                            </li>
-                        {% endfor %}
-                    {% else %}
-                        <li>No items found in this category.</li>
-                    {% endif %}
-                </ul>
-            {% endfor %}
-        {% else %}
-            {% for category, items in categorized_items.items %}
-                {% if category == selected_category %}
-                    <h4>{{ category }}</h4>
-                    <ul>
-                        {% if items %}
-                            {% for item in items %}
-                                <li>
-                                    <a href="{% url 'item_detail' item.id %}">{{ item.title }}</a>
-                                    {% if item.sold %}
-                                        <span>(Sold)</span>
-                                    {% endif %}
-                                    - {% if item.original_price and item.price != item.original_price %}
-                                        <span style="text-decoration: line-through;">${{ item.original_price }}</span> 
-                                        - ${{ item.price }}
-                                    {% else %}
-                                        ${{ item.price }}
-                                    {% endif %}
-                                </li>
-                            {% endfor %}
-                        {% else %}
-                            <li>No items found in this category.</li>
-                        {% endif %}
-                    </ul>
-                {% endif %}
-            {% endfor %}
-        {% endif %}
+    .ltext-103 {
+      font-size: 24px;
+      font-weight: 600;
+      color: #333;
+    }
 
-        <a href="{% url 'marketplace:add_item' %}" class="btn btn-primary mt-3">Add New Item</a>
-    </main>
+    .cl5 {
+      color: #555;
+    }
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            var searchIcon = document.getElementById('search-icon');
-            var searchForm = document.getElementById('navbar-search-form');
-            var navLinks = document.querySelector('ul.navbar-nav');
+    .flex-w {
+      display: flex;
+      flex-wrap: wrap;
+    }
 
-            // Handle search icon click on small screens
-            searchIcon.addEventListener('click', function() {
-                // Toggle the visibility of the form and nav links
-                searchForm.classList.toggle('active');
-                navLinks.classList.toggle('hidden');
+    .flex-sb-m {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
 
-                // Change the icon from search to close (X)
-                if (searchForm.classList.contains('active')) {
-                    searchIcon.innerHTML = '<i class="fas fa-times"></i>'; // Close icon
-                } else {
-                    searchIcon.innerHTML = '<i class="fas fa-search"></i>'; // Search icon
-                }
-            });
+    .flex-l-m {
+      display: flex;
+      justify-content: flex-start;
+      align-items: center;
+    }
 
-            // Handle window resize to make sure the search form behaves correctly
-            window.addEventListener('resize', function() {
-                if (window.innerWidth >= 552) {
-                    // Ensure search form is visible on large screens
-                    searchForm.classList.remove('active');
-                    searchForm.style.display = 'flex';
-                    navLinks.classList.remove('hidden');
-                    searchIcon.innerHTML = '<i class="fas fa-search"></i>';
-                } else {
-                    // Reset state on small screens
-                    searchForm.style.display = searchForm.classList.contains('active') ? 'flex' : 'none';
-                }
-            });
-        });
+    .filter-tope-group {
+      margin: -10px 0;
+    }
 
-        // Function to hide the banner on scroll
-        window.addEventListener('scroll', () => {
-            const banner = document.getElementById('promoBanner');
-            const navbar = document.querySelector('.navbar');
+    .stext-106 {
+      font-size: 15px;
+      color: #666;
+    }
 
-            // Check if the scroll position is greater than or equal to 100vh
-            if (window.scrollY >= window.innerHeight) {
-                banner.classList.add('hidden'); // Add the hidden class to move it out of view
-                navbar.style.top = '0'; // Move the navbar to the top
-            } else {
-                banner.classList.remove('hidden'); // Remove the hidden class to show the banner
-                navbar.style.top = '60px'; 
+    .cl6 {
+      color: #666;
+    }
+
+    .hov1:hover {
+      color: #333;
+    }
+
+    .bor3 {
+      border-radius: 3px;
+    }
+
+    .trans-04 {
+      transition: all 0.4s;
+    }
+
+    .m-r-32 {
+      margin-right: 32px;
+    }
+
+    .m-tb-5 {
+      margin-top: 5px;
+      margin-bottom: 5px;
+    }
+
+    .how-active1 {
+      color: #333 !important;
+      font-weight: 500;
+    }
+
+    .size-104 {
+      width: 160px;
+      height: 40px;
+    }
+
+    .bor4 {
+      border-radius: 4px;
+    }
+
+    .pointer {
+      cursor: pointer;
+    }
+
+    .hov-btn3 {
+      border: 1px solid #ccc;
+    }
+
+    .hov-btn3:hover {
+      background-color: #333;
+      color: #fff !important;
+    }
+
+    .m-r-8 {
+      margin-right: 8px;
+    }
+
+    .m-tb-4 {
+      margin-top: 4px;
+      margin-bottom: 4px;
+    }
+
+    .size-105 {
+      width: 150px;
+      height: 40px;
+    }
+
+    .dis-none {
+      display: none;
+    }
+
+    .bor8 {
+      border: 1px solid #e6e6e6;
+      border-radius: 4px;
+    }
+
+    .p-l-15 {
+      padding-left: 15px;
+    }
+
+    .size-113 {
+      width: 40px;
+      height: 40px;
+    }
+
+    .flex-c-m {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .fs-16 {
+      font-size: 16px;
+    }
+
+    .mtext-107 {
+      font-size: 15px;
+      color: #333;
+    }
+
+    .plh2::placeholder {
+      color: #999;
+    }
+
+    .p-r-15 {
+      padding-right: 15px;
+    }
+
+    .headline {
+      text-transform: uppercase;
+      color: #000;
+      font-size: 34px;
+      font-weight: 800;
+    }
+
+    .category-button.active {
+      border-bottom: 1px solid #000;
+      color: #000;
+    }
+
+    .panel-search {
+      display: none;
+      width: 100%;
+      padding-top: 10px;
+      padding-bottom: 15px;
+    }
+
+    .panel-search .bor8 {
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      width: 100%;
+      padding: 10px 10px;
+      padding-left: 10px;
+      background-color: transparent;
+    }
+
+    .panel-search .size-113 {
+      font-size: 14px;
+      color: #333;
+      cursor: pointer;
+      background: none;
+      border: none;
+      display: flex;
+      align-items: center;
+    }
+
+    .panel-search .mtext-107 {
+      border: none;
+      outline: none;
+      font-size: 16px;
+      color: #333;
+      flex-grow: 1;
+      padding: 8px 10px;
+      background-color: transparent;
+    }
+
+    .panel-search .mtext-107::placeholder {
+      color: #666;
+    }
+
+    .panel-search .size-113 i {
+      margin-right: 8px;
+    }
+    @media (max-width: 767px) {
+      /* Adjust search, filter, and cart buttons positioning */
+    .flex-w.flex-c-m.m-tb-10 {
+      display: flex;
+      margin-top: 20px;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      border-top: 1px solid #555;
+    }
+
+    /* Fix the button size for small screens */
+    .size-104,
+    .size-105 {
+      width: 100%; 
+      height: 40px;
+      margin-bottom: 8px; 
+      margin-top: 2%;
+    }
+
+    .js-show-search,
+    .js-show-filter {
+      width: 29%;
+      margin-right: 0;
+    }
+    .your-cart{
+      padding: 2px 17px;
+
+    }
+    .category-button{
+      font-size: 14px !important;
+      gap: 5px !important;
+    }
+    .headline {
+      text-transform: uppercase;
+      color: #000;
+      font-size: 24px;
+      font-weight: 800;
+    }
+
+    }
+  </style>
+  <section class="bg0 p-t-23 p-b-140" style="margin-top: 40px" id="shopSection">
+    <div class="container">
+      <div class="p-b-10">
+        <h3 class="ltext-103 cl5 headline">Product Overview</h3>
+      </div>
+      <div class="flex-w flex-sb-m p-b-52">
+        <div class="flex-w flex-l-m filter-tope-group m-tb-10">
+          <button
+            class="stext-106 cl6 hov1 bor3 trans-04 m-r-32 m-tb-5 category-button active"
+            data-category="all"
+          >
+            All Products
+          </button>
+          {% for category in categories %}
+          <button
+            class="stext-106 cl6 hov1 bor3 trans-04 m-r-32 m-tb-5 category-button"
+            data-category="{{ category.name }}"
+          >
+            {{ category.name }}
+          </button>
+          {% endfor %}
+        </div>
+
+        <div class="flex-w flex-c-m m-tb-10">
+          <!-- Filter Button -->
+          <div
+            class="flex-c-m stext-106 cl6 size-104 bor4 pointer hov-btn3 trans-04 m-r-8 m-tb-4 js-show-filter"
+          >
+            <i
+              class="icon-filter cl2 m-r-6 fs-15 trans-04 zmdi zmdi-filter-list"
+              style="margin-right: 10px"
+            ></i>
+            <i
+              class="icon-close-filter cl2 m-r-6 fs-15 trans-04 zmdi zmdi-close dis-none"
+              style="margin-right: 10px"
+            ></i>
+            Filter
+          </div>
+
+          <!-- Search Button (Add margin-right class here) -->
+          <div
+            class="flex-c-m stext-106 cl6 size-105 bor4 pointer hov-btn3 trans-04 m-tb-4 m-r-8 js-show-search"
+          >
+            <i
+              class="icon-search cl2 m-r-6 fs-15 trans-04 zmdi zmdi-search"
+              style="margin-right: 10px"
+            ></i>
+            <i
+              class="icon-close-search cl2 m-r-6 fs-15 trans-04 zmdi zmdi-close dis-none"
+              style="margin-right: 10px"
+            ></i>
+            Search
+          </div>
+          <style>
+            .cart-count {
+              background-color: #ff6f61;
+              color: #fff;
+              font-weight: bold;
+              font-size: 12px;
+              padding: 2px 6px;
+              border-radius: 50%; /* Circular shape */
+              margin-left: 8px; /* Space between 'Cart' and the count */
+              min-width: 20px;
+              min-height: 20px;
+              display: inline-flex;
+              align-items: center;
+              justify-content: center;
             }
+          </style>
+          <!-- Cart Button -->
+          <a href="{% url 'marketplace:cart_page' %}">
+            <div
+              class="flex-c-m stext-106 cl6 size-104 bor4 pointer hov-btn3 trans-04 m-tb-4 your-cart"
+            >
+              <i
+                class="icon-cart fas fa-shopping-cart cl2 m-r-6 fs-15 trans-04"
+                style="margin-right: 10px"
+              ></i>
+              <i
+                class="icon-close-cart fas fa-times cl2 m-r-6 fs-15 trans-04 dis-none"
+                style="margin-right: 10px"
+              ></i>
+              Cart <span class="cart-count">{{ cart_count }}</span>
+            </div>
+          </a>
+        </div>
+      </div>
+      <!-- Search product -->
+      <div class="dis-none panel-search w-full p-t-10 p-b-15">
+        <div class="bor8 dis-flex p-l-15 relative">
+          <button class="size-113 flex-c-m fs-16 cl2 hov-cl1 trans-04">
+            <i class="fa fa-search" aria-hidden="true"></i>
+          </button>
+          <input
+            class="mtext-107 cl2 size-114 plh2 p-r-15"
+            type="text"
+            id="search-product"
+            name="search-product"
+            placeholder="Search"
+            autocomplete="off"
+          />
+        </div>
+      </div>
+      <style>
+        .product-grid {
+          display: grid;
+          grid-template-columns: repeat(4, 1fr);
+          gap: 30px;
+          padding: 20px;
+          margin-top: 40px;
+        }
+
+        .product-card {
+          position: relative;
+          background: white;
+          border-radius: 10px;
+          box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+          overflow: hidden;
+        }
+
+        .product-image-container {
+          position: relative;
+          height: 350px;
+          overflow: hidden;
+        }
+
+        .product-image {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          transition: transform 0.3s ease;
+        }
+
+        /* Changed hover target from product-card to product-image-container */
+        .product-image-container:hover .product-image {
+          transform: scale(1.1);
+        }
+
+        .quick-view-btn {
+          position: absolute;
+          bottom: 20px;
+          left: 50%;
+          transform: translateX(-50%);
+          background: white;
+          color: #333;
+          padding: 10px 20px;
+          border-radius: 25px;
+          opacity: 0;
+          transition: opacity 0.3s ease;
+          cursor: pointer;
+          border: none;
+          font-size: 14px;
+          white-space: nowrap;
+          z-index: 2;
+        }
+
+        .quick-view-btn:hover {
+          background: #333;
+          color: white;
+        }
+
+        /* Changed hover target from product-card to product-image-container */
+        .product-image-container:hover .quick-view-btn {
+          opacity: 1;
+        }
+
+        /* Overlay effect - changed hover target */
+        .product-image-container::after {
+          content: "";
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: rgba(0, 0, 0, 0.1);
+          opacity: 0;
+          transition: opacity 0.3s ease;
+        }
+
+        .product-image-container:hover::after {
+          opacity: 1;
+        }
+
+        .product-info {
+          padding: 15px;
+        }
+
+        .product-title-row {
+          display: flex;
+          justify-content: space-between;
+          align-items: flex-start;
+          margin-bottom: 5px;
+        }
+
+        .product-title {
+          text-decoration: none;
+          color: #000;
+          font-family: "Playfair Display", serif;
+          font-size: 16px;
+          font-weight: 800;
+          flex-grow: 1;
+          margin-right: 10px;
+        }
+
+        .product-title:hover {
+          color: #2d5796;
+        }
+
+        .heart-icon {
+          background: none;
+          border: none;
+          cursor: pointer;
+          padding: 0;
+          display: flex;
+          align-items: center;
+        }
+
+        .heart-icon svg {
+          width: 20px;
+          height: 20px;
+          fill: none;
+          stroke: #333;
+          stroke-width: 2;
+        }
+
+        .heart-icon:hover svg {
+          stroke: #ff4d4d;
+        }
+        .heart-icon.liked svg {
+          fill: #ff4d4d;
+          stroke: #ff4d4d;
+        }
+        .like-count {
+          margin-left: 2px;
+          vertical-align: middle;
+        }
+        .product-price {
+          font-family: "Roboto", sans-serif;
+          color: #666;
+          font-size: 14px;
+        }
+
+        @media (max-width: 1200px) {
+          .product-grid {
+            grid-template-columns: repeat(3, 1fr);
+          }
+        }
+
+        @media (max-width: 900px) {
+          .product-grid {
+            grid-template-columns: repeat(2, 1fr);
+          }
+        }
+
+        @media (max-width: 600px) {
+          .product-grid {
+            grid-template-columns: 1fr;
+          }
+          .product-image-container {
+            height: 250px;
+          }
+          .product-title {
+            font-size: 14px;
+          }
+          .product-price {
+            font-size: 12px;
+          }
+          .new-price {
+            margin-left: 2px;
+          }
+          .like-count {
+            font-size: 12px;
+          }
+        }
+        .product-card {
+          position: relative;
+        }
+
+        .item-badge {
+          font-size: 12px;
+          color: #ffffff;
+          font-weight: 500;
+          display: inline-block;
+          padding: 2px 8px;
+          text-transform: uppercase;
+          position: absolute;
+          left: 10px;
+          top: 10px;
+          z-index: 10;
+        }
+
+        .item-badge.sold {
+          background-color: #ff5555; /* Red for sold */
+        }
+
+        .item-badge.discount {
+          background-color: #ff9900; /* Orange for discount */
+        }
+      </style>
+      <div class="product-grid" id="items-container">
+        {% for item in items %}
+        <div
+          class="product-card"
+          data-category="{{ item.category.name }}"
+          data-item-id="{{ item.id }}"
+        >
+          {% if item.sold %}
+          <span class="item-badge sold">Sold</span>
+          {% elif item.new_price %}
+          <span class="item-badge discount">On Discount</span>
+          {% endif %}
+          <div class="product-image-container">
+            <img
+              class="product-image"
+              src="{{ item.image.url }}"
+              alt="{{ item.title }}"
+            />
+            <a href="{% url 'marketplace:item_detail' item.id %}">
+              <button class="quick-view-btn">Quick View</button>
+            </a>
+          </div>
+          <div class="product-info">
+            <div class="product-title-row">
+              <a
+                href="{% url 'marketplace:item_detail' item.id %}"
+                class="product-title"
+                >{{ item.title }}</a
+              >
+              <button
+                class="heart-icon {% if item.id in liked_items %}liked{% endif %}"
+                id="like-btn-{{ item.id }}"
+                data-item-id="{{ item.id }}"
+              >
+                <svg viewBox="0 0 24 24">
+                  <path
+                    d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                </svg>
+              </button>
+              <span class="like-count" id="like-count-{{ item.id }}">
+                {{ item.total_likes }}
+              </span>
+            </div>
+            <div class="product-price">
+              <style>
+                .new-price {
+                  margin-left: 4px;
+                  color: #28a745;
+                }
+                .original-price {
+                  color: #ccc;
+                }
+              </style>
+              <b>
+                {% if item.new_price %}
+                <del class="original-price">Ksh {{ item.price }}</del>
+                <span class="new-price">Ksh {{ item.new_price }}</span>
+                {% else %} Ksh {{ item.price }} {% endif %}
+              </b>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      <div id="no-products-message" style="display: none; text-align: center">
+        <p>
+          No products available in this category.
+          <a href="{% url 'marketplace:add_item' %}">Add a product</a>
+        </p>
+      </div>
+    </div>
+  </section>
+  <!-- End Products -->
+  <style>
+    /* Import Google Fonts */
+    @import url("https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Montserrat:wght@300;400;600&display=swap");
+
+    /* General Banner Styles */
+    .banner {
+      position: relative;
+      height: 500px;
+      margin-top: 5%;
+      overflow: hidden;
+      background-color: #ffffff;
+    }
+
+    .banner__slider {
+      position: relative;
+      height: 100%;
+    }
+
+    .banner__item {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      opacity: 0;
+      transition: opacity 0.8s ease-in-out;
+      background-size: cover;
+      background-position: center;
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      text-align: left;
+      padding-left: 10%;
+    }
+
+    .banner__item.active {
+      opacity: 1;
+    }
+
+    .banner__item::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(
+        90deg,
+        rgba(0, 0, 0, 0.5) 0%,
+        rgba(0, 0, 0, 0.3) 50%,
+        rgba(0, 0, 0, 0.1) 100%
+      );
+      z-index: 1;
+    }
+
+    .banner__text {
+      max-width: 600px;
+      padding: 20px;
+      color: #ffffff; /* Changed to white for better contrast */
+      position: relative;
+      z-index: 2;
+    }
+
+    .banner__text span {
+      display: block;
+      font-family: "Montserrat", sans-serif;
+      font-size: 16px;
+      color: #ff4d4d; /* Brighter red for better visibility */
+      text-transform: uppercase;
+      letter-spacing: 3px;
+      margin-bottom: 15px;
+      font-weight: 600; /* Increased weight */
+      text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+    }
+
+    .banner__text h1 {
+      font-family: "Playfair Display", serif;
+      font-size: 48px;
+      color: #ffffff; /* Changed to white */
+      font-weight: 700;
+      line-height: 1.2;
+      margin-bottom: 20px;
+      font-style: italic;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5); /* Added shadow for better readability */
+    }
+
+    .banner__text .price-info {
+      font-family: "Montserrat", sans-serif;
+      font-size: 24px;
+      margin: 25px 0;
+      color: #ffffff; /* Changed to white */
+      text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+    }
+
+    .banner__text .original-price {
+      text-decoration: line-through;
+      color: #dddddd; /* Lighter gray for better contrast */
+      margin-right: 15px;
+      font-weight: 300;
+    }
+
+    .banner__text .new-price {
+      color: #ff4d4d; /* Brighter red */
+      font-weight: 600;
+      text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+    }
+
+    .banner__text a {
+      display: inline-block;
+      font-family: "Montserrat", sans-serif;
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      border: 2px solid #ffffff; /* Changed to white */
+      padding: 12px 30px;
+      text-decoration: none;
+      transition: all 0.3s;
+      color: #ffffff; /* Changed to white */
+      font-weight: 600;
+      background: transparent;
+      text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+    }
+
+    .banner__text a:hover {
+      background: #ffffff;
+      color: #333333;
+      text-shadow: none;
+    }
+
+    /* Navigation Dots */
+    .banner__nav {
+      position: absolute;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 12px;
+      z-index: 2;
+    }
+
+    .banner__dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.5);
+      cursor: pointer;
+      transition: all 0.3s;
+      border: 2px solid #ffffff;
+    }
+
+    .banner__dot.active {
+      background: #ff4d4d;
+      border-color: #ff4d4d;
+    }
+
+    .banner__dot:hover {
+      background: rgba(255, 255, 255, 0.8);
+    }
+  </style>
+
+  <!-- Banner Section Begin -->
+  {% if deal_items %}
+  <div class="banner" style="margin-top: 30px; margin-bottom: 50px">
+    {% for deal_item in deal_items %}
+    <div
+      class="banner__item{% if forloop.first %} active{% endif %}"
+      style="background-image: url('{{ deal_item.image.url }}');"
+    >
+      <div class="banner__text">
+        <span>{{ deal_item.category.name }}</span>
+        <h1>{{ deal_item.title }}</h1>
+        <div class="price-info">
+          <span class="original-price">Ksh {{ deal_item.original_price }}</span>
+          <span class="new-price">Ksh {{ deal_item.new_price }}</span>
+        </div>
+        <a href="{% url 'marketplace:item_detail' deal_item.id %}">Shop now</a>
+      </div>
+    </div>
+    {% endfor %}
+
+    <!-- Navigation Dots for Carousel -->
+    <div class="banner__nav">
+      {% for deal_item in deal_items %}
+      <span class="banner__dot{% if forloop.first %} active{% endif %}"></span>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+  <!-- Banner Section End -->
+
+  <script>
+    // JavaScript for Carousel Functionality
+    document.addEventListener("DOMContentLoaded", () => {
+      const items = document.querySelectorAll(".banner__item");
+      const dots = document.querySelectorAll(".banner__dot");
+      let currentIndex = 0;
+
+      function showSlide(index) {
+        items.forEach((item, i) => {
+          item.classList.toggle("active", i === index);
+          dots[i].classList.toggle("active", i === index);
         });
-    </script>
-{% endblock %}
+      }
+
+      // Auto-rotate slides every 5 seconds
+      setInterval(() => {
+        currentIndex = (currentIndex + 1) % items.length;
+        showSlide(currentIndex);
+      }, 5000);
+
+      // Add click event to dots for manual control
+      dots.forEach((dot, index) => {
+        dot.addEventListener("click", () => {
+          currentIndex = index;
+          showSlide(index);
+        });
+      });
+    });
+  </script>
+
+  <!-- Banner Section End -->
+
+  <!-- Trend Section Begin -->
+  <link
+    href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&family=Poppins:wght@300;400;500;600&display=swap"
+    rel="stylesheet"
+  />
+  <style>
+    /* Base Typography */
+    body {
+      font-family: "Poppins", sans-serif;
+    }
+    .all-in-on {
+      background-color: #fff;
+      padding: 10px;
+      margin-bottom: 30px;
+    }
+
+    /* Trend Section Styles */
+    .spad {
+      padding: 10px 20px;
+      /* border-bottom: 1px solid #ccc; */
+    }
+
+    .section-title {
+      margin-bottom: 35px;
+    }
+
+    .section-title h4 {
+      font-family: "Playfair Display", serif;
+      color: #111111;
+      font-weight: 600;
+      text-transform: uppercase;
+      position: relative;
+      display: inline-block;
+      letter-spacing: 1px;
+      font-size: 24px;
+    }
+
+    .section-title h4:after {
+      content: "";
+      position: absolute;
+      left: 0;
+      bottom: -8px;
+      width: 70%;
+      height: 2px;
+      background: #ca1515;
+      transition: width 0.3s ease;
+    }
+
+    .trend__content {
+      margin-bottom: 30px;
+    }
+
+    .trend__item {
+      display: flex;
+      margin-bottom: 25px;
+      transition: transform 0.3s ease;
+    }
+
+    .trend__item:hover {
+      transform: translateX(5px);
+    }
+
+    .trend__item__pic {
+      width: 90px;
+      height: 90px;
+      margin-right: 20px;
+      border-radius: 4px;
+      overflow: hidden;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .trend__item__pic img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.3s ease;
+    }
+
+    .trend__item:hover .trend__item__pic img {
+      transform: scale(1.05);
+    }
+
+    .trend__item__text {
+      padding-top: 2px;
+    }
+
+    .trend__item__text h6 {
+      font-family: "Poppins", sans-serif;
+      color: #111111;
+      font-size: 15px;
+      font-weight: 500;
+      margin-bottom: 8px;
+      line-height: 1.4;
+    }
+
+    .trend__item__text h6 a {
+      color: #111111;
+      text-decoration: none;
+      transition: color 0.3s ease;
+    }
+
+    .trend__item__text h6 a:hover {
+      color: #ca1515;
+    }
+
+    .rating {
+      margin-bottom: 8px;
+    }
+
+    .rating span {
+      font-family: "Poppins", sans-serif;
+      font-size: 13px;
+      color: #666;
+      font-weight: 400;
+      text-transform: capitalize;
+      letter-spacing: 0.5px;
+    }
+
+    .product__price {
+      font-family: "Playfair Display", serif;
+      color: #ca1515;
+      font-size: 16px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+    }
+
+    /* Responsive Styles */
+    @media (max-width: 768px) {
+      .trend__item__pic {
+        width: 75px;
+        height: 75px;
+      }
+
+      .section-title h4 {
+        font-size: 20px;
+      }
+
+      .trend__item__text h6 {
+        font-size: 14px;
+      }
+    }
+
+    @media (max-width: 576px) {
+      .spad {
+        padding: 40px 0;
+      }
+
+      .trend__item {
+        margin-bottom: 20px;
+      }
+
+      .product__price {
+        font-size: 15px;
+      }
+    }
+  </style>
+  <div class="all-in-on">
+    {% if hot_trend_items or best_seller_items or feature_items %}
+    <section class="trend spad" style="border-bottom: 1px solid #ccc">
+      <div class="container">
+        <!-- <div class="section-header text-center">
+          <h2 class="services-title">Featured & Top Products</h2>
+          <p class="services-subtitle">Explore trending and top-rated items.</p>
+        </div> -->
+
+        <div class="row">
+          {% if hot_trend_items %}
+          <div class="col-lg-4 col-md-4 col-sm-6">
+            <div class="trend__content">
+              <div class="section-title">
+                <h4>Hot Trend</h4>
+              </div>
+
+              {% for item in hot_trend_items %}
+              <div class="trend__item">
+                <div class="trend__item__pic">
+                  <img src="{{ item.image.url }}" alt="{{ item.title }}" />
+                </div>
+                <div class="trend__item__text">
+                  <h6>
+                    <a href="{% url 'marketplace:item_detail' item.id %}"
+                      >{{ item.title }}</a
+                    >
+                  </h6>
+                  <div class="rating">
+                    <span>{{item.category}}</span>
+                  </div>
+                  <div class="product__price">Ksh {{ item.price }}</div>
+                </div>
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+          {% endif %} {% if best_seller_items %}
+          <div class="col-lg-4 col-md-4 col-sm-6">
+            <div class="trend__content">
+              <div class="section-title">
+                <h4>Best Seller</h4>
+              </div>
+
+              {% for item in best_seller_items %}
+              <div class="trend__item">
+                <div class="trend__item__pic">
+                  <img src="{{ item.image.url }}" alt="{{ item.title }}" />
+                </div>
+                <div class="trend__item__text">
+                  <h6>
+                    <a href="{% url 'marketplace:item_detail' item.id %}"
+                      >{{ item.title }}</a
+                    >
+                  </h6>
+                  <div class="rating">
+                    <span>{{item.category}}</span>
+                  </div>
+                  <div class="product__price">Ksh {{ item.price }}</div>
+                </div>
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+          {% endif %} {% if feature_items %}
+          <div class="col-lg-4 col-md-4 col-sm-6">
+            <div class="trend__content">
+              <div class="section-title">
+                <h4>Feature</h4>
+              </div>
+
+              {% for item in feature_items %}
+              <div class="trend__item">
+                <div class="trend__item__pic">
+                  <img src="{{ item.image.url }}" alt="{{ item.title }}" />
+                </div>
+                <div class="trend__item__text">
+                  <h6>
+                    <a href="{% url 'marketplace:item_detail' item.id %}"
+                      >{{ item.title }}</a
+                    >
+                  </h6>
+                  <div class="rating">
+                    <span>{{item.category}}</span>
+                  </div>
+                  <div class="product__price">Ksh {{ item.price }}</div>
+                </div>
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </section>
+    {% endif %}
+
+    <!-- Services Section Begin -->
+    <style>
+      /* Services Section Styles */
+      .services {
+        padding: 15px 10px;
+        margin-bottom: 20px;
+      }
+
+      .services__item {
+        text-align: center;
+        padding: 30px 20px;
+        transition: background-color 0.3s, transform 0.3s;
+      }
+
+      .services__item i {
+        font-size: 36px;
+        color: #ca1515;
+        margin-bottom: 15px;
+      }
+
+      .services__item h6 {
+        font-family: "Montserrat", sans-serif;
+        font-size: 16px;
+        font-weight: 600;
+        color: #111111;
+        margin-bottom: 10px;
+      }
+
+      .services__item p {
+        font-family: "Montserrat", sans-serif;
+        font-size: 14px;
+        color: #666666;
+        margin-bottom: 0;
+      }
+
+      @media (max-width: 767px) {
+        .services {
+          padding: 60px 0;
+        }
+
+        .services__item {
+          padding: 20px 15px;
+          flex: 0 0 48%;
+          margin-bottom: 20px;
+        }
+
+        .services__item i {
+          font-size: 30px;
+          margin-bottom: 12px;
+        }
+
+        .services__item h6 {
+          font-size: 15px;
+        }
+
+        .services__item p {
+          font-size: 13px;
+        }
+
+        .services {
+          display: flex;
+          flex-wrap: wrap;
+          justify-content: space-between;
+        }
+
+        .services__item:nth-child(odd) {
+          margin-right: 4%;
+        }
+      }
+
+      /* Responsive Styles */
+      @media (max-width: 767px) {
+        .services {
+          padding: 60px 0;
+        }
+
+        .services__item {
+          padding: 20px 15px;
+        }
+
+        .services__item i {
+          font-size: 30px;
+          margin-bottom: 12px;
+        }
+
+        .services__item h6 {
+          font-size: 15px;
+        }
+
+        .services__item p {
+          font-size: 13px;
+        }
+      }
+      .section-header {
+        margin-bottom: 40px;
+        text-align: center;
+      }
+
+      .services-title {
+        font-size: 36px;
+        font-weight: bold;
+        color: #333;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        margin-bottom: 10px;
+      }
+
+      .services-subtitle {
+        font-size: 18px;
+        color: #777;
+        font-style: italic;
+        margin-bottom: 30px;
+      }
+
+      @media (max-width: 768px) {
+        .services-title {
+          font-size: 28px;
+          letter-spacing: 1px;
+        }
+
+        .services-subtitle {
+          font-size: 16px;
+          margin-bottom: 20px;
+        }
+
+        .section-header {
+          margin-bottom: 20px;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .services-title {
+          font-size: 24px;
+          letter-spacing: 0;
+        }
+
+        .services-subtitle {
+          font-size: 14px;
+          margin-bottom: 15px;
+        }
+
+        .section-header {
+          margin-bottom: 10px;
+        }
+      }
+    </style>
+    <!-- Services Section HTML -->
+    <section class="services spad">
+      <div class="container">
+        <div class="section-header text-center">
+          <h2 class="services-title">Our Key Services</h2>
+          <p class="services-subtitle">
+            We offer a wide range of services to make buying and selling easy,
+            secure, and efficient.
+          </p>
+        </div>
+
+        <div class="row">
+          <div class="col-lg-3 col-md-4 col-sm-6">
+            <div class="services__item">
+              <i class="fa fa-share-alt"></i>
+              <h6>Post Your Items</h6>
+              <p>Easily upload and list your items for sale on the platform.</p>
+            </div>
+          </div>
+          <div class="col-lg-3 col-md-4 col-sm-6">
+            <div class="services__item">
+              <i class="fa fa-comment"></i>
+              <h6>Chat with Buyers</h6>
+              <p>
+                Connect directly with potential buyers through secure messaging.
+              </p>
+            </div>
+          </div>
+          <div class="col-lg-3 col-md-4 col-sm-6">
+            <div class="services__item">
+              <i class="fa fa-check-circle"></i>
+              <h6>Secure Payment Process</h6>
+              <p>
+                Enjoy peace of mind with secure, direct transactions between
+                buyers and sellers.
+              </p>
+            </div>
+          </div>
+          <div class="col-lg-3 col-md-4 col-sm-6">
+            <div class="services__item">
+              <i class="fa fa-shield"></i>
+              <h6>Buyer Protection</h6>
+              <p>
+                Enjoy peace of mind with our buyer protection and support
+                policies.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Services Section End -->
+  </div>
+  <script
+    src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+    crossorigin="anonymous"
+  ></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      // Add event listener to all like buttons
+      document.querySelectorAll(".heart-icon").forEach((button) => {
+        button.addEventListener("click", function () {
+          const itemId = this.getAttribute("data-item-id");
+          const likeCountElement = document.getElementById(
+            `like-count-${itemId}`
+          );
+
+          // Send AJAX request to like/unlike the product
+          fetch(`/marketplace/items/${itemId}/like/`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "X-CSRFToken": document.querySelector(
+                "[name=csrfmiddlewaretoken]"
+              ).value,
+            },
+          })
+            .then((response) => response.json())
+            .then((data) => {
+              // Update the like count and button appearance based on response
+              likeCountElement.textContent = data.total_likes;
+
+              // Optionally update the button to show filled or empty heart based on like status
+              const likeButton = document.getElementById(`like-btn-${itemId}`);
+              if (data.liked) {
+                likeButton.classList.add("liked"); // Add a "liked" class for styling
+              } else {
+                likeButton.classList.remove("liked"); // Remove the "liked" class if unliked
+              }
+            })
+            .catch((error) => console.error("Error:", error));
+        });
+      });
+    });
+  </script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      // Function to add event listeners for like buttons
+      function addLikeButtonListeners() {
+        document.querySelectorAll(".heart-icon").forEach((button) => {
+          button.addEventListener("click", function () {
+            const itemId = this.getAttribute("data-item-id");
+            const likeCountElement = document.getElementById(
+              `like-count-${itemId}`
+            );
+
+            // Send AJAX request to like/unlike the product
+            fetch(`/marketplace/items/${itemId}/like/`, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": document.querySelector(
+                  "[name=csrfmiddlewaretoken]"
+                ).value,
+              },
+            })
+              .then((response) => response.json())
+              .then((data) => {
+                // Update the like count and button appearance based on response
+                likeCountElement.textContent = data.total_likes;
+
+                // Optionally update the button to show filled or empty heart based on like status
+                const likeButton = document.getElementById(
+                  `like-btn-${itemId}`
+                );
+                if (data.liked) {
+                  likeButton.classList.add("liked"); // Add a "liked" class for styling
+                } else {
+                  likeButton.classList.remove("liked"); // Remove the "liked" class if unliked
+                }
+              })
+              .catch((error) => console.error("Error:", error));
+          });
+        });
+      }
+
+      const searchInput = document.getElementById("search-product");
+      const itemsContainer = document.getElementById("items-container");
+      const categoryButtons = document.querySelectorAll(".category-button");
+      const noProductsMessage = document.getElementById("no-products-message");
+      let timeoutId;
+      let selectedCategory = "all";
+
+      searchInput.addEventListener("input", function () {
+        clearTimeout(timeoutId);
+        const query = this.value.trim();
+
+        if (!query) {
+          loadAllItems(); // If search is cleared, load all items
+          return;
+        }
+
+        timeoutId = setTimeout(() => fetchSearchResults(query), 300);
+      });
+
+      categoryButtons.forEach((button) => {
+        button.addEventListener("click", function () {
+          categoryButtons.forEach((btn) => btn.classList.remove("active"));
+          this.classList.add("active");
+
+          selectedCategory = this.getAttribute("data-category");
+          filterAndDisplayItems(); // Filter based on category
+        });
+      });
+
+      function fetchSearchResults(query) {
+        fetch(`/marketplace/items/?q=${encodeURIComponent(query)}`, {
+          headers: { "X-Requested-With": "XMLHttpRequest" },
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.items.length === 0) {
+              displayNoResultsMessage();
+            } else {
+              updateMainContent(data.items);
+            }
+          })
+          .catch((error) => console.error("Error:", error));
+      }
+
+      function displayNoResultsMessage() {
+        itemsContainer.innerHTML = `
+      <div class="no-results-message">
+        No items found for your search.
+      </div>
+    `;
+      }
+
+      function updateMainContent(items) {
+        itemsContainer.innerHTML = "";
+        document.addEventListener("DOMContentLoaded", function () {
+          // Function to add event listeners for like buttons
+          function addLikeButtonListeners() {
+            document.querySelectorAll(".heart-icon").forEach((button) => {
+              button.addEventListener("click", function () {
+                const itemId = this.getAttribute("data-item-id");
+                const likeCountElement = document.getElementById(
+                  `like-count-${itemId}`
+                );
+
+                // Send AJAX request to like/unlike the product
+                fetch(`/marketplace/items/${itemId}/like/`, {
+                  method: "POST",
+                  headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": document.querySelector(
+                      "[name=csrfmiddlewaretoken]"
+                    ).value,
+                  },
+                })
+                  .then((response) => response.json())
+                  .then((data) => {
+                    // Update the like count and button appearance based on response
+                    likeCountElement.textContent = data.total_likes;
+
+                    // Optionally update the button to show filled or empty heart based on like status
+                    const likeButton = document.getElementById(
+                      `like-btn-${itemId}`
+                    );
+                    if (data.liked) {
+                      likeButton.classList.add("liked"); // Add a "liked" class for styling
+                    } else {
+                      likeButton.classList.remove("liked"); // Remove the "liked" class if unliked
+                    }
+                  })
+                  .catch((error) => console.error("Error:", error));
+              });
+            });
+          }
+
+          const searchInput = document.getElementById("search-product");
+          const itemsContainer = document.getElementById("items-container");
+          const categoryButtons = document.querySelectorAll(".category-button");
+          const noProductsMessage = document.getElementById(
+            "no-products-message"
+          );
+          let timeoutId;
+          let selectedCategory = "all";
+
+          searchInput.addEventListener("input", function () {
+            clearTimeout(timeoutId);
+            const query = this.value.trim();
+
+            if (!query) {
+              loadAllItems(); // If search is cleared, load all items
+              return;
+            }
+
+            timeoutId = setTimeout(() => fetchSearchResults(query), 300);
+          });
+
+          categoryButtons.forEach((button) => {
+            button.addEventListener("click", function () {
+              categoryButtons.forEach((btn) => btn.classList.remove("active"));
+              this.classList.add("active");
+
+              selectedCategory = this.getAttribute("data-category");
+              filterAndDisplayItems(); // Filter based on category
+            });
+          });
+
+          function fetchSearchResults(query) {
+            fetch(`/marketplace/items/?q=${encodeURIComponent(query)}`, {
+              headers: { "X-Requested-With": "XMLHttpRequest" },
+            })
+              .then((response) => response.json())
+              .then((data) => {
+                if (data.items.length === 0) {
+                  displayNoResultsMessage();
+                } else {
+                  updateMainContent(data.items);
+                }
+              })
+              .catch((error) => console.error("Error:", error));
+          }
+
+          function displayNoResultsMessage() {
+            itemsContainer.innerHTML = `
+      <div class="no-results-message">
+        No items found for your search.
+      </div>
+    `;
+          }
+
+          function updateMainContent(items) {
+            itemsContainer.innerHTML = "";
+            itemsContainer.classList.add("product-grid");
+
+            items.forEach((item) => {
+              if (
+                selectedCategory === "all" ||
+                item.category === selectedCategory
+              ) {
+                const itemElement = document.createElement("div");
+                itemElement.className = "product-card";
+                itemElement.setAttribute("data-category", item.category);
+                itemElement.innerHTML = `
+  <div class="product-image-container">
+    ${item.sold ? '<span class="item-badge sold">Sold</span>' : ""}
+    ${
+      !item.sold && item.new_price && item.price > item.new_price
+        ? '<span class="item-badge discount">On Discount</span>'
+        : ""
+    }
+    <img class="product-image" src="${item.image_url}" alt="${item.title}" />
+    <a href="/marketplace/item/${item.id}">
+      <button class="quick-view-btn">Quick View</button>
+    </a>
+  </div>
+  <div class="product-info">
+    <div class="product-title-row">
+      <a href="/marketplace/item/${item.id}" class="product-title">${
+                  item.title
+                }</a>
+      <button
+        class="heart-icon ${item.liked ? "liked" : ""}"
+        id="like-btn-${item.id}"
+        data-item-id="${item.id}"
+      >
+        <svg viewBox="0 0 24 24">
+          <path
+            d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+        </svg>
+      </button>
+      <span class="like-count" id="like-count-${item.id}">
+        ${item.total_likes != null ? item.total_likes : 0}
+      </span>
+    </div>
+    <div class="product-price">
+      <style>
+        .new-price {
+          margin-left: 4px;
+          color: #28a745;
+          font-weight: bold;
+        }
+        .original-price {
+          color: #ccc;
+          text-decoration: line-through;
+          margin-right: 8px;
+        }
+      </style>
+      <b>
+        ${
+          item.new_price
+            ? `<del class="original-price">Ksh ${item.price}</del><span class="new-price">Ksh ${item.new_price}</span>`
+            : `Ksh ${item.price}`
+        }
+      </b>
+    </div>
+  </div>
+`;
+
+                itemsContainer.appendChild(itemElement);
+              }
+            });
+
+            // Re-attach the like button listeners after the new items are rendered
+            addLikeButtonListeners();
+
+            checkIfNoItemsVisible();
+          }
+
+          function loadAllItems() {
+            fetch("/marketplace/items/", {
+              headers: { "X-Requested-With": "XMLHttpRequest" },
+            })
+              .then((response) => response.json())
+              .then((data) => updateMainContent(data.items))
+              .catch((error) => console.error("Error:", error));
+          }
+
+          function checkIfNoItemsVisible() {
+            const visibleItems = Array.from(
+              document.querySelectorAll(".product-card")
+            ).some((card) => card.style.display !== "none");
+
+            if (!visibleItems) {
+              noProductsMessage.style.display = "block";
+            } else {
+              noProductsMessage.style.display = "none";
+            }
+          }
+
+          function filterAndDisplayItems() {
+            const query = searchInput.value.trim();
+            if (query) {
+              fetchSearchResults(query);
+            } else {
+              loadAllItems();
+            }
+          }
+        });
+        itemsContainer.classList.add("product-grid");
+
+        items.forEach((item) => {
+          if (
+            selectedCategory === "all" ||
+            item.category === selectedCategory
+          ) {
+            const itemElement = document.createElement("div");
+            itemElement.className = "product-card";
+            itemElement.setAttribute("data-category", item.category);
+            itemElement.innerHTML = `
+  <div class="product-image-container">
+    ${item.sold ? '<span class="item-badge sold">Sold</span>' : ""}
+    ${
+      !item.sold && item.new_price && item.price > item.new_price
+        ? '<span class="item-badge discount">On Discount</span>'
+        : ""
+    }
+    <img class="product-image" src="${item.image_url}" alt="${item.title}" />
+    <a href="/marketplace/item/${item.id}">
+      <button class="quick-view-btn">Quick View</button>
+    </a>
+  </div>
+  <div class="product-info">
+    <div class="product-title-row">
+      <a href="/marketplace/item/${item.id}" class="product-title">${
+              item.title
+            }</a>
+      <button
+        class="heart-icon ${item.liked ? "liked" : ""}"
+        id="like-btn-${item.id}"
+        data-item-id="${item.id}"
+      >
+        <svg viewBox="0 0 24 24">
+          <path
+            d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+        </svg>
+      </button>
+      <span class="like-count" id="like-count-${item.id}">
+        ${item.total_likes != null ? item.total_likes : 0}
+      </span>
+    </div>
+    <div class="product-price">
+      <style>
+        .new-price {
+          margin-left: 4px;
+          color: #28a745;
+          font-weight: bold;
+        }
+        .original-price {
+          color: #ccc;
+          text-decoration: line-through;
+          margin-right: 8px;
+        }
+      </style>
+      <b>
+        ${
+          item.new_price
+            ? `<del class="original-price">Ksh ${item.price}</del><span class="new-price">Ksh ${item.new_price}</span>`
+            : `Ksh ${item.price}`
+        }
+      </b>
+    </div>
+  </div>
+`;
+            itemsContainer.appendChild(itemElement);
+          }
+        });
+
+        // Re-attach the like button listeners after the new items are rendered
+        addLikeButtonListeners();
+
+        checkIfNoItemsVisible();
+      }
+
+      function loadAllItems() {
+        fetch("/marketplace/items/", {
+          headers: { "X-Requested-With": "XMLHttpRequest" },
+        })
+          .then((response) => response.json())
+          .then((data) => updateMainContent(data.items))
+          .catch((error) => console.error("Error:", error));
+      }
+
+      function checkIfNoItemsVisible() {
+        const visibleItems = Array.from(
+          document.querySelectorAll(".product-card")
+        ).some((card) => card.style.display !== "none");
+
+        if (!visibleItems) {
+          noProductsMessage.style.display = "block";
+        } else {
+          noProductsMessage.style.display = "none";
+        }
+      }
+
+      function filterAndDisplayItems() {
+        const query = searchInput.value.trim();
+        if (query) {
+          fetchSearchResults(query);
+        } else {
+          loadAllItems();
+        }
+      }
+    });
+  </script>
+
+  <script>
+    (function ($) {
+      "use strict";
+      /*==================================================================
+        [ Filter / Search product ]*/
+      $(".js-show-filter").on("click", function () {
+        $(this).toggleClass("show-filter");
+        $(".panel-filter").slideToggle(400);
+
+        if ($(".js-show-search").hasClass("show-search")) {
+          $(".js-show-search").removeClass("show-search");
+          $(".panel-search").slideUp(400);
+          $(".icon-close-search").addClass("dis-none"); // Hide close icon
+          $(".icon-search").removeClass("dis-none"); // Show search icon
+        }
+      });
+
+      $(".js-show-search").on("click", function () {
+        $(this).toggleClass("show-search");
+        $(".panel-search").slideToggle(400);
+
+        // Toggle icons based on the 'show-search' class
+        if ($(this).hasClass("show-search")) {
+          $(".icon-search").addClass("dis-none"); // Hide search icon
+          $(".icon-close-search").removeClass("dis-none"); // Show close icon
+        } else {
+          $(".icon-close-search").addClass("dis-none"); // Hide close icon
+          $(".icon-search").removeClass("dis-none"); // Show search icon
+        }
+
+        if ($(".js-show-filter").hasClass("show-filter")) {
+          $(".js-show-filter").removeClass("show-filter");
+          $(".panel-filter").slideUp(400);
+        }
+      });
+    })(jQuery);
+  </script>
+  {% endblock %}
+</div>

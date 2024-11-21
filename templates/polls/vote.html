@@ -461,8 +461,49 @@ font-size: 12px;
 
   <div id="message" class="message" style="display: none;"></div>
   <div class="poll-container">
+<style>
+            .status-indicator {
+    position: absolute;
+    top: -10px;
+    left: 10px;
+    z-index: 10;
+  }
+  
+  .status {
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-weight: bold;
+    color: white;
+    font-size: 12px;
+    text-transform: uppercase;
+  }
 
+  .expired_poll {
+    background-color: #e74c3c;
+  }
+
+  .archived {
+    background-color: #2ecc71;
+  }
+
+  .poll-item {
+    position: relative;
+    margin-bottom: 20px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  }
+</style>
     <div class="text-section">
+        <div class="status-indicator">
+            {% if not poll.is_active %}
+                <span class="status badge expired_poll">Expired Voting Not Allowed</span>
+            {% elif poll.is_archived %}
+                <span class="status badge archived">Archived Voting Not Allowed</span>
+            {% endif %}
+        </div>
+        
         <h1>{% if poll.is_public %}
             Public
             {% else %}
@@ -473,7 +514,8 @@ font-size: 12px;
         <div class="title_description">
             <h3>Title: {{ poll.title }}</h3>
             {% if poll.description %}
-                <p>Description: {{ poll.description }}</p>
+            <p style="white-space: pre-line;">Description: {{ poll.description }}</p>
+
             {% endif %}
         </div>
         <hr />
@@ -517,15 +559,14 @@ font-size: 12px;
                 </a>
             </p>
             <p>
-                {% if request.user == poll.creator %}
+                {% if request.user == poll.creator and poll.is_active %}
                     <a href="{% url 'polls:edit_poll' poll.id %}">
-                        <i class="fa-solid fa-pen-to-square"></i> Edit poll
+                        <i class="fas fa-pen-to-square"></i> Edit poll
                     </a>
                 {% endif %}
             </p>
-        </div>
-        
-        
+            
+        </div> 
     </div>
     <form method="post" id="vote-form" onsubmit="return validateForm();" data-poll-type="{% if poll.poll_type == 'question' %}question{% else %}opinion{% endif %}">
         <div class="banner-container">
@@ -615,6 +656,7 @@ font-size: 12px;
                 class="polls-options"
                 {% if user_vote and user_vote.option.id == option.id %}checked{% endif %}
                 {% if user_vote %}disabled{% endif %}
+                {% if poll.is_archived %}disabled{% endif %}
                 {% if not poll.is_active %}disabled{% endif %}  
             >
             <label for="option-{{ option.id }}">{{ option.option_text }}</label>

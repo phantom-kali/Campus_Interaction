@@ -2,6 +2,7 @@
 {% load static %}
 
 {% block content %}
+{% comment %}
 <div class="container py-5">
     <div class="card shadow-lg dashboard-card">
         <!-- Chat Header -->
@@ -24,7 +25,8 @@
         <!-- Chat Messages -->
         <div id="chat-messages" class="card-body p-4 chat-container">
             {% for message in messages %}
-            <div class="message-wrapper mb-4 {% if message.sender == request.user %}message-sent{% else %}message-received{% endif %}">
+            <div
+                class="message-wrapper mb-4 {% if message.sender == request.user %}message-sent{% else %}message-received{% endif %}">
                 <div class="message-bubble">
                     <p class="message-text mb-1">{{ message.content }}</p>
                     <small class="message-time">
@@ -39,8 +41,8 @@
         <div class="card-footer bg-white border-top-0 p-3">
             <form id="chat-form" class="mb-0">
                 <div class="input-group">
-                    <input type="text" id="chat-message-input" class="form-control chat-input" 
-                           placeholder="Type your message...">
+                    <input type="text" id="chat-message-input" class="form-control chat-input"
+                        placeholder="Type your message...">
                     <button type="submit" id="chat-message-submit" class="btn-send">
                         <i class="fas fa-paper-plane me-2"></i>Send
                     </button>
@@ -176,6 +178,102 @@
         background: var(--accent);
     }
 </style>
+{% endcomment %}
+<style>
+    /* Container */
+    .chat-container {
+        margin: 30px;
+        max-width: 100%;
+        background: #ffffff;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        display: flex;
+        flex-direction: column;
+    }
+
+    /* Header */
+    .chat-header {
+        background-color: #4a76a8;
+        color: white;
+        padding: 10px;
+        text-align: center;
+        border-top-left-radius: 8px;
+        border-top-right-radius: 8px;
+        font-weight: bold;
+    }
+
+    /* Chat area */
+    .chat-messages {
+        padding: 10px;
+        flex: 1;
+        overflow-y: auto;
+        background-color: #f9f9f9;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .message {
+        max-width: 80%;
+        padding: 8px;
+        border-radius: 5px;
+        line-height: 1.4;
+    }
+
+    .message.sent {
+        background-color: #4a76a8;
+        color: white;
+        align-self: flex-end;
+    }
+
+    .message.received {
+        background-color: #e0e0e0;
+        color: black;
+        align-self: flex-start;
+    }
+
+    /* Input area */
+    .chat-input {
+        display: flex;
+        padding: 10px;
+        border-top: 1px solid #ddd;
+        gap: 10px;
+    }
+
+    .chat-input input {
+        flex: 1;
+        padding: 8px;
+        border-radius: 5px;
+        border: 1px solid #ddd;
+    }
+
+    .chat-input button {
+        padding: 8px 16px;
+        border: none;
+        background-color: #4a76a8;
+        color: white;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+
+    .chat-input button:hover {
+        background-color: #3b5f8a;
+    }
+</style>
+
+<div class="chat-header"> Inbox</div>
+<div class="chat-container">
+    <div class="chat-messages">
+        <div class="message received">Hello! How are you?</div>
+        <div class="message sent">I'm good, thanks! How about you?</div>
+        <div class="message received">I'm doing well too, thanks for asking!</div>
+    </div>
+
+    <div class="chat-input">
+        <input type="text" placeholder="Type a message..." />
+        <button>Send</button>
+    </div>
+</div>
 
 <script>
     const conversationId = "{{ conversation_id }}";
@@ -187,18 +285,18 @@
     function createMessageElement(data) {
         const messageWrapper = document.createElement('div');
         const isCurrentUser = data.sender === "{{ request.user.username }}";
-        
+
         messageWrapper.className = `message-wrapper mb-4 ${isCurrentUser ? 'message-sent' : 'message-received'}`;
-        
+
         const time = new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
-        
+
         messageWrapper.innerHTML = `
             <div class="message-bubble">
                 <p class="message-text mb-1">${data.message}</p>
                 <small class="message-time">${time}</small>
             </div>
         `;
-        
+
         return messageWrapper;
     }
 
@@ -207,50 +305,50 @@
             'ws://' + window.location.host + '/ws/chat/' + conversationId + '/'
         );
 
-        chatSocket.onopen = function(e) {
+        chatSocket.onopen = function (e) {
             console.log('WebSocket connection established');
         };
 
-        chatSocket.onmessage = function(e) {
+        chatSocket.onmessage = function (e) {
             const data = JSON.parse(e.data);
             // Only process messages that have actual content
             if (data.message && data.message.trim()) {
                 const messageElement = createMessageElement(data);
-                
+
                 messageElement.style.opacity = '0';
                 messageElement.style.transform = 'translateY(20px)';
                 chatMessages.appendChild(messageElement);
-                
+
                 requestAnimationFrame(() => {
                     messageElement.style.opacity = '1';
                     messageElement.style.transform = 'translateY(0)';
                 });
-                
+
                 chatMessages.scrollTop = chatMessages.scrollHeight;
             }
         };
 
-        chatSocket.onclose = function(e) {
+        chatSocket.onclose = function (e) {
             console.log('WebSocket connection closed. Attempting to reconnect...');
             // Attempt to reconnect after a delay
             setTimeout(connectWebSocket, 3000);
         };
 
-        chatSocket.onerror = function(e) {
+        chatSocket.onerror = function (e) {
             console.error('WebSocket error:', e);
         };
     }
 
     // Initialize WebSocket connection when the page is fully loaded
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
         connectWebSocket();
         chatMessages.scrollTop = chatMessages.scrollHeight;
     });
 
-    chatForm.onsubmit = function(e) {
+    chatForm.onsubmit = function (e) {
         e.preventDefault();
         const message = chatInput.value.trim();
-        
+
         if (message && chatSocket && chatSocket.readyState === WebSocket.OPEN) {
             chatSocket.send(JSON.stringify({
                 'message': message
@@ -263,14 +361,14 @@
     };
 
     // Clean up WebSocket connection when leaving the page
-    window.addEventListener('beforeunload', function() {
+    window.addEventListener('beforeunload', function () {
         if (chatSocket) {
             chatSocket.close();
         }
     });
 
     // Reconnect WebSocket when the page becomes visible again
-    document.addEventListener('visibilitychange', function() {
+    document.addEventListener('visibilitychange', function () {
         if (document.visibilityState === 'visible') {
             if (!chatSocket || chatSocket.readyState !== WebSocket.OPEN) {
                 connectWebSocket();

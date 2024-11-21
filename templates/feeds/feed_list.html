@@ -1,0 +1,610 @@
+{% extends 'base.html' %} {% load static %} {% block title %}Feed{% endblock %}
+{% block content %}
+<div class="container py-4">
+  <div class="row justify-content-center">
+    <div class="col-md-7 col-lg-6">
+      <!-- Feed Header -->
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h4">{{ is_trending|yesno:"Trending,Latest" }} Posts</h1>
+        <div class="btn-group">
+          <a
+            href="{% url 'feeds:feed_list' %}"
+            class="btn btn-{{ is_trending|yesno:'outline-primary,primary' }}"
+          >
+            <i class="fas fa-clock"></i> Latest
+          </a>
+          <a
+            href="{% url 'feeds:trending_feed' %}"
+            class="btn btn-{{ is_trending|yesno:'primary,outline-primary' }}"
+          >
+            <i class="fas fa-fire"></i> Trending
+          </a>
+        </div>
+      </div>
+
+      <!-- Create Post Form -->
+      <div class="card mb-4">
+        <div class="card-body">
+          <form
+            method="post"
+            action="{% url 'feeds:create_post' %}"
+            enctype="multipart/form-data"
+            id="createPostForm"
+          >
+            {% csrf_token %}
+            <div class="mb-3">
+              <textarea
+                name="content"
+                class="form-control"
+                rows="3"
+                placeholder="What's on your mind?"
+                maxlength="500"
+              ></textarea>
+            </div>
+            <!-- Add preview containers -->
+            <div class="row mb-3">
+              <div class="col-md-6">
+                <div id="image-preview"></div>
+              </div>
+              <div class="col-md-6">
+                <div id="video-preview"></div>
+              </div>
+            </div>
+            <div class="d-flex gap-2">
+              <div class="input-group">
+                <label class="input-group-text" for="image">
+                  <i class="fas fa-image"></i>
+                </label>
+                <input
+                  type="file"
+                  class="form-control"
+                  id="image"
+                  name="image"
+                  accept="image/*"
+                  onchange="previewMedia(this, 'image')"
+                />
+              </div>
+              <div class="input-group">
+                <label class="input-group-text" for="video">
+                  <i class="fas fa-video"></i>
+                </label>
+                <input
+                  type="file"
+                  class="form-control"
+                  id="video"
+                  name="video"
+                  accept="video/mp4,video/mov,video/avi"
+                  onchange="previewMedia(this, 'video')"
+                />
+              </div>
+              <button type="submit" class="btn btn-primary">Post</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Posts Container -->
+      <div id="posts-container">{% include 'feeds/partials/post_list.html' %}</div>
+
+      <!-- Loading Indicator -->
+      <div id="loading-indicator" class="text-center py-4 d-none">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Loading...</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .post-card {
+    transition: transform 0.2s;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  }
+
+  .post-card:hover {
+    transform: translateY(-2px);
+  }
+
+  .engagement-btn {
+    transition: all 0.2s;
+  }
+
+  .engagement-btn:hover {
+    transform: scale(1.1);
+  }
+
+  .liked {
+    color: #dc3545;
+  }
+
+  .highlight {
+    animation: highlight 2s ease-out;
+  }
+
+  @keyframes highlight {
+    0% {
+      background-color: rgba(var(--bs-primary-rgb), 0.1);
+    }
+    100% {
+      background-color: transparent;
+    }
+  }
+
+  .post-content {
+    min-height: 80px;
+    max-height: 500px;
+    overflow-y: auto;
+  }
+
+  .media-container {
+    position: relative;
+    width: 100%;
+    height: 0;
+    padding-bottom: 75%;
+    overflow: hidden;
+    max-height: 400px;
+  }
+
+  .post-media {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    background-color: #f8f9fa;
+  }
+
+  /* Custom scrollbar for post content */
+  .post-content::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .post-content::-webkit-scrollbar-track {
+    background: #f1f1f1;
+  }
+
+  .post-content::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 3px;
+  }
+
+  .post-content::-webkit-scrollbar-thumb:hover {
+    background: #555;
+  }
+
+  .post-card .rounded-circle {
+    width: 35px;
+    height: 35px;
+  }
+
+  .card-header {
+    padding: 0.75rem 1rem;
+  }
+
+  .card-body {
+    padding: 0.75rem 1rem;
+  }
+
+  .card-footer {
+    padding: 0.75rem 1rem;
+  }
+
+</style>
+
+<script>
+  let currentPage = 1;
+  let loading = false;
+  let hasMore = {{ has_next|yesno:"true,false" }};
+
+  // Infinite scroll handler
+  function handleScroll() {
+      if (loading || !hasMore) return;
+
+      const lastPost = document.querySelector('#posts-container .card:last-child');
+      if (!lastPost) return;
+
+      const lastPostOffset = lastPost.offsetTop + lastPost.clientHeight;
+      const pageOffset = window.pageYOffset + window.innerHeight;
+
+      if (pageOffset > lastPostOffset - 20) {
+          loadMorePosts();
+      }
+  }
+
+  // Load more posts
+  function loadMorePosts() {
+      if (loading || !hasMore) return;
+      loading = true;
+
+      const nextPage = currentPage + 1;
+      const loadingIndicator = document.getElementById('loading-indicator');
+      loadingIndicator.classList.remove('d-none');
+
+      fetch(`{% url 'feeds:load_more_posts' %}?page=${nextPage}&trending={{ is_trending|yesno:"true,false" }}`)
+          .then(response => response.json())
+          .then(data => {
+              const postsContainer = document.getElementById('posts-container');
+              data.posts.forEach(post => {
+                  const postElement = createPostElement(post);
+                  postsContainer.appendChild(postElement);
+              });
+              
+              // Observe any new videos
+              observeVideos();
+              
+              currentPage = data.current_page;
+              hasMore = data.has_next;
+              loading = false;
+              loadingIndicator.classList.add('d-none');
+          })
+          .catch(error => {
+              console.error('Error loading more posts:', error);
+              loading = false;
+              loadingIndicator.classList.add('d-none');
+          });
+  }
+
+  // Add scroll event listener
+  window.addEventListener('scroll', handleScroll);
+</script>
+<script>
+  function getCsrfToken() {
+    return document.querySelector("[name=csrfmiddlewaretoken]").value;
+  }
+
+  function toggleLike(postId, button) {
+    fetch(`/feeds/post/${postId}/like/`, {
+      method: "POST",
+      headers: {
+        "X-CSRFToken": getCsrfToken(),
+        "Content-Type": "application/json",
+      },
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        const likesCount = button.querySelector(".likes-count");
+        likesCount.textContent = data.likes_count;
+        button.classList.toggle("liked", data.is_liked);
+      })
+      .catch((error) => console.error("Error:", error));
+  }
+
+  function toggleComments(postId) {
+    const commentsSection = document.getElementById(`comments-${postId}`);
+    const isHidden = commentsSection.style.display === "none";
+
+    if (isHidden) {
+      commentsSection.style.display = "block";
+      loadComments(postId);
+    } else {
+      commentsSection.style.display = "none";
+    }
+  }
+
+  function loadComments(postId) {
+    const container = document.querySelector(
+      `#comments-${postId} .comments-container`
+    );
+
+    fetch(`/feeds/post/${postId}/comments/`)
+      .then((response) => response.json())
+      .then((data) => {
+        container.innerHTML = data.html;
+      })
+      .catch((error) => console.error("Error:", error));
+  }
+
+  function submitComment(event, postId) {
+    event.preventDefault();
+    const form = event.target;
+    const input = form.querySelector("input");
+    const content = input.value.trim();
+
+    if (!content) return;
+
+    fetch(`/feeds/post/${postId}/comment/`, {
+      method: "POST",
+      headers: {
+        "X-CSRFToken": getCsrfToken(),
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ content }),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        input.value = "";
+        loadComments(postId);
+        
+        // Update comments count if element exists
+        const commentsCount = document.querySelector(`#post-${postId} .comments-count`);
+        if (commentsCount) {
+          commentsCount.textContent = data.comments_count;
+        }
+      })
+      .catch((error) => console.error("Error:", error));
+  }
+
+  function toggleCommentLike(commentId, button) {
+    fetch(`/feeds/comment/${commentId}/like/`, {
+      method: "POST",
+      headers: {
+        "X-CSRFToken": getCsrfToken(),
+        "Content-Type": "application/json",
+      },
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        const likesCount = button.querySelector(".comment-likes-count");
+        likesCount.textContent = data.likes_count;
+        button.classList.toggle("text-danger", data.is_liked);
+      })
+      .catch((error) => console.error("Error:", error));
+  }
+
+  function deletePost(postId) {
+    Swal.fire({
+        title: 'Delete Post?',
+        text: "This action cannot be undone.",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#dc3545',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: 'Yes, delete it'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            fetch(`/feeds/post/${postId}/delete/`, {
+                method: "POST",
+                headers: {
+                    "X-CSRFToken": getCsrfToken(),
+                },
+            })
+            .then((response) => {
+                if (response.ok) {
+                    const postElement = document.querySelector(`#post-${postId}`);
+                    postElement.remove();
+                    Swal.fire('Deleted!', 'Your post has been deleted.', 'success');
+                } else {
+                    throw new Error('Failed to delete post');
+                }
+            })
+            .catch((error) => {
+                console.error("Error:", error);
+                Swal.fire('Error!', 'Failed to delete post.', 'error');
+            });
+        }
+    });
+  }
+
+  function submitReport(event) {
+    event.preventDefault();
+    const form = event.target;
+    const postId = document.getElementById('reportPostId').value;
+    const formData = new FormData(form);
+    
+    fetch(`/feeds/post/${postId}/report/`, {
+        method: "POST",
+        headers: {
+            "X-CSRFToken": getCsrfToken(),
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify(Object.fromEntries(formData)),
+    })
+    .then((response) => response.json())
+    .then((data) => {
+        if (data.success) {
+            const reportModal = bootstrap.Modal.getInstance(document.getElementById('reportModal'));
+            reportModal.hide();
+            form.reset();
+            Swal.fire({
+                icon: 'success',
+                title: 'Thank You',
+                text: 'Your report has been submitted.',
+                timer: 2000,
+                showConfirmButton: false
+            });
+        } else {
+            throw new Error(data.errors || 'Failed to submit report');
+        }
+    })
+    .catch((error) => {
+        console.error("Error:", error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Failed to submit report.'
+        });
+    });
+  }
+
+  function loadPostDetail(postId, event) {
+    // Prevent click event from bubbling to parent elements
+    event.stopPropagation();
+    
+    // Ignore clicks on video controls or links
+    if (event.target.tagName === 'VIDEO' || 
+        event.target.tagName === 'A' || 
+        event.target.closest('.engagement-btn')) {
+        return;
+    }
+    
+    window.location.href = `/feeds/post/${postId}/`;
+  }
+
+  function reportPost(postId) {
+    // Set the post ID in the hidden input
+    document.getElementById('reportPostId').value = postId;
+    
+    // Show the modal
+    const reportModal = new bootstrap.Modal(document.getElementById('reportModal'));
+    reportModal.show();
+  }
+</script>
+
+<!-- Report Modal -->
+<div class="modal fade" id="reportModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Report Post</h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+        ></button>
+      </div>
+      <form id="reportForm" onsubmit="submitReport(event)">
+        <div class="modal-body">
+          <input type="hidden" id="reportPostId" name="post_id" />
+          <div class="mb-3">
+            <label class="form-label">Reason for reporting</label>
+            <select name="report_type" class="form-select" required>
+              <option value="">Select a reason...</option>
+              <option value="spam">Spam</option>
+              <option value="inappropriate">Inappropriate Content</option>
+              <option value="harassment">Harassment</option>
+              <option value="copyright">Copyright Violation</option>
+              <option value="violence">Violence</option>
+              <option value="hate_speech">Hate Speech</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Additional Details</label>
+            <textarea
+              name="description"
+              class="form-control"
+              rows="3"
+            ></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button
+            type="button"
+            class="btn btn-secondary"
+            data-bs-dismiss="modal"
+          >
+            Cancel
+          </button>
+          <button type="submit" class="btn btn-primary">Submit Report</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Check if there's a hash in the URL
+    if (window.location.hash) {
+        const postId = window.location.hash;
+        const postElement = document.querySelector(postId);
+        
+        if (postElement) {
+            // Scroll to the post with smooth behavior
+            postElement.scrollIntoView({ 
+                behavior: 'smooth',
+                block: 'center'
+            });
+            
+            // Highlight the post briefly
+            postElement.classList.add('highlight');
+            setTimeout(() => {
+                postElement.classList.remove('highlight');
+            }, 2000);
+        }
+    }
+  });
+</script>
+
+<!-- Create an Intersection Observer to handle video visibility -->
+<script>
+  const videoObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      const video = entry.target;
+      if (!entry.isIntersecting && !video.paused) {
+        video.pause();
+      }
+    });
+  }, {
+    threshold: 0.2 // 20% visibility threshold
+  });
+
+  // Function to observe all videos in the feed
+  function observeVideos() {
+    const videos = document.querySelectorAll('.post-media[controls]');
+    videos.forEach(video => videoObserver.observe(video));
+  }
+
+  // Observe initial videos
+  document.addEventListener('DOMContentLoaded', observeVideos);
+</script>
+
+<!-- Floating Create Post Button -->
+<a href="{% url 'feeds:create_post' %}" 
+   class="btn btn-primary btn-floating btn-lg floating-create-btn shadow-4-strong"
+   data-mdb-ripple-init>
+    <i class="fas fa-plus"></i>
+</a>
+
+<script>
+  function previewMedia(input, type) {
+    const previewContainer = document.getElementById(`${type}-preview`);
+    previewContainer.innerHTML = ''; // Clear previous preview
+    
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        
+        reader.onload = function(e) {
+            const preview = document.createElement('div');
+            preview.className = 'position-relative mt-2';
+            
+            // Create remove button
+            const removeBtn = document.createElement('button');
+            removeBtn.className = 'btn btn-danger btn-floating btn-sm position-absolute top-0 end-0 m-1';
+            removeBtn.innerHTML = '<i class="fas fa-times"></i>';
+            removeBtn.onclick = function() {
+                input.value = '';
+                previewContainer.innerHTML = '';
+            };
+            
+            if (type === 'image') {
+                preview.innerHTML = `
+                    <img src="${e.target.result}" class="img-fluid rounded" alt="Preview">
+                `;
+            } else {
+                preview.innerHTML = `
+                    <video class="w-100 rounded" controls>
+                        <source src="${e.target.result}" type="${input.files[0].type}">
+                        Your browser does not support the video tag.
+                    </video>
+                `;
+            }
+            
+            preview.appendChild(removeBtn);
+            previewContainer.appendChild(preview);
+        };
+        
+        reader.readAsDataURL(input.files[0]);
+    }
+  }
+
+  // Clear previews when form is reset or submitted
+  document.getElementById('createPostForm').addEventListener('reset', function() {
+    document.getElementById('image-preview').innerHTML = '';
+    document.getElementById('video-preview').innerHTML = '';
+  });
+</script>
+{% endblock %}
+
+{% block extra_css %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'css/feeds/feed.css' %}">
+{% endblock %}
+
+{% block extra_js %}
+{{ block.super }}
+<script src="{% static 'js/feeds/feed.js' %}"></script>
+{% endblock %}

@@ -1,10 +1,669 @@
-{% extends "base.html" %}
+{% extends "base.html" %}  {% block title %} MarketPlace | Add Item{% endblock %} {% block content %} {% load static %}
+<link rel="stylesheet" href="{% static '/css/marketplace/add_items.css' %}" />
+<div class="breadcrumb-option">
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-12">
+        <div class="breadcrumb__links">
+          <a href="{% url 'marketplace:item_list' %}"
+            ><i class="fa fa-shopping-bag" aria-hidden="true"></i> See Items</a
+          >
+          <span>Add Your Item</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<style>
+  .showcase {
+    margin-top: 5%;
+  }
+  .notification-container {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 1000;
+  width: 530px;
+}
 
-{% block content %}
-<h1>Add New Item</h1>
-<form method="post" enctype="multipart/form-data">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Add Item</button>
-</form>
+.notification {
+  display: flex;
+  align-items: center;
+  background-color: #ff6666;
+  color: white;
+  padding: 16px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+  animation: slideIn 0.5s ease, slideOut 0.5s ease 4s forwards;
+  position: relative;
+  overflow: hidden;
+}
+.icon {
+  display: flex;
+  align-items: center;
+  padding-right: 12px; /* Space between icon and border */
+  margin-right: 12px; /* Space between border and message */
+  border-right: 2px solid #ccc; /* Visible border */
+}
+
+.icon i {
+  font-size: 1.5em;
+  color: white; /* Icon color */
+}
+.notification .icon {
+  font-size: 1.5em;
+  margin-right: 10px;
+}
+
+.notification .message {
+  flex-grow: 1;
+  font-size: 1em;
+}
+
+/* Close Button */
+.close-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+  font-size: 1.5em;
+  color: white;
+  cursor: pointer;
+  margin-left: 12px;
+  transition: color 0.3s ease;
+}
+
+.close-button i {
+  color: white; 
+}
+
+.close-button:hover i {
+  color: #fcff66; 
+}
+
+.notification .progress-bar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 4px;
+  background-color: rgba(255, 255, 255, 0.8);
+  width: 100%;
+}
+
+@keyframes slideIn {
+  0% {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideOut {
+  0% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+}
+
+@keyframes progress {
+  from {
+    width: 100%;
+  }
+  to {
+    width: 0;
+  }
+}
+
+@media (max-width: 767px) {
+  .notification-container {
+    top: 10px;
+    right: 10px;
+    width: 90%;
+  }
+
+  .notification {
+    padding: 12px;
+  }
+
+  .notification .icon {
+    font-size: 1.3em;
+  }
+
+  .notification .close-button {
+    font-size: 1em;
+    margin-left: 8px;
+  }
+}
+
+
+</style>
+{% if error_message %}
+  <div class="notification-container">
+    <div class="notification">
+      <div class="icon"><i class="fa-solid fa-circle-check"></i></div>
+      <div class="message">{{ error_message }}</div>
+      <div class="close-button" onclick="this.parentElement.style.display='none';"><i class="fa-solid fa-circle-xmark"></i></div>
+      <div class="progress-bar"></div>
+    </div>
+  </div>
+{% endif %}
+
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    const notification = document.querySelector(".notification");
+    const progressBar = document.querySelector(".progress-bar");
+
+    // Auto-fade out after 4 seconds
+    setTimeout(() => {
+      notification.classList.add("fade-out");
+    }, 4000);
+
+    // Shrink progress bar over time
+    progressBar.style.animation = "progress 4s linear forwards";
+
+    // Remove the notification from DOM after fade out
+    notification.addEventListener("animationend", () => {
+      if (notification.classList.contains("fade-out")) {
+        notification.remove();
+      }
+    });
+  });
+</script>
+
+
+<section>
+  <div class="container showcase">
+    <div class="row">
+      <div class="col-lg-12">
+        <h6 class="coupon__link">
+          <span class="icon_tag_alt"></span>
+          <a href="{% url 'marketplace:add_item' %}" style="color: #0056b3;">Ready to Sell?</a> Add your
+          items here to start selling.
+        </h6>
+      </div>
+    </div>
+    <form method="post" enctype="multipart/form-data" class="checkout__form">
+      {% csrf_token %}
+      <div class="row">
+        <div class="col-lg-8">
+          <h5>Add Your Item For Sale</h5>
+          <div class="row">
+            <div class="col-lg-12">
+              <div class="checkout__form__input">
+                <p>Title <span>*</span></p>
+                {{ form.title }}
+              </div>
+              <div class="checkout__form__input">
+                <p>Brand <span>(optional)</span></p>
+                {{ form.brand }}
+              </div>
+              <style>
+                #product-description.form-control:focus, #product-specification.form-control:focus {
+                  border: 1px solid #ccc;
+                  outline: none !important;
+                  box-shadow: none !important;
+                }
+              </style>
+              <div class="mt-3">
+                <div class="checkout__form__input">
+                  <p>Description <span>*</span></p>
+                  {{ form.description }}
+                </div>
+              </div>
+              <div class="mt-3">
+                <div class="checkout__form__input">
+                  <p>Specification <span>(optional)</span></p>
+                  {{ form.specification }}
+                </div>
+              </div>
+            </div>
+
+            <div class="col-lg-6 col-md-6 col-sm-6" style="margin-top: 20px">
+              <div class="checkout__form__input">
+                <p>Price <span>*</span></p>
+                {{ form.price }}
+              </div>
+            </div>
+            <style>
+              #product-category.form-select {
+                height: 50px;
+                padding: 10px;
+                font-size: 1rem;
+                border: 1px solid #ddd;
+                transition: all 0.3s ease;
+              }
+              #product-category.form-select:focus {
+                outline: none;
+                border-color: transparent;
+              }
+              #product-category.form-select {
+                background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="%23666" class="bi bi-caret-down-fill" viewBox="0 0 16 16"> <path d="M7.247 11.14l-4.796-5.481C2.065 5.263 2.558 4.5 3.429 4.5h9.142c.87 0 1.364.763.978 1.158l-4.796 5.482c-.512.582-1.346.582-1.858 0z"/> </svg>');
+                background-repeat: no-repeat;
+                background-position: right 1rem center;
+                background-size: 1em;
+              }
+              #product-category.form-select:focus {
+                border: 1px solid #ccc;
+                outline: none !important;
+                box-shadow: none !important;
+              }
+            </style>
+            <div class="col-lg-6 col-md-6 col-sm-6" style="margin-top: 20px">
+              <div class="checkout__form__input">
+                <p>Category <span>*</span></p>
+                {{ form.category }}
+              </div>
+            </div>
+            <style>
+              .drag-drop-area {
+                position: relative;
+                min-height: 150px;
+                border: 2px dashed #ccc;
+                border-radius: 8px;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                color: #000; /* Default text color */
+                font-size: 16px;
+                font-weight: 900;
+                padding: 20px;
+                text-align: center;
+                transition: all 0.3s ease;
+              }
+
+              .drag-drop-area.image-uploaded p {
+                color: #fff;
+                z-index: 20;
+                font-weight: 900;
+                font-size: 20px;
+              }
+
+              .drag-drop-area .upload-content {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 10px;
+                z-index: 10;
+                position: relative;
+              }
+              .drag-drop-area .upload-content p {
+                font-weight: 900;
+                font-size: 16px;
+              }
+
+              .image-preview {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                border-radius: 8px;
+                overflow: hidden;
+                display: none;
+              }
+
+              .image-preview.show {
+                display: block;
+              }
+
+              .image-preview img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                transition: all 0.3s ease;
+              }
+
+              .browse-btn {
+                background-color: #007bff;
+                color: white;
+                padding: 8px 16px;
+                border: none;
+                border-radius: 4px;
+                cursor: pointer;
+                transition: background-color 0.3s ease;
+              }
+
+              .browse-btn:hover {
+                background-color: #0056b3;
+              }
+
+              /* The overlay effect on image preview */
+              .image-preview::after {
+                content: "";
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 255, 0.3); /* Bluish overlay */
+                z-index: 6; /* Keeps overlay above the image */
+                border-radius: 8px;
+              }
+
+              .image-preview img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                transition: all 0.3s ease;
+              }
+
+              .browse-btn {
+                background-color: #007bff;
+                color: white;
+                padding: 8px 16px;
+                border: none;
+                border-radius: 4px;
+                cursor: pointer;
+                transition: background-color 0.3s ease;
+              }
+
+              .browse-btn:hover {
+                background-color: #0056b3;
+              }
+            </style>
+
+            <div
+              class="form-group checkout__form__input"
+              style="margin-top: 5px"
+            >
+              <p>Image <span style="color: red">*</span></p>
+              <div class="input-image-container" id="image-upload-container">
+                <input
+                  type="file"
+                  name="image"
+                  id="image-id"
+                  class="input-image"
+                  accept="image/*"
+                  hidden
+                />
+                <div class="drag-drop-area" id="drag-drop-area">
+                  <div class="upload-content">
+                    <i
+                      class="fa fa-cloud-upload"
+                      aria-hidden="true"
+                      style="font-size: 40px; color: #007bff"
+                    ></i>
+                    <p>Drag and Drop Image Here</p>
+                    <p>OR</p>
+                    <button type="button" class="browse-btn">Browse</button>
+                  </div>
+                  <div class="image-preview" id="image-preview">
+                    <img id="preview-img" src="" alt="Preview" />
+                  </div>
+                </div>
+              </div>
+
+              <!-- Warning message for high-quality images -->
+              <div
+                class="alert alert-warning mt-2"
+                style="font-size: 14px; font-weight: 500"
+              >
+                <i
+                  class="fa fa-exclamation-circle"
+                  aria-hidden="true"
+                  style="color: orange"
+                ></i>
+                Please upload high-quality images with good lighting and
+                clarity. Quality images attract more buyers!
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-4">
+          <div class="checkout__order">
+            <h5>Your Item Listing</h5>
+            <div class="checkout__order__product">
+              <ul>
+                <li>
+                  <span class="top__text">Product</span>
+                  <span class="top__text__right">Total</span>
+                </li>
+                <li>
+                  <small
+                    id="preview-title"
+                    style="font-size: 15px; font-weight: 600"
+                    >01. Product title</small
+                  >
+                  <span id="preview-price">Ksh 0.00</span>
+                </li>
+              </ul>
+            </div>
+            <div
+              class="checkout__order__product__details"
+              style="
+                display: flex;
+                align-items: center;
+                margin-top: 1px;
+                margin-bottom: -1px;
+                max-width: 300px;
+                width: 100%;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                max-height: 100px;
+              "
+            >
+              <p
+                id="preview-description"
+                style="
+                  white-space: nowrap;
+                  overflow: hidden;
+                  text-overflow: ellipsis;
+                  margin: 0;
+                "
+              >
+                Brief description here
+              </p>
+            </div>
+
+            <div class="checkout__order__total">
+              <ul>
+                <li>Subtotal <span id="preview-subtotal">Ksh 0.00</span></li>
+                <li>Total <span id="preview-total">Ksh 0.00</span></li>
+              </ul>
+            </div>
+
+            <div class="checkout__order__image-preview mt-3">
+              <img
+                id="preview-image"
+                src=""
+                alt="Image preview"
+                class="img-fluid"
+                hidden
+              />
+            </div>
+
+            <div class="checkout__order__widget">
+              <p>
+                <i
+                  class="fa fa-exclamation-triangle"
+                  aria-hidden="true"
+                  style="color: red; font-size: 18px"
+                ></i>
+                Want to showcase your product even better? You’ll be able to add
+                more images and details from your seller dashboard after listing
+                your item, helping buyers see all the great features your
+                product offers.
+              </p>
+            </div>
+            <button type="submit" class="site-btn">List Your Item</button>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+</section>
+<section class="listing-tips py-5 bg-light">
+  <div class="container">
+    <h3 class="mb-4 text-center"><b>Tips for a Successful Listing</b></h3>
+    <div class="card shadow-sm border-0">
+      <div class="card-body">
+        <ul class="list-group list-group-flush">
+          <li class="list-group-item d-flex align-items-start">
+            <i class="fas fa-camera-retro fa-2x text-primary me-3"></i>
+            <div>
+              <strong>Use High-Quality Photos:</strong>
+              <p class="mb-0">
+                Clear, well-lit images attract more buyers. Aim for good
+                lighting, ideally in natural light, and avoid cluttered
+                backgrounds.
+              </p>
+              <small class="text-muted"
+                >Tip: Capture multiple angles of the item to give buyers a
+                complete view.</small
+              >
+            </div>
+          </li>
+
+          <li class="list-group-item d-flex align-items-start">
+            <i class="fas fa-edit fa-2x text-success me-3"></i>
+            <div>
+              <strong>Write an Accurate Description:</strong>
+              <p class="mb-0">
+                Include essential details, such as size, condition, brand, and
+                any defects, to help buyers make an informed decision.
+              </p>
+              <small class="text-muted"
+                >Tip: Use bullet points for easier readability.</small
+              >
+            </div>
+          </li>
+
+          <li class="list-group-item d-flex align-items-start">
+            <i class="fas fa-tag fa-2x text-warning me-3"></i>
+            <div>
+              <strong>Price Competitively:</strong>
+              <p class="mb-0">
+                Research similar items on the platform to set a fair price.
+                Competitive pricing can help you sell faster.
+              </p>
+              <small class="text-muted"
+                >Tip: Consider using promotional pricing for the first few items
+                to build reviews.</small
+              >
+            </div>
+          </li>
+
+          <li class="list-group-item d-flex align-items-start">
+            <i class="fas fa-comments fa-2x text-info me-3"></i>
+            <div>
+              <strong>Be Responsive:</strong>
+              <p class="mb-0">
+                Reply quickly to messages from potential buyers to build trust
+                and improve your chances of making a sale.
+              </p>
+              <small class="text-muted"
+                >Tip: Enable notifications to respond promptly.</small
+              >
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const titleInput = document.getElementById("product-title");
+    const descriptionInput = document.getElementById("product-description");
+    const priceInput = document.getElementById("product-price");
+    const categoryInput = document.getElementById("product-category");
+
+    const previewTitle = document.getElementById("preview-title");
+    const previewDescription = document.getElementById("preview-description");
+    const previewPrice = document.getElementById("preview-price");
+    const previewSubtotal = document.getElementById("preview-subtotal");
+    const previewTotal = document.getElementById("preview-total");
+
+    // Update preview when inputs change
+    titleInput.addEventListener("input", updatePreview);
+    descriptionInput.addEventListener("input", updatePreview);
+    priceInput.addEventListener("input", updatePreview);
+    categoryInput.addEventListener("change", updatePreview);
+
+    // Function to update the preview of the item listing
+    function updatePreview() {
+      // Add "1." before the product title
+      previewTitle.textContent = `1. ${titleInput.value || ""}`;
+
+      // Limit the description to 17 characters
+      const descriptionText = descriptionInput.value || "";
+      previewDescription.textContent =
+        descriptionText.length > 100
+          ? descriptionText.slice(0, 100) + "..."
+          : descriptionText;
+
+      // Format the price and update the total fields
+      const formattedPrice = priceInput.value
+        ? `Ksh ${parseFloat(priceInput.value).toFixed(2)}`
+        : "";
+      previewPrice.textContent = formattedPrice;
+      previewSubtotal.textContent = formattedPrice;
+      previewTotal.textContent = formattedPrice;
+    }
+  });
+</script>
+
+<script>
+  const dragDropArea = document.getElementById("drag-drop-area");
+  const fileInput = document.getElementById("image-id");
+  const browseBtn = document.querySelector(".browse-btn");
+  const imagePreview = document.getElementById("image-preview");
+  const previewImg = document.getElementById("preview-img");
+  const uploadContent = document.querySelector(".upload-content");
+
+  // Handle browse button click
+  browseBtn.addEventListener("click", () => {
+    fileInput.click();
+  });
+
+  // Handle file selection
+  fileInput.addEventListener("change", handleFileSelect);
+
+  // Handle drag and drop events
+  dragDropArea.addEventListener("dragover", (e) => {
+    e.preventDefault();
+    dragDropArea.classList.add("drag-over");
+  });
+
+  dragDropArea.addEventListener("dragleave", (e) => {
+    e.preventDefault();
+    dragDropArea.classList.remove("drag-over");
+  });
+
+  dragDropArea.addEventListener("drop", (e) => {
+    e.preventDefault();
+    dragDropArea.classList.remove("drag-over");
+
+    const files = e.dataTransfer.files;
+    if (files.length > 0) {
+      fileInput.files = files;
+      handleFileSelect({ target: fileInput });
+    }
+  });
+
+  function handleFileSelect(e) {
+    const file = e.target.files[0];
+    if (file && file.type.startsWith("image/")) {
+      const reader = new FileReader();
+
+      reader.onload = (e) => {
+        previewImg.src = e.target.result;
+        imagePreview.classList.add("show");
+
+        // Change text color to white once the image is uploaded
+        dragDropArea.classList.add("image-uploaded");
+      };
+
+      reader.readAsDataURL(file);
+    }
+  }
+</script>
 {% endblock %}

@@ -13,7 +13,7 @@ import pytz
 class Poll(models.Model):
     POLL_TYPE_CHOICES = (
         ("question", "Question"),
-        ("opinion", "Opinion Poll"),
+        ("opinion", "Opinion"),
     )
 
     creator = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -22,9 +22,7 @@ class Poll(models.Model):
     poll_type = models.CharField(
         max_length=10, choices=POLL_TYPE_CHOICES, default="opinion"
     )
-    background_color = models.CharField(
-        max_length=7, default="#ffffff"
-    )  # HEX color format
+    background_color = models.CharField(max_length=7, default="#ffffff")  # HEX color format
     show_share_button = models.BooleanField(default=True)
     link = models.URLField(max_length=200, blank=True)  # Auto-generated unique link
     qr_code = models.ImageField(upload_to="qr_codes/", blank=True, null=True)
@@ -35,10 +33,20 @@ class Poll(models.Model):
     banner_image = models.ImageField(upload_to="poll_banners/", blank=True, null=True)
     multi_option = models.BooleanField(default=False)  
     created_at = models.DateTimeField(auto_now_add=True)
-
-    # New field to store the number of attempts
+    is_archived = models.BooleanField(default=False)
+    is_archived_results = models.BooleanField(default=False)
     attempts = models.PositiveIntegerField(default=0)  # Track vote attempts
 
+    def archive(self):
+        """Toggle the archived state of the poll."""
+        self.is_archived = not self.is_archived
+        self.save()
+    
+    def archived_results(self):
+        """Toggle the archived state of the poll."""
+        self.is_archived_results = not self.is_archived_results
+        self.save()
+        
     @property
     def is_active(self):
         """Checks if the poll is still active based on expiration time and allow_expiration in Kenyan timezone."""
@@ -116,7 +124,7 @@ class Comment(models.Model):
 
     def total_likes(self):
         """Returns the total number of likes for the comment or subcomment."""
-        return self.comment_likes.count()  # Updated to use the correct related name
+        return self.comment_likes.count() 
 
     def comment_count(self):
         """Returns the total number of comments for the poll."""
@@ -174,4 +182,3 @@ class Vote(models.Model):
     def can_vote_again(self):
         """Determine if the user can vote again based on the poll's attempts."""
         return self.poll.attempts < 2  
-

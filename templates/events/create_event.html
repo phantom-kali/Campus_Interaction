@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% block title %}Create New Event{% endblock %}
 {% load form_tags %}
-
+{% load static %}
 {% block extra_css %}
 <style>
     .form-card {
@@ -11,8 +11,53 @@
         transition: all 0.3s ease;
     }
     
-    .form-floating {
-        margin-bottom: 1.5rem;
+    .form-step {
+        display: none;
+    }
+    
+    .form-step.active {
+        display: block;
+    }
+    
+    .step-indicator {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 2rem;
+    }
+    
+    .step {
+        width: 35px;
+        height: 35px;
+        border-radius: 50%;
+        background: #e9ecef;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 1rem;
+        position: relative;
+        z-index: 1;
+    }
+    
+    .step.active {
+        background: #0d6efd;
+        color: white;
+    }
+    
+    .step.completed {
+        background: #198754;
+        color: white;
+    }
+    
+    .step-connector {
+        flex-grow: 1;
+        height: 2px;
+        background: #e9ecef;
+        margin-top: 17px;
+        max-width: 100px;
+    }
+    
+    .step-connector.active {
+        background: #0d6efd;
     }
     
     .preview-image {
@@ -29,6 +74,26 @@
         color: #6c757d;
         font-size: 0.875rem;
     }
+
+    .navigation-buttons {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 2rem;
+    }
+
+    .step-title {
+        text-align: center;
+        margin-bottom: 1.5rem;
+        color: #0d6efd;
+    }
+
+    .form-progress {
+        height: 4px;
+        margin: 2rem 0;
+        max-width: 500px;
+        margin-left: auto;
+        margin-right: auto;
+    }
 </style>
 {% endblock %}
 
@@ -40,7 +105,21 @@
                 <!-- Header Section -->
                 <div class="text-center mb-4">
                     <h1 class="fw-bold mb-3">Create Your Event</h1>
-                    <p class="text-muted">Share your upcoming event with the community</p>
+                    <p class="text-muted">Complete the following steps to create your event</p>
+                </div>
+
+                <!-- Step Indicators -->
+                <div class="step-indicator mb-4">
+                    <div class="step active" data-step="1">1</div>
+                    <div class="step-connector"></div>
+                    <div class="step" data-step="2">2</div>
+                    <div class="step-connector"></div>
+                    <div class="step" data-step="3">3</div>
+                </div>
+
+                <!-- Progress Bar -->
+                <div class="progress form-progress">
+                    <div class="progress-bar" role="progressbar" style="width: 33%"></div>
                 </div>
 
                 <!-- Form Card -->
@@ -48,93 +127,109 @@
                     <form method="POST" enctype="multipart/form-data" id="event-form" class="needs-validation" novalidate>
                         {% csrf_token %}
 
-                        <!-- Basic Information -->
-                        <h3 class="mb-4 text-primary">Tell us about your event</h3>
-                        
-                        <div class="form-floating mb-3">
-                            <input type="text" id="id_title" name="title" class="form-control form-control-lg" placeholder="Event Title" required>
-                            <label for="id_title">Event Title</label>
-                        </div>
-
-                        <div class="form-floating mb-3">
-                            <select id="id_event_type" name="event_type" class="form-select form-select-lg" required>
-                                <option value="physical">🏢 Physical Event</option>
-                                <option value="text">📝 Text-Based Event</option>
-                            </select>
-                            <label for="id_event_type">Event Type</label>
-                        </div>
-
-                        <div class="form-floating mb-3">
-                            <textarea id="id_description" name="description" class="form-control" style="height: 120px" required placeholder="Description"></textarea>
-                            <label for="id_description">Description</label>
-                            <div class="floating-hint">
-                                <span id="char-count">0</span>/500
-                            </div>
-                        </div>
-
-                        <!-- Event Details -->
-                        <h3 class="mb-4 text-primary">Event Details</h3>
-                        
-                        <!-- Physical Event Fields -->
-                        <div id="physical-fields" class="form-section">
-                            <div class="form-floating mb-3">
-                                <input type="text" id="id_location" name="location" class="form-control form-control-lg" placeholder="Location">
-                                <label for="id_location">Location</label>
-                            </div>
-
-                            <div class="mb-4">
-                                <label class="form-label fw-bold">Cover Image</label>
-                                <div class="drop-zone p-5 text-center border rounded-3 mb-3" id="drop-zone">
-                                    <i class="fas fa-cloud-upload-alt fa-3x mb-3 text-primary"></i>
-                                    <p class="mb-0">Drag and drop your image here or click to browse</p>
-                                    <input type="file" id="id_image" name="image" class="form-control visually-hidden" accept="image/*">
-                                </div>
-                                <div id="image-preview" class="mt-3 text-center"></div>
-                            </div>
-                        </div>
-
-                        <!-- Text Event Fields -->
-                        <div id="text-fields" class="form-section">
-                            <div class="form-floating mb-3">
-                                <textarea id="id_content" name="content" class="form-control" style="height: 200px" placeholder="Content"></textarea>
-                                <label for="id_content">Event Content</label>
-                            </div>
-                        </div>
-
-                        <!-- Schedule and Settings -->
-                        <h3 class="mb-4 text-primary">Schedule & Settings</h3>
-                        
-                        <div class="row g-3">
-                            <div class="col-md-6">
-                                <div class="form-floating">
-                                    <input type="datetime-local" id="id_start_date" name="start_date" class="form-control" required>
-                                    <label for="id_start_date">Start Date & Time</label>
-                                </div>
-                            </div>
+                        <!-- Step 1: Basic Information -->
+                        <div class="form-step active" id="step1">
+                            <h3 class="step-title">Basic Information</h3>
                             
-                            <div class="col-md-6">
-                                <div class="form-floating">
-                                    <input type="datetime-local" id="id_end_date" name="end_date" class="form-control" required>
-                                    <label for="id_end_date">End Date & Time</label>
+                            <div class="form-floating mb-3">
+                                <input type="text" id="id_title" name="title" class="form-control form-control-lg" placeholder="Event Title" required>
+                                <label for="id_title">Event Title</label>
+                            </div>
+
+                            <div class="form-floating mb-3">
+                                <select id="id_event_type" name="event_type" class="form-select form-select-lg" required>
+                                    <option value="physical">🏢 Physical Event</option>
+                                    <option value="text">📝 Text-Based Event</option>
+                                </select>
+                                <label for="id_event_type">Event Type</label>
+                            </div>
+
+                            <div class="form-floating mb-3">
+                                <textarea id="id_description" name="description" class="form-control" style="height: 120px" required placeholder="Description"></textarea>
+                                <label for="id_description">Description</label>
+                                <div class="floating-hint">
+                                    <span id="char-count">0</span>/500
                                 </div>
+                            </div>
+
+                            <div class="navigation-buttons">
+                                <div></div> <!-- Empty div for spacing -->
+                                <button type="button" class="btn btn-primary btn-lg next-step">Next <i class="fas fa-arrow-right ms-2"></i></button>
                             </div>
                         </div>
 
-                        <div class="form-floating mb-3 mt-3">
-                            <input type="number" id="id_max_participants" name="max_participants" class="form-control" placeholder="Max Participants">
-                            <label for="id_max_participants">Maximum Participants (Optional)</label>
+                        <!-- Step 2: Event Details -->
+                        <div class="form-step" id="step2">
+                            <h3 class="step-title">Event Details</h3>
+                            
+                            <!-- Physical Event Fields -->
+                            <div id="physical-fields" class="form-section">
+                                <div class="form-floating mb-3">
+                                    <input type="text" id="id_location" name="location" class="form-control form-control-lg" placeholder="Location">
+                                    <label for="id_location">Location</label>
+                                </div>
+
+                                <div class="mb-4">
+                                    <label class="form-label fw-bold">Cover Image</label>
+                                    <div class="drop-zone p-5 text-center border rounded-3 mb-3" id="drop-zone">
+                                        <i class="fas fa-cloud-upload-alt fa-3x mb-3 text-primary"></i>
+                                        <p class="mb-0">Drag and drop your image here or click to browse</p>
+                                        <input type="file" id="id_image" name="image" class="form-control visually-hidden" accept="image/*">
+                                    </div>
+                                    <div id="image-preview" class="mt-3 text-center"></div>
+                                </div>
+                            </div>
+
+                            <!-- Text Event Fields -->
+                            <div id="text-fields" class="form-section">
+                                <div class="form-floating mb-3">
+                                    <textarea id="id_content" name="content" class="form-control" style="height: 200px" placeholder="Content"></textarea>
+                                    <label for="id_content">Event Content</label>
+                                </div>
+                            </div>
+
+                            <div class="navigation-buttons">
+                                <button type="button" class="btn btn-outline-primary btn-lg prev-step"><i class="fas fa-arrow-left me-2"></i> Previous</button>
+                                <button type="button" class="btn btn-primary btn-lg next-step">Next <i class="fas fa-arrow-right ms-2"></i></button>
+                            </div>
                         </div>
 
-                        <div class="form-check form-switch mb-3">
-                            <input type="checkbox" id="id_is_public" name="is_public" class="form-check-input" role="switch">
-                            <label class="form-check-label" for="id_is_public">Make this event public</label>
-                        </div>
+                        <!-- Step 3: Schedule & Settings -->
+                        <div class="form-step" id="step3">
+                            <h3 class="step-title">Schedule & Settings</h3>
 
-                        <!-- Submit Button -->
-                        <div class="d-flex justify-content-end mt-4">
-                            <button type="submit" id="submit-btn" class="btn btn-success btn-lg px-4">
-                                <i class="fas fa-check me-2"></i> Create Event
-                            </button>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <div class="form-floating">
+                                        <input type="datetime-local" id="id_start_date" name="start_date" class="form-control" required>
+                                        <label for="id_start_date">Start Date & Time</label>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-6">
+                                    <div class="form-floating">
+                                        <input type="datetime-local" id="id_end_date" name="end_date" class="form-control" required>
+                                        <label for="id_end_date">End Date & Time</label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-floating mb-3 mt-3">
+                                <input type="number" id="id_max_participants" name="max_participants" class="form-control" placeholder="Max Participants">
+                                <label for="id_max_participants">Maximum Participants (Optional)</label>
+                            </div>
+
+                            <div class="form-check form-switch mb-3">
+                                <input type="checkbox" id="id_is_public" name="is_public" class="form-check-input" role="switch">
+                                <label class="form-check-label" for="id_is_public">Make this event public</label>
+                            </div>
+
+                            <div class="navigation-buttons">
+                                <button type="button" class="btn btn-outline-primary btn-lg prev-step"><i class="fas fa-arrow-left me-2"></i> Previous</button>
+                                <button type="submit" class="btn btn-success btn-lg">
+                                    <i class="fas fa-check me-2"></i> Create Event
+                                </button>
+                            </div>
                         </div>
                     </form>
                 </div>
@@ -142,136 +237,8 @@
         </div>
     </div>
 </div>
+{% endblock %}
 
 {% block extra_js %}
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Character counter for description
-    const descriptionField = document.getElementById('id_description');
-    const charCount = document.getElementById('char-count');
-    
-    descriptionField.addEventListener('input', () => {
-        const count = descriptionField.value.length;
-        charCount.textContent = count;
-        if (count > 500) {
-            descriptionField.value = descriptionField.value.substring(0, 500);
-            charCount.textContent = 500;
-        }
-    });
-
-    // Drag and drop image handling
-    const dropZone = document.getElementById('drop-zone');
-    const imageInput = document.getElementById('id_image');
-    
-    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-        dropZone.addEventListener(eventName, preventDefaults, false);
-    });
-
-    function preventDefaults (e) {
-        e.preventDefault();
-        e.stopPropagation();
-    }
-
-    ['dragenter', 'dragover'].forEach(eventName => {
-        dropZone.addEventListener(eventName, highlight, false);
-    });
-
-    ['dragleave', 'drop'].forEach(eventName => {
-        dropZone.addEventListener(eventName, unhighlight, false);
-    });
-
-    function highlight(e) {
-        dropZone.classList.add('border-primary');
-    }
-
-    function unhighlight(e) {
-        dropZone.classList.remove('border-primary');
-    }
-
-    dropZone.addEventListener('drop', handleDrop, false);
-
-    function handleDrop(e) {
-        const dt = e.dataTransfer;
-        const files = dt.files;
-        imageInput.files = files;
-        handleFiles(files);
-    }
-
-    dropZone.addEventListener('click', () => {
-        imageInput.click();
-    });
-
-    imageInput.addEventListener('change', function() {
-        handleFiles(this.files);
-    });
-
-    function handleFiles(files) {
-        const preview = document.getElementById('image-preview');
-        if (files.length > 0) {
-            const file = files[0];
-            if (file.type.startsWith('image/')) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    preview.innerHTML = `<img src="${e.target.result}" class="preview-image" alt="Preview">`;
-                };
-                reader.readAsDataURL(file);
-            } else {
-                alert("Please upload a valid image file.");
-            }
-        } else {
-            preview.innerHTML = '';
-        }
-    }
-
-    // Event type toggle
-    const eventType = document.getElementById('id_event_type');
-    const physicalFields = document.getElementById('physical-fields');
-    const textFields = document.getElementById('text-fields');
-
-    function toggleEventType() {
-        if (eventType.value === 'physical') {
-            physicalFields.style.display = 'block';
-            textFields.style.display = 'none';
-        } else {
-            physicalFields.style.display = 'none';
-            textFields.style.display = 'block';
-        }
-    }
-
-    eventType.addEventListener('change', toggleEventType);
-    toggleEventType();
-
-    // Date validation
-    const startDateInput = document.getElementById('id_start_date');
-    const endDateInput = document.getElementById('id_end_date');
-
-    function setMinDates() {
-        const now = new Date().toISOString().slice(0, -8);
-        startDateInput.min = now;
-        endDateInput.min = startDateInput.value;
-    }
-
-    startDateInput.addEventListener('input', function() {
-        endDateInput.min = startDateInput.value;
-    });
-
-    setMinDates();
-});
-
-// Prevent multiple clicks
-let isDialogOpen = false;
-
-dropZone.addEventListener('click', () => {
-    if (!isDialogOpen) {
-        isDialogOpen = true;
-        imageInput.click();
-    }
-});
-
-// Reset flag after dialog closes
-imageInput.addEventListener('change', () => {
-    isDialogOpen = false;
-});
-</script>
-{% endblock %}
+    <script src="{% static 'js/events/createEvent.js' %}"></script>
 {% endblock %}

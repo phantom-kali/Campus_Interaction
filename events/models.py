@@ -3,7 +3,10 @@ from django.contrib.auth.models import User
 from django.utils import timezone
 from django.core.exceptions import ValidationError
 from profiles.models import Profile  # Use the Profile model from profiles app
-
+from django.utils.translation import gettext_lazy as _
+from django.db.models import Max
+from rest_framework import serializers
+from django.db import transaction
 
 class EventCategory(models.Model):
     name = models.CharField(max_length=100, help_text="Enter the event category name.")
@@ -61,29 +64,186 @@ class Event(models.Model):
         if not self.campus and self.organizer:
             self.campus = self.organizer
         super().save(*args, **kwargs)
+    @property
+    def spots_left(self):
+        if self.max_participants is None:
+            return None
+        registered_count = self.registrations.filter(status='registered').count()
+        return max(0, self.max_participants - registered_count)
+
+    @property
+    def is_full(self):
+        return self.max_participants is not None and self.spots_left <= 0
         
+
+
 class EventRegistration(models.Model):
-    event = models.ForeignKey(Event, on_delete=models.CASCADE)
-    participant = models.ForeignKey(Profile, on_delete=models.CASCADE)  # Use Profile here
-    registration_date = models.DateTimeField(auto_now_add=True)
-    attended = models.BooleanField(default=False)
+    REGISTRATION_STATUS = (
+        ('registered', 'Registered'),
+        ('waitlist', 'Waitlisted'),
+        ('cancelled', 'Cancelled')
+    )
+    
+    event = models.ForeignKey(
+        'Event', 
+        on_delete=models.CASCADE, 
+        related_name='registrations',
+        help_text=_("The event being registered for")
+    )
+    participant = models.ForeignKey(
+        'profiles.Profile', 
+        on_delete=models.CASCADE,
+        help_text=_("The user registering for the event")
+    )
+    registration_date = models.DateTimeField(
+        auto_now_add=True,
+        help_text=_("When the registration was created")
+    )
+    attended = models.BooleanField(
+        default=False,
+        help_text=_("Whether the participant attended the event")
+    )
+    status = models.CharField(
+        max_length=20, 
+        choices=REGISTRATION_STATUS, 
+        default='registered',
+        help_text=_("Current status of the registration")
+    )
+    email = models.EmailField(
+        null=True, 
+        blank=True,
+        help_text=_("Contact email for the registration")
+    )
+    name = models.CharField(
+    max_length=255, 
+    help_text=_("Full name of the participant"),
+    null=False,  # Ensure this is set
+    blank=False  # This prevents empty strings
+)
+    waitlist_position = models.PositiveIntegerField(
+        null=True, 
+        blank=True,
+        help_text=_("Position in the waitlist if applicable")
+    )
 
     class Meta:
         constraints = [
-            models.UniqueConstraint(fields=['event', 'participant'], name='unique_event_participant')
+            models.UniqueConstraint(
+                fields=['event', 'participant'],
+                condition=models.Q(status__in=['registered', 'waitlisted']),  # Only active registrations need to be unique
+                name='unique_active_registration'
+            )
+        ]
+        ordering = ['registration_date']
+        indexes = [
+            models.Index(fields=['status', 'event']),
+            models.Index(fields=['registration_date']),
         ]
 
+    def __str__(self):
+        return f"{self.name} - {self.event} ({self.get_status_display()})"
+
+    def clean(self):
+        if self.status == 'waitlist' and self.waitlist_position is None:
+            raise ValidationError({
+                'waitlist_position': _('Waitlist position is required for waitlisted registrations.')
+            })
+        if self.status != 'waitlist' and self.waitlist_position is not None:
+            raise ValidationError({
+                'waitlist_position': _('Waitlist position should only be set for waitlisted registrations.')
+            })
+    def validate(self, data):
+        if not data.get('name'):
+            raise serializers.ValidationError({"name": "Name cannot be blank"})
+        return data
     def save(self, *args, **kwargs):
-        if self.event.max_participants and EventRegistration.objects.filter(event=self.event).count() >= self.event.max_participants:
-            raise ValueError("Cannot register: event has reached maximum participants")
+        self.full_clean()
+        
+        if not self.pk:  # New registration
+            current_registrations = EventRegistration.objects.filter(
+                event=self.event, 
+                status='registered'
+            ).count()
+            
+            if self.event.max_participants and current_registrations >= self.event.max_participants:
+                self.status = 'waitlist'
+                last_position = EventRegistration.objects.filter(
+                    event=self.event,
+                    status='waitlist'
+                ).aggregate(Max('waitlist_position'))['waitlist_position__max'] or 0
+                self.waitlist_position = last_position + 1
+        
+        # Clear waitlist position if status is not waitlist
+        if self.status != 'waitlist':
+            self.waitlist_position = None
+            
         super().save(*args, **kwargs)
+
+    
+    def cancel_registration(self):
+        """
+        Cancel this registration and move up waitlisted registrations if applicable.
+        """
+        with transaction.atomic():
+            was_registered = self.status == 'registered'
+            self.status = 'cancelled'
+            self.waitlist_position = None
+            self.save()
+            
+            if was_registered:
+                # Try to move the first waitlisted person to registered
+                next_waitlisted = EventRegistration.objects.filter(
+                    event=self.event,
+                    status='waitlist'
+                ).order_by('waitlist_position').first()
+                
+                if next_waitlisted:
+                    next_waitlisted.move_from_waitlist()
+            
+            return True
+        
+        def move_from_waitlist(self):
+            """
+            Attempt to move a waitlisted registration to registered status if space is available.
+            """
+            if self.status != 'waitlist':
+                return False
+                
+            current_registrations = EventRegistration.objects.filter(
+                event=self.event, 
+                status='registered'
+            ).count()
+                
+            # if not self.event.max_participants or current_registrations < self.event.max_participants:
+            #     self.status = 'registered'
+            #     self.waitlist_position = None
+            #     self.save()
+            spots_remaining = self.event.get_spots_remaining()
+            
+            if spots_remaining is None or spots_remaining > 0:
+                self.status = 'registered'
+                self.waitlist_position = None
+                self.save()  
+                # Reorder remaining waitlist
+                waitlist_registrations = EventRegistration.objects.filter(
+                    event=self.event,
+                    status='waitlist'
+                ).order_by('waitlist_position')
+                
+                for i, registration in enumerate(waitlist_registrations, 1):
+                    registration.waitlist_position = i
+                    registration.save()
+                    
+                return True
+            return False
+
 class Comment(models.Model):
     event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name='comments')
     user = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name='user_comments')  # Profile is used here
     content = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True, db_index=True)
     updated_at = models.DateTimeField(auto_now=True)
-    parent = models.ForeignKey('self', null=True, blank=True, on_delete=models.CASCADE, related_name='replies')
+    parent = models.ForeignKey('self', null=True, blank=True, on_delete=models.CASCADE, related_name='comment_replies')
     likes = models.ManyToManyField(Profile, through='CommentLike', related_name='liked_comments')  # Profile is used here
     level = models.PositiveIntegerField(default=0)
     is_edited = models.BooleanField(default=False)
@@ -111,24 +271,35 @@ class CommentLike(models.Model):
     def __str__(self):
         return f"{self.user} likes {self.comment}"
 
-class EventReaction(models.Model):
-    REACTION_CHOICES = [
-        ('like', '👍'),
-        ('love', '❤️'),
-        ('laugh', '😄'),
-        ('wow', '😮'),
-        ('sad', '😢'),
-    ]
 
-    event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name='reactions')
-    user = models.ForeignKey(Profile, on_delete=models.CASCADE)  # Use Profile here
-    reaction_type = models.CharField(max_length=10, choices=REACTION_CHOICES)
+class Reply(models.Model):
+    comment = models.ForeignKey(Comment, on_delete=models.CASCADE, related_name='replies')
+    user = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name='user_replies')
+    content = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    likes = models.ManyToManyField(Profile, through='ReplyLike', related_name='liked_replies')
+    is_edited = models.BooleanField(default=False)
+    
+    class Meta:
+        ordering = ['created_at']
+        
+    def save(self, *args, **kwargs):
+        if self.pk:  # If reply exists (being updated)
+            self.is_edited = True
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"Reply by {self.user} on {self.created_at}"
+
+
+class ReplyLike(models.Model):
+    user = models.ForeignKey(Profile, on_delete=models.CASCADE)
+    reply = models.ForeignKey(Reply, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        constraints = [
-            models.UniqueConstraint(fields=['event', 'user', 'reaction_type'], name='unique_event_user_reaction')
-        ]
+        unique_together = ['user', 'reply']
 
     def __str__(self):
-        return f"{self.user} reacted with {self.get_reaction_type_display()} on {self.event}"
+        return f"{self.user} likes reply {self.reply.id}"

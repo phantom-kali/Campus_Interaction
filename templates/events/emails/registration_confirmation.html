@@ -1,0 +1,16 @@
+{# Email templates #}
+{# registration_confirmation.html #}
+<!DOCTYPE html>
+<html>
+<body>
+    <h2>Registration Confirmed!</h2>
+    <p>Dear {{ registration.name }},</p>
+    <p>Your registration for {{ event.title }} has been confirmed.</p>
+    <p><strong>Event Details:</strong></p>
+    <ul>
+        <li>Date: {{ event.start_date|date:"F d, Y" }}</li>
+        <li>Time: {{ event.start_date|time:"g:i A" }}</li>
+        <li>Location: {{ event.location }}</li>
+    </ul>
+</body>
+</html>

@@ -2,13 +2,13 @@
 {% block title %}All Events{% endblock %}
 {% block content %}
 <div class="container my-5" x-data="{ showFilters: false }">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1 class="display-4">All Events</h1>
-        <a href="{% url 'events:create_event' %}" class="btn btn-success shadow-sm">
-            <i class="fas fa-plus"></i> Create New Event
-        </a>
-    </div>
-    
+    <div class="container my-5" x-data="{ showFilters: false }">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1 class="display-4">All Events</h1>
+            <a href="{% url 'events:create_event' %}" class="btn btn-success shadow-sm top-create-btn">
+                <i class="fas fa-plus"></i> Create New Event
+            </a>
+        </div>
     <!-- Toggle Filters Button -->
     <button @click="showFilters = !showFilters" 
             class="btn btn-primary mb-3">
@@ -66,4 +66,66 @@
         </div>
     </div>
 </div>
+{% block extra_css %}
+<style>
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        background: white;
+        border-radius: 1rem;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        transition: all 0.3s ease;
+    }
+    /* ... rest of your CSS ... */
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function resetFilters() {
+        // Reset select elements
+        document.getElementById('campus').value = '';
+        document.getElementById('status').value = '';
+        
+        // Trigger HTMX request on campus select
+        document.getElementById('campus').dispatchEvent(new Event('change'));
+        
+        // Close filters panel if using Alpine.js
+        if (typeof Alpine !== 'undefined') {
+            Alpine.store('showFilters', false);
+        }
+    }
+        // Function to handle visibility of the top create event button
+    function handleCreateButtonVisibility() {
+        const topCreateButton = document.querySelector('.top-create-btn');
+        const eventsContainer = document.getElementById('events-container');
+        const emptyState = eventsContainer.querySelector('.empty-state');
+        
+        if (topCreateButton) {
+            topCreateButton.style.display = emptyState ? 'none' : 'inline-flex';
+        }
+    }
+
+    // Function to reset filters
+    function resetFilters() {
+        // Reset select elements
+        document.getElementById('campus').value = '';
+        document.getElementById('status').value = '';
+        
+        // Trigger HTMX request on campus select
+        document.getElementById('campus').dispatchEvent(new Event('change'));
+        
+        // Close filters panel if using Alpine.js
+        if (typeof Alpine !== 'undefined') {
+            Alpine.store('showFilters', false);
+        }
+    }
+
+    // Initialize button visibility
+    document.addEventListener('DOMContentLoaded', handleCreateButtonVisibility);
+
+    // Handle HTMX after-swap event to update button visibility
+    document.body.addEventListener('htmx:afterSwap', handleCreateButtonVisibility);
+</script>
+{% endblock %}
 {% endblock %}

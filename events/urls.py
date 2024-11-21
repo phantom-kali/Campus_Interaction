@@ -26,10 +26,23 @@ urlpatterns = [
     path('<int:event_id>/comment/', views.add_comment, name='add_comment'),
     path('comment/<int:comment_id>/like/', views.toggle_comment_like, name='toggle_comment_like'),
     path('<int:event_id>/delete/', views.delete_event, name='delete_event'),
-    path('<int:event_id>/react/', views.toggle_reaction, name='toggle_reaction'),
     path('university/autocomplete/', views.campus_autocomplete, name='university_autocomplete'),
     path('select2/', include('django_select2.urls')),
     path('<int:event_id>/comments/', views.load_more_comments, name='load_more_comments'),
     # urls.py
     path('comment/<int:comment_id>/delete/', views.delete_comment, name='delete_comment'),
+    path('events/reply/<int:reply_id>/like/', views.toggle_reply_like, name='toggle_reply_like'),
+    
+        # Event detail and registration
+    # path('event/<int:event_id>/', views.event_detail, name='event_detail'),
+    path('event/<int:event_id>/register/', views.register_for_event, name='register'),
+    path('event/<int:event_id>/cancel/', views.cancel_registration, name='cancel'),
+    
+    # Optional additional URLs for event management
+    path('event/<int:event_id>/attendees/', views.event_attendees, name='event_attendees'),
+
+    
+    # API-style endpoints for AJAX calls
+    path('api/event/<int:event_id>/status/', views.event_status, name='event_status'),
+    path('api/event/<int:event_id>/waitlist/', views.waitlist_position, name='waitlist_position'),
 ]

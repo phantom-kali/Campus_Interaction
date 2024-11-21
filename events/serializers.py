@@ -1,7 +1,7 @@
 # events/serializers.py
 from rest_framework import serializers
 from django.utils import timezone
-from .models import Event, EventCategory, EventRegistration, Comment, EventReaction
+from .models import Event, EventCategory, EventRegistration, Comment, Reply
 
 
 class EventCategorySerializer(serializers.ModelSerializer):
@@ -9,18 +9,46 @@ class EventCategorySerializer(serializers.ModelSerializer):
         model = EventCategory
         fields = ['id', 'name', 'description']
 
+    
+class ReplySerializer(serializers.ModelSerializer):
+    user = serializers.SerializerMethodField()
+    likes_count = serializers.SerializerMethodField()
+    is_liked_by_user = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Reply
+        fields = ['id', 'content', 'user', 'created_at', 'updated_at',
+                 'likes_count', 'is_liked_by_user', 'is_edited']
+        read_only_fields = ['user', 'created_at', 'updated_at', 'is_edited']
+
+    def get_user(self, obj):
+        return {
+            'id': obj.user.id,
+            'username': obj.user.user.username,
+            'avatar': obj.user.avatar.url if obj.user.avatar else None
+        }
+
+    def get_likes_count(self, obj):
+        return obj.likes.count()
+
+    def get_is_liked_by_user(self, obj):
+        request = self.context.get('request')
+        if request and request.user.is_authenticated:
+            return obj.likes.filter(id=request.user.profile.id).exists()
+        return False
+# Update CommentSerializer to use ReplySerializer
 class CommentSerializer(serializers.ModelSerializer):
     user = serializers.SerializerMethodField()
     likes_count = serializers.SerializerMethodField()
     is_liked_by_user = serializers.SerializerMethodField()
-    replies = serializers.SerializerMethodField()
+    replies = ReplySerializer(many=True, read_only=True)
 
     class Meta:
         model = Comment
-        fields = ['id', 'content', 'user', 'created_at', 'updated_at', 
-                 'likes_count', 'is_liked_by_user', 'replies', 'level', 
+        fields = ['id', 'content', 'user', 'created_at', 'updated_at',
+                 'likes_count', 'is_liked_by_user', 'replies', 'level',
                  'is_edited', 'path']
-        read_only_fields = ['user', 'created_at', 'updated_at', 'path', 
+        read_only_fields = ['user', 'created_at', 'updated_at', 'path',
                            'level', 'is_edited']
 
     def get_user(self, obj):
@@ -38,30 +66,6 @@ class CommentSerializer(serializers.ModelSerializer):
         if request and request.user.is_authenticated:
             return obj.likes.filter(id=request.user.profile.id).exists()
         return False
-
-    def get_replies(self, obj):
-        if obj.level >= 2:  # Limit nesting to 2 levels
-            return []
-        replies = obj.replies.all()
-        return CommentSerializer(replies, many=True, context=self.context).data
-
-class EventReactionSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = EventReaction
-        fields = ['id', 'reaction_type', 'created_at']
-        read_only_fields = ['created_at']
-
-    def validate(self, data):
-        request = self.context.get('request')
-        event = self.context.get('event')
-        
-        if EventReaction.objects.filter(
-            event=event,
-            user=request.user.profile,
-            reaction_type=data['reaction_type']
-        ).exists():
-            raise serializers.ValidationError("You have already reacted to this event.")
-        return data
 
 class EventSerializer(serializers.ModelSerializer):
     category = EventCategorySerializer(read_only=True)
@@ -95,12 +99,7 @@ class EventSerializer(serializers.ModelSerializer):
             }
         return None
     
-    def get_reactions_count(self, obj):
-        return {
-            reaction_type: obj.reactions.filter(reaction_type=reaction_type).count()
-            for reaction_type, _ in EventReaction.REACTION_CHOICES
-        }
-
+  
     def get_is_registered(self, obj):
         request = self.context.get('request')
         if request and request.user.is_authenticated:

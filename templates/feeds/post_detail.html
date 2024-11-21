@@ -1,0 +1,175 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ post.user.username }}'s Post{% endblock %}
+
+{% block extra_css %}
+<style>
+    .sticky-back-button {
+    position: sticky;
+    top: 1rem;
+    z-index: 10;
+    padding: 1rem 0;
+    background: linear-gradient(to bottom, rgba(255,255,255,1) 0%, rgba(255,255,255,1) 50%, rgba(255,255,255,0) 100%);
+}
+
+.sticky-back-button .btn {
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* Add margin to the main content to prevent overlap */
+.container.py-4 {
+    margin-top: -3rem;
+}
+
+.post-content {
+    min-height: 100px;
+    max-height: 600px;
+    overflow-y: auto;
+}
+
+.media-container {
+    position: relative;
+    width: 100%;
+    height: 0;
+    padding-bottom: 56.25%; /* 16:9 aspect ratio */
+    overflow: hidden;
+}
+
+.post-media {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    background-color: #f8f9fa;
+}
+
+/* Custom scrollbar for post content */
+.post-content::-webkit-scrollbar {
+    width: 6px;
+}
+
+.post-content::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+.post-content::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 3px;
+}
+
+.post-content::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Sticky Back Button -->
+<div class="sticky-back-button">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <a href="{% url 'feeds:feed_list' %}#post-{{ post.id }}" 
+                   class="btn btn-outline-primary">
+                    <i class="fas fa-arrow-left"></i> Back to Feed
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-7 col-lg-6">
+            <div class="card post-card">
+                <div class="card-header bg-transparent">
+                    <div class="d-flex align-items-center">
+                        <img src="{{ post.user.profile.get_avatar_url }}" 
+                             class="rounded-circle me-2" 
+                             width="40" 
+                             height="40" 
+                             alt="{{ post.user.username }}">
+                        <div>
+                            <h6 class="mb-0">{{ post.user.username }}</h6>
+                            <small class="text-muted">{{ post.created_at|timesince }} ago</small>
+                        </div>
+                        
+                        {% if user == post.user %}
+                        <div class="dropdown ms-auto">
+                            <button class="btn btn-link text-dark" type="button" data-bs-toggle="dropdown">
+                                <i class="fas fa-ellipsis-v"></i>
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li>
+                                    <a class="dropdown-item text-danger" 
+                                       href="#" 
+                                       onclick="deletePost({{ post.id }})">
+                                        Delete
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                        {% else %}
+                        <div class="ms-auto">
+                            <button class="btn btn-link text-dark" 
+                                    type="button" 
+                                    onclick="reportPost({{ post.id }})">
+                                <i class="fas fa-flag"></i>
+                            </button>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="card-body post-content">
+                    {% if post.content %}
+                    <p class="card-text">{{ post.content }}</p>
+                    {% endif %}
+
+                    {% if post.image %}
+                    <div class="media-container">
+                        <img src="{{ post.image.url }}" class="post-media" alt="Post image">
+                    </div>
+                    {% endif %}
+
+                    {% if post.video %}
+                    <div class="media-container">
+                        <video class="post-media" controls>
+                            <source src="{{ post.video.url }}" type="video/mp4">
+                            Your browser does not support the video tag.
+                        </video>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <div class="card-footer bg-transparent">
+                    <div class="d-flex gap-3 mb-3">
+                        <button class="btn btn-link text-decoration-none engagement-btn {% if post in user.liked_posts.all %}liked{% endif %}"
+                                onclick="toggleLike({{ post.id }}, this)">
+                            <i class="fas fa-heart"></i>
+                            <span class="likes-count">{{ post.likes_count }}</span>
+                        </button>
+                        <button class="btn btn-link text-decoration-none engagement-btn">
+                            <i class="fas fa-comment"></i>
+                            <span class="comments-count">{{ post.comments_count }}</span>
+                        </button>
+                        <small class="text-muted ms-auto">
+                            <i class="fas fa-eye"></i> {{ post.views_count }}
+                        </small>
+                    </div>
+
+                    <!-- Comments Section -->
+                    <div class="comments-section">
+                        {% for comment in comments %}
+                            {% include 'feeds/partials/comment.html' %}
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

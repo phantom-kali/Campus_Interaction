@@ -1,0 +1,97 @@
+{% for post in posts %}
+<div class="card post-card mb-4" id="post-{{ post.id }}">
+    <div class="card-header bg-transparent">
+        <div class="d-flex align-items-center">
+            <img src="{{ post.user.profile.get_avatar_url }}" class="rounded-circle me-2" width="40" height="40" alt="{{ post.user.username }}">
+            <div>
+                <h6 class="mb-0">{{ post.user.username }}</h6>
+                <small class="text-muted">{{ post.created_at|timesince }} ago</small>
+            </div>
+            {% if user == post.user %}
+            <div class="dropdown ms-auto">
+                <button class="btn btn-link text-dark" type="button" data-bs-toggle="dropdown">
+                    <i class="fas fa-ellipsis-v"></i>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end">
+                    <li>
+                        <a class="dropdown-item text-danger" href="#" onclick="deletePost({{ post.id }})">
+                            <i class="fas fa-trash-alt me-2"></i>Delete Post
+                        </a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item text-warning" href="#" onclick="reportPost({{ post.id }})">
+                            <i class="fas fa-flag me-2"></i>Report Post
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            {% else %}
+            <div class="ms-auto">
+                <button class="btn btn-link text-dark" type="button" onclick="reportPost({{ post.id }})">
+                    <i class="fas fa-flag"></i>
+                </button>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="card-body post-content" style="cursor: pointer;" onclick="loadPostDetail({{ post.id }}, event)">
+        {% if post.content %}
+        <p class="card-text">{{ post.content }}</p>
+        {% endif %}
+
+        {% if post.image %}
+        <div class="media-container">
+            <img src="{{ post.image.url }}" class="post-media" alt="Post image">
+        </div>
+        {% endif %}
+
+        {% if post.video %}
+        <div class="media-container">
+            <video class="post-media" controls>
+                <source src="{{ post.video.url }}" type="video/mp4">
+                Your browser does not support the video tag.
+            </video>
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="card-footer bg-transparent">
+        <div class="d-flex gap-3">
+            <button class="btn btn-link text-decoration-none engagement-btn {% if post in user.liked_posts.all %}liked{% endif %}"
+                    onclick="toggleLike({{ post.id }}, this)">
+                <i class="fas fa-heart"></i>
+                <span class="likes-count">{{ post.likes_count }}</span>
+            </button>
+            <button class="btn btn-link text-decoration-none engagement-btn" 
+                    onclick="toggleComments({{ post.id }})">
+                <i class="fas fa-comment"></i>
+                <span class="comments-count">{{ post.comments_count }}</span>
+            </button>
+            <small class="text-muted ms-auto">
+                <i class="fas fa-eye"></i> {{ post.views_count }}
+            </small>
+        </div>
+
+        <!-- Comments Section (Hidden by default) -->
+        <div id="comments-{{ post.id }}" class="comments-section mt-3" style="display: none;">
+            <div class="comments-container">
+                <!-- Comments will be loaded here -->
+            </div>
+            <form class="mt-3" onsubmit="submitComment(event, {{ post.id }})">
+                <div class="input-group">
+                    <input type="text" class="form-control" placeholder="Write a comment..." maxlength="500">
+                    <button class="btn btn-primary" type="submit">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% empty %}
+<div class="text-center py-5">
+    <i class="fas fa-newspaper fa-3x mb-3 text-muted"></i>
+    <p class="text-muted">No posts to show.</p>
+</div>
+{% endfor %}

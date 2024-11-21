@@ -374,6 +374,76 @@
           <i class="fa-solid fa-share-nodes"></i>
         </button>
         {% endif %}
+        {% if request.user == poll.creator %}
+        <button class="ico-button" style="margin-left: 6px;"
+                type="button"
+                onclick="archivePoll('{{ poll.id }}', this)"
+                title="{% if poll.is_archived_results %}Unarchive Results{% else %}Archive Results{% endif %}"
+        >
+          <i class="fa-solid fa-archive" 
+             id="archive-result-icon-{{ poll.id }}" 
+             style="color: {% if poll.is_archived_results %}grey{% else %}#4caf50{% endif %};"></i>
+        </button>
+        
+        <!-- Message area for notifications -->
+        <div id="notification-message" style="display: none; position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); 
+            background-color: #4caf50; color: white; padding: 10px; border-radius: 5px; z-index: 1000;">
+        </div>
+        
+        <script>
+          function archivePoll(pollId, button) {
+              const url = `{% url 'polls:archive_poll_results' 0 %}`.replace("0", pollId);
+        
+              fetch(url, {
+                  method: 'POST',
+                  headers: {
+                      'X-CSRFToken': '{{ csrf_token }}', 
+                      'Content-Type': 'application/json'
+                  },
+              })
+              .then(response => {
+                  if (!response.ok) {
+                      throw new Error('Network response was not ok');
+                  }
+                  return response.json();
+              })
+              .then(data => {
+                  const icon = document.getElementById(`archive-result-icon-${pollId}`);
+                  const notificationMessage = document.getElementById("notification-message");
+        
+                  if (data.success) {
+                      if (data.is_archived) {
+                          icon.style.color = 'grey'; // Change color to grey if archived
+                          button.title = "Unarchive Results"; 
+                          notificationMessage.innerText = "Poll archived successfully.";
+                      } else {
+                          icon.style.color = '#4caf50'; // Change color to greenish if unarchived
+                          button.title = "Archive Results"; 
+                          notificationMessage.innerText = "Poll unarchived successfully.";
+                      }
+                      // Show the notification message
+                      notificationMessage.style.display = "block";
+        
+                      // Hide the message after 3 seconds
+                      setTimeout(() => {
+                          notificationMessage.style.display = "none";
+                      }, 3000);
+        
+                      console.log(data.message);
+                  } else {
+                      alert('Failed to archive poll: ' + data.message); // Provide feedback on failure
+                  }
+              })
+              .catch(error => {
+                  console.error('Error:', error);
+                  alert('An error occurred while trying to archive the poll. Please try again.'); // Alert on error
+              });
+          }
+        </script>
+        {% endif %}
+        
+        
+        
       </div>
     </div>
     <div

@@ -1,0 +1,60 @@
+
+{# Registration Modal Template #}
+<div class="modal fade" id="registrationModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Register for {{ event.title }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div id="registration-alerts"></div>
+                {% if event.spots_left == 0 and event.max_participants %}
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        This event is currently full. You will be added to the waiting list.
+                        Current waiting list: {{ event.waitlist_count }} people
+                    </div>
+                {% elif event.spots_left %}
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i>
+                        Spots remaining: {{ event.spots_left }}
+                    </div>
+                {% endif %}
+                
+                <form id="registrationForm" method="POST">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="id_name" class="form-label">Name</label>
+                        <input type="text" 
+                               class="form-control" 
+                               id="id_name" 
+                               name="name" 
+                               value="{{ request.user.get_full_name }}"
+                               required>
+                        <div class="invalid-feedback" id="name-error"></div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="id_email" class="form-label">Email</label>
+                        <input type="email" 
+                               class="form-control" 
+                               id="id_email" 
+                               name="email" 
+                               value="{{ request.user.email }}"
+                               required>
+                        <div class="invalid-feedback" id="email-error"></div>
+                    </div>
+                </form>
+            </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="submitRegistration">
+                        Register
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
