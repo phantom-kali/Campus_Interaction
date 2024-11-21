@@ -1,0 +1,47 @@
+{% load static %}
+
+<header class="header">
+  <div class="container">
+    <div class="row">
+      <!-- Logo -->
+      <div class="col-xl-3 col-lg-2">
+        <div class="header__logo">
+          <a href="/">
+            <img src="{% static 'images/logo.svg' %}" alt="Logo" class="logo-icon" />
+            <span class="logo-text">CampHub</span>
+          </a>
+        </div>
+      </div>
+
+      {% if user.is_authenticated %}
+        <!-- Navigation Menu -->
+        <div class="col-xl-6 col-lg-7">
+          <nav class="header__menu">
+            <ul>
+              {% include 'partials/_nav_items.html' %}
+            </ul>
+          </nav>
+        </div>
+
+        <!-- Right Header Section -->
+        <div class="col-lg-3">
+          {% include 'partials/_header_right.html' %}
+        </div>
+      {% else %}
+        <!-- Auth Links -->
+        <div class="col-lg-3">
+          <div class="header__right">
+            <div class="header__right__auth">
+              <a href="{% url 'login' %}">Login</a>
+              <a href="{% url 'register' %}">Get Started</a>
+            </div>
+          </div>
+        </div>
+      {% endif %}
+    </div>
+
+    <div class="canvas__open">
+      <i class="fa fa-bars"></i>
+    </div>
+  </div>
+</header> 

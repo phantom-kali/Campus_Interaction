@@ -13,6 +13,30 @@ const PostsState = {
     }
 };
 
+const initFloatingButton = () => {
+    const createBtn = document.querySelector('.floating-create-btn');
+    let lastScrollTop = 0;
+    let ticking = false;
+
+    window.addEventListener('scroll', () => {
+        if (!ticking) {
+            window.requestAnimationFrame(() => {
+                const st = window.scrollY || document.documentElement.scrollTop;
+                
+                if (st < lastScrollTop || st < 100) {
+                    createBtn?.classList.remove('hidden');
+                } else if (st > lastScrollTop) {
+                    createBtn?.classList.add('hidden');
+                }
+                
+                lastScrollTop = st <= 0 ? 0 : st;
+                ticking = false;
+            });
+            ticking = true;
+        }
+    });
+};
+
 const postTemplate = document.getElementById('postTemplate');
 const postsContainer = document.getElementById('postsContainer');
 const loadMoreBtn = document.getElementById('loadMoreBtn');
@@ -67,6 +91,7 @@ function initInfiniteScroll() {
         window.postsObserver.observe(loadMoreBtn);
     }
 }
+
 
 async function loadPosts(filter = 'all', reset = false) {
     if (PostsState.loading) return;
@@ -406,6 +431,7 @@ document.addEventListener('DOMContentLoaded', () => {
     loadPosts();
     initInfiniteScroll();
     initFilterHandlers();
+    initFloatingButton();
 
     window.removeEventListener('changeFilter', null);
 

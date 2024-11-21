@@ -5,95 +5,25 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{% block title %}CampHub{% endblock %}</title>
+    
     <!-- CSRF Token Meta -->
     {% csrf_token %}
     <meta name="csrf-token" content="{{ csrf_token }}" />
-    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
-    <!-- Font Awesome -->
-    <link
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
-      rel="stylesheet"
-    />
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
-    />
 
+    <!-- Third-party CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/7.1.0/mdb.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.2.0/fonts/remixicon.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bootstrap-4/bootstrap-4.css" rel="stylesheet" />
+    
     <!-- Google Fonts -->
-    <link
-      href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap"
-      rel="stylesheet"
-    />
-    <!-- MDB CSS -->
-    <link
-      href="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/7.1.0/mdb.min.css"
-      rel="stylesheet"
-    />
-    <!-- jQuery (required for AJAX setup) -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
-    <link
-      href="https://cdn.jsdelivr.net/npm/remixicon@3.2.0/fonts/remixicon.css"
-      rel="stylesheet"
-    />
-    <!-- Main CSS -->
-    <link
-      rel="stylesheet"
-      href="{% static '/css/marketplace/add_items.css' %}"
-    />
-    <!-- Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Host+Grotesk:ital,wght@0,300..800;1,300..800&family=Mansalva&family=Oleo+Script:wght@400;700&family=Pacifico&display=swap"
-      rel="stylesheet"
-    />
-    <!-- feed interaction dependencies -->
-    <link
-      href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bootstrap-4/bootstrap-4.css"
-      rel="stylesheet"
-    />
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
-    <!-- CSRF Token Setup for AJAX -->
-    <script>
-      $(document).ready(function () {
-        // Function to get cookie by name
-        function getCookie(name) {
-          let cookieValue = null;
-          if (document.cookie && document.cookie !== "") {
-            const cookies = document.cookie.split(";");
-            for (let i = 0; i < cookies.length; i++) {
-              const cookie = cookies[i].trim();
-              if (cookie.substring(0, name.length + 1) === name + "=") {
-                cookieValue = decodeURIComponent(
-                  cookie.substring(name.length + 1)
-                );
-                break;
-              }
-            }
-          }
-          return cookieValue;
-        }
-
-        // Set up CSRF token for all AJAX requests
-        const csrftoken = getCookie("csrftoken");
-
-        $.ajaxSetup({
-          beforeSend: function (xhr, settings) {
-            if (!this.crossDomain) {
-              xhr.setRequestHeader("X-CSRFToken", csrftoken);
-            }
-          },
-        });
-      });
-    </script>
-
-    {% block extra_css %}
-    <link
-      rel="stylesheet"
-      href="{% static 'vendor/slicknav/slicknav.min.css' %}"
-    />
-    {% endblock %}
+    <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Host+Grotesk:ital,wght@0,300..800;1,300..800&family=Mansalva&family=Oleo+Script:wght@400;700&family=Pacifico&display=swap" rel="stylesheet" />
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{% static '/css/marketplace/add_items.css' %}" />
+    
+    <link rel="stylesheet" href="{% static 'css/base.css' %}" />
   </head>
 
   <body>
@@ -991,108 +921,20 @@
     <!-- Search End -->
     <!-- Main Content -->
     <div class="container1">
-      {% if messages %} {% for message in messages %}
-      <div
-        class="alert alert-{{ message.tags }} alert-dismissible fade show"
-        role="alert"
-      >
-        {{ message }}
-        <button
-          type="button"
-          class="btn-close"
-          data-mdb-dismiss="alert"
-          aria-label="Close"
-        ></button>
-      </div>
-      {% endfor %} {% endif %} {% block content %}{% endblock %}
+      {% include 'partials/_messages.html' %}
+      {% block content %}{% endblock %}
     </div>
 
-    <!-- MDB JavaScript -->
-    <script
-      type="text/javascript"
-      src="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/7.1.0/mdb.umd.min.js"
-    ></script>
-
-    <script>
-      "use strict";
-
-      (function ($) {
-        /*------------------
-              Preloader
-          --------------------*/
-        $(window).on("load", function () {
-          $(".loader").fadeOut();
-          $("#preloder").delay(200).fadeOut("slow");
-        });
-
-        /*------------------
-              Background Set
-          --------------------*/
-        $(".set-bg").each(function () {
-          var bg = $(this).data("setbg");
-          $(this).css("background-image", "url(" + bg + ")");
-        });
-
-        //Canvas Menu
-        $(".canvas__open").on("click", function () {
-          $(".offcanvas-menu-wrapper").addClass("active");
-          $(".offcanvas-menu-overlay").addClass("active");
-        });
-        $(".offcanvas-menu-overlay, .offcanvas__close").on(
-          "click",
-          function (e) {
-            e.stopPropagation(); // Stop the event from bubbling up
-            $(".offcanvas-menu-wrapper").removeClass("active");
-            $(".offcanvas-menu-overlay").removeClass("active");
-          }
-        );
-        $(".offcanvas-menu-wrapper").on("click", function (e) {
-          e.stopPropagation(); // Stop the event from bubbling up
-        });
-
-        /*------------------
-          Navigation
-        --------------------*/
-        $(".header__menu").slicknav({
-          prependTo: "#mobile-menu-wrap",
-          allowParentLinks: true,
-        });
-
-        /*------------------
-              Accordin Active
-          --------------------*/
-        $(".collapse").on("shown.bs.collapse", function () {
-          $(this).prev().addClass("active");
-        });
-
-        $(".collapse").on("hidden.bs.collapse", function () {
-          $(this).prev().removeClass("active");
-        });
-
-        /*------------------
-          Magnific
-          --------------------*/
-        $(".image-popup").magnificPopup({
-          type: "image",
-        });
-
-        $(".nice-scroll").niceScroll({
-          cursorborder: "",
-          cursorcolor: "#dddddd",
-          boxzoom: false,
-          cursorwidth: 5,
-          background: "rgba(0, 0, 0, 0.2)",
-          cursorborderradius: 50,
-          horizrailenabled: false,
-        });
-      })(jQuery);
-    </script>
-    <!-- Add before closing </body> tag -->
+    <!-- Third-party JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/7.1.0/mdb.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
 
-    {% block extra_js %}
-    <script src="{% static 'vendor/jquery/jquery-3.3.1.min.js' %}"></script>
-    <script src="{% static 'vendor/slicknav/jquery.slicknav.min.js' %}"></script>
-    {% endblock %}
+    {% block extra_js %}{% endblock %}
+    
+    <!-- Custom JavaScript -->
+    <script src="{% static 'js/base.js' %}"></script>
   </body>
 </html>

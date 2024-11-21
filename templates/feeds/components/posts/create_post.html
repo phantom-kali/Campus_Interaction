@@ -3,22 +3,18 @@
         <div class="d-flex align-items-center">
             <img src="{{ user.profile.get_avatar_url }}" class="rounded-circle shadow-2 me-3"
                 alt="{{ user.username }}'s avatar" width="48" height="48" style="object-fit: cover;">
-            <a href="{% url 'feeds:create_post' %}"
-                class="form-control form-control-lg bg-light border-0 rounded-pill text-muted"
-                style="cursor: pointer;" data-mdb-ripple-init>
+            <a href="{% url 'feeds:create_post' %}" 
+               class="form-control form-control-lg bg-light border-0 rounded-pill text-muted"
+               style="cursor: pointer;">
                 <i class="far fa-edit me-2"></i>What's on your mind?
             </a>
         </div>
-        <div class="d-flex justify-content-around mt-3 pt-3 border-top">
-            <button class="btn btn-link text-muted" data-mdb-ripple-init data-mdb-ripple-color="dark">
-                <i class="fas fa-image me-2"></i>Photo
-            </button>
-            <button class="btn btn-link text-muted" data-mdb-ripple-init data-mdb-ripple-color="dark">
-                <i class="fas fa-video me-2"></i>Video
-            </button>
-            <button class="btn btn-link text-muted" data-mdb-ripple-init data-mdb-ripple-color="dark">
-                <i class="fas fa-smile me-2"></i>Feeling
-            </button>
-        </div>
     </div>
 </div>
+
+<!-- Floating Create Post Button -->
+<a href="{% url 'feeds:create_post' %}" 
+   class="btn btn-primary btn-floating btn-lg floating-create-btn shadow-4-strong"
+   data-mdb-ripple-init>
+    <i class="fas fa-plus"></i>
+</a>
